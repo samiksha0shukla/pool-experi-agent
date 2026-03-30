@@ -1,0 +1,38 @@
+{
+  "name": "pool-agent",
+  "version": "1.0.0",
+  "description": "Pool Agent CLI - Screenshot intelligence agent",
+  "type": "module",
+  "scripts": {
+    "start": "tsx src/cli.ts",
+    "dev": "tsx watch src/cli.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/chokidar": "^1.7.5",
+    "@types/figlet": "^1.7.0",
+    "@types/node": "^25.5.0",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2"
+  },
+  "dependencies": {
+    "@ai-sdk/google": "^3.0.53",
+    "ai": "^6.0.140",
+    "boxen": "^8.0.1",
+    "chalk": "^5.6.2",
+    "chokidar": "^5.0.0",
+    "cli-table3": "^0.6.5",
+    "dotenv": "^17.3.1",
+    "figlet": "^1.11.0",
+    "glob": "^13.0.6",
+    "gradient-string": "^3.0.0",
+    "inquirer": "^12.11.1",
+    "marked": "^15.0.12",
+    "marked-terminal": "^7.3.0",
+    "open": "^10.2.0",
+    "ora": "^8.2.0",
+    "zod": "^4.3.6"
+  }
+}
