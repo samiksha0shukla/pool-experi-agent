@@ -5,65 +5,116 @@ import type { ScreenshotMeta } from "../store.js";
 // ── Schema for vision analysis output ──
 
 const UserFactSchema = z.object({
-  fact: z.string().describe("What kind of fact: name, location, music_platform, liked_artist, genre_preference, travel_interest, food_preference, etc."),
+  fact: z.string().describe("Fact type: name, location, music_platform, liked_artist, genre_preference, travel_interest, food_preference, etc."),
   value: z.string().describe("The actual value extracted"),
   evidence: z.string().describe("What in the screenshot proves this fact"),
-  confidence: z.number().min(0).max(1).describe("How confident: 0.0 to 1.0"),
+  confidence: z.number().min(0).max(1).describe("Confidence: 0.0 to 1.0"),
 });
 
+const SongSchema = z.object({
+  title: z.string(),
+  artist: z.string(),
+});
+
+const EntitiesSchema = z.object({
+  // Music
+  platform: z.string().optional().describe("Streaming platform: Spotify, YouTube Music, Apple Music, etc."),
+  songs: z.array(SongSchema).optional().describe("Songs visible in the screenshot"),
+  artists: z.array(z.string()).optional().describe("Artist names visible"),
+  album: z.string().optional().describe("Album name if visible"),
+  playlistName: z.string().optional().describe("Playlist name if visible"),
+  genres: z.array(z.string()).optional().describe("Music genres visible or inferable"),
+  // Travel
+  destination: z.string().optional().describe("Travel destination"),
+  hotel: z.string().optional().describe("Hotel name"),
+  airline: z.string().optional().describe("Airline name"),
+  dates: z.string().optional().describe("Travel dates"),
+  price: z.string().optional().describe("Price or price range"),
+  activity: z.string().optional().describe("Activity or attraction"),
+  origin: z.string().optional().describe("Origin city for flights"),
+  // Food
+  restaurant: z.string().optional().describe("Restaurant name"),
+  cuisine: z.string().optional().describe("Cuisine type"),
+  // Shopping
+  productName: z.string().optional().describe("Product name"),
+  brand: z.string().optional().describe("Brand name"),
+  // General
+  personName: z.string().optional().describe("Person's name visible"),
+  location: z.string().optional().describe("Location visible"),
+  date: z.string().optional().describe("Date visible"),
+  url: z.string().optional().describe("URL visible in screenshot"),
+}).passthrough();
+
 const ScreenshotAnalysisSchema = z.object({
-  description: z.string().describe("One-line human description of what this screenshot shows"),
+  summary: z.string().describe("One-line summary of the screenshot (max 100 chars)"),
+  detailedDescription: z.string().describe("Detailed 3-5 sentence description covering everything visible in the screenshot — all text, UI elements, content, context, colors, layout. Be thorough."),
+  sourceApp: z.string().describe("Which app or website this screenshot is from. Examples: Spotify, YouTube Music, Apple Music, Instagram, Google Flights, Booking.com, WhatsApp, Safari, Chrome, Settings, unknown. Detect from UI elements, logos, color schemes, navigation bars."),
   category: z.enum(["music", "travel", "food", "shopping", "personal", "other"]),
-  entities: z.record(z.unknown()).describe("Extracted entities: for music = songs/artists/album/platform, for travel = destination/hotel/dates/prices, etc."),
+  entities: EntitiesSchema,
   user_facts: z.array(UserFactSchema).describe("Facts about the user directly visible in the screenshot"),
 });
 
 export type ScreenshotAnalysis = z.infer<typeof ScreenshotAnalysisSchema>;
 export type UserFact = z.infer<typeof UserFactSchema>;
 
-// ── The analysis prompt (from architecture doc) ──
+// ── The analysis prompt ──
 
-const ANALYSIS_PROMPT = `Analyze this screenshot. Extract structured information from it.
+const ANALYSIS_PROMPT = `Analyze this screenshot thoroughly. Extract ALL structured information from it.
 
-Focus on:
-- What the screenshot shows (description)
-- Category: is this music, travel, food, shopping, personal, or other?
-- Entities: extract ALL relevant named entities visible
-  - For music: song names, artist names, album names, playlist names, streaming platform (Spotify/YouTube Music/Apple Music/etc.)
-  - For travel: destination, hotel name, flight details, dates, prices, airlines, activities
-  - For food: restaurant name, cuisine type, location, price range
-  - For personal: names visible, locations, dates
-  - For other: whatever is relevant
-- User facts: what can we learn about the OWNER of this phone from this screenshot?
-  - Their name (from tickets, boarding passes, app profiles)
-  - Their music platform (which app is this screenshot from?)
-  - Their music taste (what genres/artists are visible?)
-  - Their travel interests (what destinations are they looking at?)
-  - Their location (what city are they in or from?)
-  - Their food preferences (what cuisine are they browsing?)
+You must provide:
+
+1. **summary**: A short one-line summary (under 100 characters).
+
+2. **detailedDescription**: A thorough 3-5 sentence description of EVERYTHING visible in the screenshot. Include:
+   - What app/website it's from and how you can tell (UI elements, logos, colors)
+   - All visible text, numbers, names, titles
+   - The layout and what sections are shown
+   - Any actionable information (dates, prices, locations, contact info)
+   - The context: what is the user doing or looking at?
+   Be specific — mention exact text, exact numbers, exact names. Don't be vague.
+
+3. **sourceApp**: Identify which app or website this screenshot is from. Look at:
+   - App navigation bars, status bars, icons
+   - Color schemes (Spotify = green/black, Instagram = gradient, YouTube Music = red)
+   - UI patterns (bottom nav tabs, player controls, search bars)
+   - Logos, watermarks, branding
+   - URL bars if visible
+   Return the app name: "Spotify", "YouTube Music", "Apple Music", "Instagram", "Google Flights", "Booking.com", "WhatsApp", "Safari", "Chrome", "Google Maps", "Amazon", "Flipkart", etc.
+   If you truly cannot identify it, return "unknown".
+
+4. **category**: music, travel, food, shopping, personal, or other.
+
+5. **entities**: Extract ALL named entities relevant to the category. Fill in every field that applies.
+
+6. **user_facts**: What can we learn about the phone's OWNER from this screenshot? Look for:
+   - Their name (tickets, boarding passes, profiles, login screens)
+   - Their music platform preference (which music app?)
+   - Their music taste (genres, artists they follow/listen to)
+   - Their travel interests (destinations they're searching)
+   - Their home city (flight origins, delivery addresses)
+   - Their food preferences (cuisine types they browse)
+   - Their language preference (app language, content language)
 
 RULES:
-- Be factual. Only extract what is VISIBLE in the screenshot.
-- Never guess or assume facts that aren't directly evidenced.
-- For music: ALWAYS note which platform the screenshot is from if visible.
-- For travel: ALWAYS extract destination, dates, and prices if visible.
-- Confidence scoring: 0.9+ = clearly visible text/data, 0.7-0.9 = visible but partially obscured, 0.5-0.7 = inferred from context.
-- Below 0.5 confidence = don't include.`;
+- Be factual. Only extract what is VISIBLE.
+- Never guess or hallucinate information not shown.
+- For the detailed description: be exhaustive. Mention every piece of visible text and data.
+- Confidence: 0.9+ = clearly readable, 0.7-0.9 = partially visible, 0.5-0.7 = inferred from context.
+- Below 0.5 confidence = don't include in user_facts.`;
 
 // ── Run analysis on a screenshot ──
 
 export async function analyzeScreenshot(
   screenshotPath: string
 ): Promise<ScreenshotAnalysis> {
-  const analysis = await analyzeImageJSON<ScreenshotAnalysis>(
+  return analyzeImageJSON<ScreenshotAnalysis>(
     screenshotPath,
     ANALYSIS_PROMPT,
     ScreenshotAnalysisSchema
   );
-  return analysis;
 }
 
-// ── Update screenshot metadata with analysis results ──
+// ── Apply analysis results to screenshot metadata ──
 
 export function applyAnalysis(
   meta: ScreenshotMeta,
@@ -71,9 +122,13 @@ export function applyAnalysis(
 ): ScreenshotMeta {
   return {
     ...meta,
-    description: analysis.description,
-    category: analysis.category,
-    entities: analysis.entities,
     analyzed: true,
+    analyzedAt: new Date().toISOString(),
+    sourceApp: analysis.sourceApp,
+    category: analysis.category,
+    summary: analysis.summary,
+    detailedDescription: analysis.detailedDescription,
+    entities: analysis.entities,
+    userFacts: analysis.user_facts,
   };
 }

@@ -1,48 +1,19 @@
-import { getProfile, saveProfile } from "../store.js";
+import {
+  getProfile,
+  saveProfile,
+  type UserProfile,
+  type ProfileFact,
+  type GenreEntry,
+  type ArtistEntry,
+  type SongEntry,
+  type PlaylistEntry,
+  type TravelInterest,
+} from "../store.js";
 import type { ScreenshotAnalysis, UserFact } from "./analyze.js";
 
-// ── Types for profile structure ──
-
-interface ProfileFact {
-  value: string;
-  confidence: number;
-  sources: string[];
-  evidence: string;
-}
-
-interface GenreEntry {
-  genre: string;
-  strength: number;
-  artistCount: number;
-}
-
-interface ArtistEntry {
-  name: string;
-  mentions: number;
-  sources: string[];
-}
-
-interface SongEntry {
-  title: string;
-  artist: string;
-  source: string;
-}
-
-interface TravelInterest {
-  destination: string;
-  strength: number;
-  screenshotCount: number;
-  lastSeen: string;
-  details: {
-    hotelsSaved: string[];
-    activitiesSaved: string[];
-    foodSaved: string[];
-    datesDetected: string[];
-    budgetSignals: string[];
-  };
-}
-
-// ── Update profile from screenshot analysis ──
+// ══════════════════════════════════════════════════════════════
+// UPDATE PROFILE FROM SCREENSHOT ANALYSIS
+// ══════════════════════════════════════════════════════════════
 
 export async function updateProfileFromAnalysis(
   screenshotId: string,
@@ -52,209 +23,237 @@ export async function updateProfileFromAnalysis(
   let factsAdded = 0;
   let factsReinforced = 0;
 
-  // Process user_facts from the analysis
+  // 1. Process explicit user_facts from vision analysis
   for (const fact of analysis.user_facts) {
-    if (fact.confidence < 0.5) continue; // skip low confidence
-
-    const result = applyFact(profile, screenshotId, fact);
+    if (fact.confidence < 0.5) continue;
+    const result = applyUserFact(profile, screenshotId, fact);
     if (result === "added") factsAdded++;
     if (result === "reinforced") factsReinforced++;
   }
 
-  // Process entities for domain-specific profile enrichment
+  // 2. Domain-specific enrichment from entities
   if (analysis.category === "music") {
-    enrichMusicProfile(profile, screenshotId, analysis);
+    const r = enrichMusicProfile(profile, screenshotId, analysis);
+    factsAdded += r.added;
+    factsReinforced += r.reinforced;
   } else if (analysis.category === "travel") {
-    enrichTravelProfile(profile, screenshotId, analysis);
+    const r = enrichTravelProfile(profile, screenshotId, analysis);
+    factsAdded += r.added;
+    factsReinforced += r.reinforced;
   } else if (analysis.category === "food") {
-    enrichFoodProfile(profile, screenshotId, analysis);
+    enrichFoodProfile(profile, analysis);
   }
 
-  // Update meta
-  const totalScreenshots = ((profile.totalScreenshots as number) || 0) + 1;
-  profile.totalScreenshots = totalScreenshots;
+  // 3. Update general signals from category patterns
+  updateGeneralSignals(profile, analysis);
+
+  // 4. Bump meta
+  profile.totalScreenshots++;
+  profile.profileVersion++;
   profile.lastUpdated = new Date().toISOString();
 
   await saveProfile(profile);
   return { factsAdded, factsReinforced };
 }
 
-// ── Update profile from conversation (user explicitly says things) ──
+// ══════════════════════════════════════════════════════════════
+// UPDATE PROFILE FROM CONVERSATION
+// ══════════════════════════════════════════════════════════════
 
 export async function updateProfileFromConversation(
   query: string,
-  response: string
+  _response: string
 ): Promise<number> {
-  // We use the LLM to extract facts from conversation in the orchestrator.
-  // This is a lighter version that catches obvious patterns.
   const profile = await getProfile();
   let updated = 0;
 
   const q = query.toLowerCase();
 
-  // Direct identity corrections
-  if (q.includes("my name is ") || q.includes("i'm ") || q.includes("i am ")) {
-    const nameMatch = query.match(/(?:my name is|i'm|i am)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
-    if (nameMatch) {
-      setIdentityFact(profile, "name", nameMatch[1], 1.0, "conversation", "user stated directly");
+  // ── Name ──
+  const nameMatch = query.match(/(?:my name is|i'm|i am|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i);
+  if (nameMatch) {
+    setIdentityFact(profile, "name", nameMatch[1], 1.0, "conversation", "user stated directly");
+    updated++;
+  }
+
+  // ── Location ──
+  const locMatch = query.match(/(?:i live in|i'm from|i am from|based in|located in)\s+([A-Z][a-z]+(?:[\s,]+[A-Z][a-z]+)*)/i);
+  if (locMatch) {
+    setIdentityFact(profile, "location", locMatch[1], 1.0, "conversation", "user stated directly");
+    updated++;
+  }
+
+  // ── Food preferences ──
+  if (/\b(vegetarian|vegan|non-veg|pescatarian|gluten.free)\b/i.test(q)) {
+    const match = q.match(/\b(vegetarian|vegan|non-veg|pescatarian|gluten.free)\b/i);
+    if (match && !profile.general.foodPreferences.some(
+      (p) => p.toLowerCase() === match[1].toLowerCase()
+    )) {
+      profile.general.foodPreferences.push(match[1]);
       updated++;
     }
   }
 
-  // Food preference corrections
-  if (q.includes("vegetarian") || q.includes("vegan") || q.includes("non-veg")) {
-    const general = ensureObj(profile, "general");
-    const prefs = ensureArray(general, "foodPreferences") as string[];
-    if (q.includes("vegetarian") && !prefs.includes("vegetarian")) {
-      prefs.push("vegetarian");
+  // ── Music platform preference ──
+  const platMatch = q.match(/i (?:use|prefer|listen on|like)\s+(spotify|youtube music|apple music|amazon music)/i);
+  if (platMatch) {
+    profile.music.preferredPlatform = {
+      value: platMatch[1],
+      confidence: 1.0,
+      sources: ["conversation"],
+      evidence: "user stated directly",
+    };
+    updated++;
+  }
+
+  // ── Context-based listening ──
+  const contextMatch = query.match(/(?:i (?:prefer|like|listen to))\s+(.+?)\s+(?:when|while|for)\s+(working|studying|sleeping|driving|exercising|cooking)/i);
+  if (contextMatch) {
+    profile.music.listeningPatterns.contextPreferences[contextMatch[2].toLowerCase()] = contextMatch[1];
+    updated++;
+  }
+
+  // ── Budget style ──
+  if (/\b(budget|luxury|mid.range|backpack|premium)\b/i.test(q) && /\b(travel|trip|hotel)\b/i.test(q)) {
+    const budgetMatch = q.match(/\b(budget|luxury|mid-range|backpacker|premium)\b/i);
+    if (budgetMatch) {
+      profile.general.budgetStyle = budgetMatch[1];
       updated++;
     }
-    if (q.includes("vegan") && !prefs.includes("vegan")) {
-      prefs.push("vegan");
-      updated++;
-    }
+  }
+
+  // ── Language ──
+  const langMatch = query.match(/i speak\s+(.+?)(?:\.|$)/i);
+  if (langMatch) {
+    profile.general.language = langMatch[1].trim();
+    updated++;
   }
 
   if (updated > 0) {
+    profile.profileVersion++;
     profile.lastUpdated = new Date().toISOString();
     await saveProfile(profile);
   }
   return updated;
 }
 
-// ── Internal helpers ──
+// ══════════════════════════════════════════════════════════════
+// FACT ROUTING
+// ══════════════════════════════════════════════════════════════
 
-function applyFact(
-  profile: Record<string, unknown>,
+function applyUserFact(
+  profile: UserProfile,
   screenshotId: string,
   fact: UserFact
 ): "added" | "reinforced" | "skipped" {
   switch (fact.fact) {
     case "name":
     case "location":
-      return applyIdentityFact(profile, fact.fact, fact.value, fact.confidence, screenshotId, fact.evidence);
+      return setIdentityFact(profile, fact.fact, fact.value, fact.confidence, screenshotId, fact.evidence);
 
     case "music_platform":
-      return applyMusicPlatform(profile, fact.value, fact.confidence, screenshotId);
+      return setMusicPlatform(profile, fact.value, fact.confidence, screenshotId);
 
     case "liked_artist":
     case "favorite_artist":
-      return applyArtist(profile, fact.value, screenshotId);
+      return addArtist(profile, fact.value, screenshotId);
 
     case "genre_preference":
-      return applyGenre(profile, fact.value);
+      return addGenre(profile, fact.value);
 
     case "travel_interest":
-      return applyTravelInterest(profile, fact.value, screenshotId);
+      return addTravelInterest(profile, fact.value, screenshotId);
 
     case "food_preference":
-      return applyFoodPreference(profile, fact.value);
+      return addFoodPreference(profile, fact.value);
+
+    case "language":
+    case "language_preference":
+      if (!profile.music.listeningPatterns.languages.includes(fact.value)) {
+        profile.music.listeningPatterns.languages.push(fact.value);
+      }
+      if (!profile.general.language) {
+        profile.general.language = fact.value;
+      }
+      return "added";
 
     default:
       return "skipped";
   }
 }
 
-function applyIdentityFact(
-  profile: Record<string, unknown>,
-  key: string,
-  value: string,
-  confidence: number,
-  source: string,
-  evidence: string
-): "added" | "reinforced" {
-  return setIdentityFact(profile, key, value, confidence, source, evidence);
-}
+// ══════════════════════════════════════════════════════════════
+// IDENTITY FACTS
+// ══════════════════════════════════════════════════════════════
 
 function setIdentityFact(
-  profile: Record<string, unknown>,
+  profile: UserProfile,
   key: string,
   value: string,
   confidence: number,
   source: string,
   evidence: string
 ): "added" | "reinforced" {
-  const identity = ensureObj(profile, "identity");
-  const existing = identity[key] as ProfileFact | undefined;
+  const existing = profile.identity[key];
 
   if (existing && existing.value.toLowerCase() === value.toLowerCase()) {
-    // Reinforce
-    existing.confidence = Math.min(1.0, existing.confidence + 0.05);
-    if (!existing.sources.includes(source)) {
-      existing.sources.push(source);
-    }
-    return "reinforced";
-  }
-
-  // New fact (or override if higher confidence)
-  if (!existing || confidence > existing.confidence) {
-    identity[key] = {
-      value,
-      confidence,
-      sources: [source],
-      evidence,
-    } satisfies ProfileFact;
-    return "added";
-  }
-  return "reinforced";
-}
-
-function applyMusicPlatform(
-  profile: Record<string, unknown>,
-  platform: string,
-  confidence: number,
-  source: string
-): "added" | "reinforced" {
-  const music = ensureObj(profile, "music");
-  const existing = music.preferredPlatform as ProfileFact | null | undefined;
-
-  if (existing?.value?.toLowerCase() === platform.toLowerCase()) {
     existing.confidence = Math.min(1.0, existing.confidence + 0.05);
     if (!existing.sources.includes(source)) existing.sources.push(source);
     return "reinforced";
   }
 
-  if (!existing?.value || confidence > (existing?.confidence || 0)) {
-    music.preferredPlatform = {
-      value: platform,
-      confidence,
-      sources: [source],
-      evidence: `Detected from screenshot`,
-    } satisfies ProfileFact;
+  if (!existing || confidence > existing.confidence) {
+    profile.identity[key] = { value, confidence, sources: [source], evidence };
     return "added";
   }
   return "reinforced";
 }
 
-function applyArtist(
-  profile: Record<string, unknown>,
-  artistName: string,
+// ══════════════════════════════════════════════════════════════
+// MUSIC PROFILE
+// ══════════════════════════════════════════════════════════════
+
+function setMusicPlatform(
+  profile: UserProfile,
+  platform: string,
+  confidence: number,
   source: string
 ): "added" | "reinforced" {
-  const music = ensureObj(profile, "music");
-  const artists = ensureArray(music, "favoriteArtists") as ArtistEntry[];
+  const existing = profile.music.preferredPlatform;
 
-  const existing = artists.find(
-    (a) => a.name.toLowerCase() === artistName.toLowerCase()
+  if (existing && existing.value.toLowerCase() === platform.toLowerCase()) {
+    existing.confidence = Math.min(1.0, existing.confidence + 0.05);
+    if (!existing.sources.includes(source)) existing.sources.push(source);
+    return "reinforced";
+  }
+
+  if (!existing || confidence > existing.confidence) {
+    profile.music.preferredPlatform = {
+      value: platform,
+      confidence,
+      sources: [source],
+      evidence: "Detected from screenshot",
+    };
+    return "added";
+  }
+  return "reinforced";
+}
+
+function addArtist(profile: UserProfile, name: string, source: string): "added" | "reinforced" {
+  const existing = profile.music.favoriteArtists.find(
+    (a) => a.name.toLowerCase() === name.toLowerCase()
   );
   if (existing) {
     existing.mentions++;
     if (!existing.sources.includes(source)) existing.sources.push(source);
     return "reinforced";
   }
-
-  artists.push({ name: artistName, mentions: 1, sources: [source] });
+  profile.music.favoriteArtists.push({ name, mentions: 1, sources: [source] });
   return "added";
 }
 
-function applyGenre(
-  profile: Record<string, unknown>,
-  genre: string
-): "added" | "reinforced" {
-  const music = ensureObj(profile, "music");
-  const genres = ensureArray(music, "genres") as GenreEntry[];
-
-  const existing = genres.find(
+function addGenre(profile: UserProfile, genre: string): "added" | "reinforced" {
+  const existing = profile.music.genres.find(
     (g) => g.genre.toLowerCase() === genre.toLowerCase()
   );
   if (existing) {
@@ -262,20 +261,32 @@ function applyGenre(
     existing.artistCount++;
     return "reinforced";
   }
-
-  genres.push({ genre, strength: 0.5, artistCount: 1 });
+  profile.music.genres.push({ genre, strength: 0.5, artistCount: 1 });
   return "added";
 }
 
-function applyTravelInterest(
-  profile: Record<string, unknown>,
+function addSong(profile: UserProfile, title: string, artist: string, source: string): void {
+  if (!profile.music.likedSongs.some((s) => s.title.toLowerCase() === title.toLowerCase())) {
+    profile.music.likedSongs.push({ title, artist, source });
+  }
+}
+
+function addPlaylist(profile: UserProfile, name: string, platform: string, source: string): void {
+  if (!profile.music.playlistsSeen.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
+    profile.music.playlistsSeen.push({ name, platform, source });
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
+// TRAVEL PROFILE
+// ══════════════════════════════════════════════════════════════
+
+function addTravelInterest(
+  profile: UserProfile,
   destination: string,
   source: string
 ): "added" | "reinforced" {
-  const travel = ensureObj(profile, "travel");
-  const interests = ensureArray(travel, "interests") as TravelInterest[];
-
-  const existing = interests.find(
+  const existing = profile.travel.interests.find(
     (i) => i.destination.toLowerCase() === destination.toLowerCase()
   );
   if (existing) {
@@ -284,8 +295,7 @@ function applyTravelInterest(
     existing.lastSeen = new Date().toISOString();
     return "reinforced";
   }
-
-  interests.push({
+  profile.travel.interests.push({
     destination,
     strength: 0.5,
     screenshotCount: 1,
@@ -301,152 +311,215 @@ function applyTravelInterest(
   return "added";
 }
 
-function applyFoodPreference(
-  profile: Record<string, unknown>,
-  preference: string
-): "added" | "reinforced" {
-  const general = ensureObj(profile, "general");
-  const prefs = ensureArray(general, "foodPreferences") as string[];
-
-  if (prefs.some((p) => p.toLowerCase() === preference.toLowerCase())) {
+function addFoodPreference(profile: UserProfile, pref: string): "added" | "reinforced" {
+  if (profile.general.foodPreferences.some((p) => p.toLowerCase() === pref.toLowerCase())) {
     return "reinforced";
   }
-  prefs.push(preference);
+  profile.general.foodPreferences.push(pref);
   return "added";
 }
 
-// ── Domain-specific enrichment from entities ──
+// ══════════════════════════════════════════════════════════════
+// DOMAIN-SPECIFIC ENRICHMENT FROM ENTITIES
+// ══════════════════════════════════════════════════════════════
 
 function enrichMusicProfile(
-  profile: Record<string, unknown>,
+  profile: UserProfile,
   screenshotId: string,
   analysis: ScreenshotAnalysis
-): void {
-  const music = ensureObj(profile, "music");
-  const entities = analysis.entities as Record<string, unknown>;
+): { added: number; reinforced: number } {
+  let added = 0;
+  let reinforced = 0;
+  const e = analysis.entities;
 
-  // Extract songs
-  const songs = entities.songs as Array<{ title?: string; name?: string; artist?: string }> | undefined;
-  if (songs && Array.isArray(songs)) {
-    const likedSongs = ensureArray(music, "likedSongs") as SongEntry[];
-    for (const song of songs) {
-      const title = song.title || song.name || "";
+  // Songs
+  if (e.songs && Array.isArray(e.songs)) {
+    for (const song of e.songs) {
+      const title = song.title || "";
       const artist = song.artist || "Unknown";
-      if (title && !likedSongs.some((s) => s.title.toLowerCase() === title.toLowerCase())) {
-        likedSongs.push({ title, artist, source: screenshotId });
-      }
+      if (title) addSong(profile, title, artist, screenshotId);
     }
   }
 
-  // Extract playlist
-  const playlistName = entities.playlist_name || entities.playlistName;
+  // Playlist
+  const playlistName = e.playlistName || (e as Record<string, unknown>).playlist_name;
   if (playlistName && typeof playlistName === "string") {
-    const playlists = ensureArray(music, "playlistsSeen") as Array<{
-      name: string;
-      platform: string;
-      source: string;
-    }>;
-    const platform = (entities.platform as string) || "Unknown";
-    if (!playlists.some((p) => p.name.toLowerCase() === playlistName.toLowerCase())) {
-      playlists.push({ name: playlistName, platform, source: screenshotId });
-    }
+    const platform = e.platform || "Unknown";
+    addPlaylist(profile, playlistName, platform, screenshotId);
   }
 
-  // Extract artists from entities directly
-  const artistNames = entities.artists || entities.artist;
-  if (artistNames) {
-    const arr = Array.isArray(artistNames) ? artistNames : [artistNames];
-    for (const name of arr) {
+  // Artists from entities
+  if (e.artists && Array.isArray(e.artists)) {
+    for (const name of e.artists) {
       if (typeof name === "string") {
-        applyArtist(profile, name, screenshotId);
+        const r = addArtist(profile, name, screenshotId);
+        if (r === "added") added++;
+        else reinforced++;
       }
     }
   }
 
-  // Extract platform
-  const platform = entities.platform || entities.streaming_platform;
-  if (platform && typeof platform === "string") {
-    applyMusicPlatform(profile, platform, 0.85, screenshotId);
+  // Genres from entities
+  if (e.genres && Array.isArray(e.genres)) {
+    for (const g of e.genres) {
+      if (typeof g === "string") {
+        const r = addGenre(profile, g);
+        if (r === "added") added++;
+        else reinforced++;
+      }
+    }
   }
+
+  // Platform from entities
+  if (e.platform && typeof e.platform === "string") {
+    const r = setMusicPlatform(profile, e.platform, 0.85, screenshotId);
+    if (r === "added") added++;
+    else reinforced++;
+  }
+
+  // Source app as platform hint
+  if (analysis.sourceApp) {
+    const appLower = analysis.sourceApp.toLowerCase();
+    const platformMap: Record<string, string> = {
+      spotify: "Spotify",
+      "youtube music": "YouTube Music",
+      "apple music": "Apple Music",
+      "amazon music": "Amazon Music",
+    };
+    const detected = platformMap[appLower];
+    if (detected) {
+      const r = setMusicPlatform(profile, detected, 0.9, screenshotId);
+      if (r === "added") added++;
+      else reinforced++;
+    }
+  }
+
+  // Infer listening patterns from accumulated data
+  inferListeningPatterns(profile);
+
+  return { added, reinforced };
 }
 
 function enrichTravelProfile(
-  profile: Record<string, unknown>,
+  profile: UserProfile,
   screenshotId: string,
   analysis: ScreenshotAnalysis
-): void {
-  const travel = ensureObj(profile, "travel");
-  const entities = analysis.entities as Record<string, unknown>;
+): { added: number; reinforced: number } {
+  let added = 0;
+  let reinforced = 0;
+  const e = analysis.entities;
 
-  const destination = entities.destination as string | undefined;
-  if (destination) {
-    applyTravelInterest(profile, destination, screenshotId);
+  // Destination
+  const destination = e.destination;
+  if (destination && typeof destination === "string") {
+    const r = addTravelInterest(profile, destination, screenshotId);
+    if (r === "added") added++;
+    else reinforced++;
 
-    // Enrich details for existing interest
-    const interests = ensureArray(travel, "interests") as TravelInterest[];
-    const interest = interests.find(
+    // Enrich details
+    const interest = profile.travel.interests.find(
       (i) => i.destination.toLowerCase() === destination.toLowerCase()
     );
     if (interest) {
-      const hotel = entities.hotel || entities.hotel_name;
-      if (hotel && typeof hotel === "string" && !interest.details.hotelsSaved.includes(hotel)) {
-        interest.details.hotelsSaved.push(hotel);
+      if (e.hotel && typeof e.hotel === "string" && !interest.details.hotelsSaved.includes(e.hotel)) {
+        interest.details.hotelsSaved.push(e.hotel);
       }
-
-      const activity = entities.activity || entities.attraction;
-      if (activity && typeof activity === "string" && !interest.details.activitiesSaved.includes(activity)) {
-        interest.details.activitiesSaved.push(activity);
+      if (e.activity && typeof e.activity === "string" && !interest.details.activitiesSaved.includes(e.activity)) {
+        interest.details.activitiesSaved.push(e.activity);
       }
-
-      const dates = entities.dates || entities.date || entities.travel_dates;
-      if (dates && typeof dates === "string" && !interest.details.datesDetected.includes(dates)) {
-        interest.details.datesDetected.push(dates);
+      if (e.dates && typeof e.dates === "string" && !interest.details.datesDetected.includes(e.dates)) {
+        interest.details.datesDetected.push(e.dates);
       }
-
-      const price = entities.price || entities.price_range || entities.budget;
-      if (price && typeof price === "string" && !interest.details.budgetSignals.includes(price)) {
-        interest.details.budgetSignals.push(price);
+      if (e.price && typeof e.price === "string" && !interest.details.budgetSignals.includes(e.price)) {
+        interest.details.budgetSignals.push(e.price);
       }
-
-      const food = entities.restaurant || entities.food;
-      if (food && typeof food === "string" && !interest.details.foodSaved.includes(food)) {
-        interest.details.foodSaved.push(food);
+      if (e.restaurant && typeof e.restaurant === "string" && !interest.details.foodSaved.includes(e.restaurant)) {
+        interest.details.foodSaved.push(e.restaurant);
       }
     }
   }
 
-  // Travel style from hotels
-  const style = ensureObj(travel, "style") as Record<string, string>;
-  const hotelType = entities.hotel_type || entities.accommodation_type;
-  if (hotelType && typeof hotelType === "string" && !style.accommodation) {
-    style.accommodation = hotelType;
+  // Travel style from hotel type
+  const hotelType = (e as Record<string, unknown>).hotel_type || (e as Record<string, unknown>).accommodation_type;
+  if (hotelType && typeof hotelType === "string" && !profile.travel.style.accommodation) {
+    profile.travel.style.accommodation = hotelType;
+  }
+
+  // Budget signals → general budget style
+  if (e.price && typeof e.price === "string" && !profile.general.budgetStyle) {
+    const priceLower = e.price.toLowerCase();
+    if (priceLower.includes("budget") || priceLower.includes("cheap")) {
+      profile.general.budgetStyle = "budget";
+    } else if (priceLower.includes("luxury") || priceLower.includes("premium")) {
+      profile.general.budgetStyle = "luxury";
+    }
+  }
+
+  return { added, reinforced };
+}
+
+function enrichFoodProfile(profile: UserProfile, analysis: ScreenshotAnalysis): void {
+  const e = analysis.entities;
+  if (e.cuisine && typeof e.cuisine === "string") {
+    addFoodPreference(profile, e.cuisine);
+  }
+  if (e.restaurant && typeof e.restaurant === "string") {
+    // Restaurant name hints at food preference — but don't add the restaurant name itself as a food pref
   }
 }
 
-function enrichFoodProfile(
-  profile: Record<string, unknown>,
-  _screenshotId: string,
-  analysis: ScreenshotAnalysis
-): void {
-  const entities = analysis.entities as Record<string, unknown>;
-  const cuisine = entities.cuisine || entities.cuisine_type;
-  if (cuisine && typeof cuisine === "string") {
-    applyFoodPreference(profile, cuisine);
+// ══════════════════════════════════════════════════════════════
+// INFER HIGHER-LEVEL PATTERNS FROM ACCUMULATED DATA
+// ══════════════════════════════════════════════════════════════
+
+function inferListeningPatterns(profile: UserProfile): void {
+  const genres = profile.music.genres;
+  if (genres.length === 0) return;
+
+  // Mood preference — infer from genre names
+  const genreNames = genres.map((g) => g.genre.toLowerCase()).join(", ");
+  if (/lo.?fi|chill|ambient|relaxing|acoustic/i.test(genreNames)) {
+    profile.music.listeningPatterns.moodPreference = "chill, relaxed";
+  } else if (/rock|metal|punk|hard/i.test(genreNames)) {
+    profile.music.listeningPatterns.moodPreference = "energetic, intense";
+  } else if (/indie|alternative|folk/i.test(genreNames)) {
+    profile.music.listeningPatterns.moodPreference = "introspective, indie";
+  } else if (/pop|dance|edm|electronic/i.test(genreNames)) {
+    profile.music.listeningPatterns.moodPreference = "upbeat, pop";
+  } else if (/classical|jazz|blues/i.test(genreNames)) {
+    profile.music.listeningPatterns.moodPreference = "sophisticated, mellow";
+  }
+
+  // Energy level
+  if (/lo.?fi|chill|ambient|acoustic|soft|ballad/i.test(genreNames)) {
+    profile.music.listeningPatterns.energyLevel = "low";
+  } else if (/edm|metal|punk|hardcore|drum/i.test(genreNames)) {
+    profile.music.listeningPatterns.energyLevel = "high";
+  } else {
+    profile.music.listeningPatterns.energyLevel = "medium";
   }
 }
 
-// ── Utility: safely ensure nested objects/arrays exist ──
+function updateGeneralSignals(profile: UserProfile, analysis: ScreenshotAnalysis): void {
+  // Track category distribution to infer personality
+  const cat = analysis.category;
+  const signals = profile.general.personalitySignals;
 
-function ensureObj(parent: Record<string, unknown>, key: string): Record<string, unknown> {
-  if (!parent[key] || typeof parent[key] !== "object" || Array.isArray(parent[key])) {
-    parent[key] = {};
-  }
-  return parent[key] as Record<string, unknown>;
-}
+  const signalMap: Record<string, string> = {
+    music: "music enthusiast",
+    travel: "travel-oriented",
+    food: "foodie",
+    shopping: "shopper",
+    personal: "social/personal",
+  };
 
-function ensureArray(parent: Record<string, unknown>, key: string): unknown[] {
-  if (!Array.isArray(parent[key])) {
-    parent[key] = [];
+  const signal = signalMap[cat];
+  if (signal && !signals.includes(signal)) {
+    signals.push(signal);
   }
-  return parent[key] as unknown[];
+
+  // Detect language from sourceApp/content
+  if (analysis.sourceApp) {
+    // Language detection from app names is limited; mainly captured via user_facts
+  }
 }

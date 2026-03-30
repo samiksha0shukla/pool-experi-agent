@@ -56,16 +56,30 @@ async function analyzeAndUpdate(meta: ScreenshotMeta): Promise<void> {
   const spinner = startSpinner("Analyzing screenshot with Gemini Vision...");
   try {
     const analysis = await analyzeScreenshot(meta.localPath);
-    stopSpinner(spinner, `Detected: ${chalk.cyan(analysis.category)} — ${chalk.dim(analysis.description.slice(0, 60))}`);
 
-    // Update screenshot metadata
+    const appLabel = analysis.sourceApp !== "unknown"
+      ? chalk.yellow(analysis.sourceApp)
+      : chalk.dim("unknown app");
+    stopSpinner(
+      spinner,
+      `${chalk.cyan(analysis.category)} from ${appLabel} — ${chalk.dim(analysis.summary.slice(0, 50))}`
+    );
+
+    // Update screenshot metadata with ALL analysis fields
     const updated = applyAnalysis(meta, analysis);
     await updateScreenshot(meta.id, {
-      description: updated.description,
+      analyzed: updated.analyzed,
+      analyzedAt: updated.analyzedAt,
+      sourceApp: updated.sourceApp,
       category: updated.category,
+      summary: updated.summary,
+      detailedDescription: updated.detailedDescription,
       entities: updated.entities,
-      analyzed: true,
+      userFacts: updated.userFacts,
     });
+
+    // Show detailed description
+    log("info", chalk.dim(analysis.detailedDescription.slice(0, 120) + (analysis.detailedDescription.length > 120 ? "..." : "")));
 
     // Update user profile
     const { factsAdded, factsReinforced } = await updateProfileFromAnalysis(meta.id, analysis);
@@ -73,7 +87,7 @@ async function analyzeAndUpdate(meta: ScreenshotMeta): Promise<void> {
       log("profile", `Profile updated: ${chalk.green(`+${factsAdded} new`)}, ${chalk.blue(`${factsReinforced} reinforced`)}`);
     }
 
-    // Show extracted entities
+    // Show extracted user facts
     if (analysis.user_facts.length > 0) {
       for (const fact of analysis.user_facts) {
         log("brain", `${chalk.dim(fact.fact)}: ${chalk.white(fact.value)} ${chalk.dim(`(${(fact.confidence * 100).toFixed(0)}% — ${fact.evidence})`)}`);
@@ -143,6 +157,7 @@ async function uploadFromFolder(): Promise<void> {
         originalPath: file,
         localPath,
         uploadedAt: new Date().toISOString(),
+        fileSizeKB: parseFloat(sizeKB),
         analyzed: false,
       };
 
@@ -163,6 +178,7 @@ async function uploadFromFolder(): Promise<void> {
   logDivider();
   log("success", `Uploaded and analyzed ${chalk.bold(String(success))}/${total} screenshots`);
   log("info", `Stored in: ${chalk.dim(destDir)}`);
+  log("info", `Individual metadata: ${chalk.dim(path.join(destDir, "meta/"))}`);
   blank();
 }
 
@@ -222,6 +238,7 @@ async function uploadFiles(): Promise<void> {
         originalPath: file,
         localPath,
         uploadedAt: new Date().toISOString(),
+        fileSizeKB: parseFloat(sizeKB),
         analyzed: false,
       };
 
@@ -263,29 +280,21 @@ export async function viewScreenshots(): Promise<void> {
     head: [
       chalk.hex("#6C5CE7")("#"),
       chalk.hex("#6C5CE7")("File"),
+      chalk.hex("#6C5CE7")("Source App"),
       chalk.hex("#6C5CE7")("Category"),
-      chalk.hex("#6C5CE7")("Uploaded"),
-      chalk.hex("#6C5CE7")("Analyzed"),
+      chalk.hex("#6C5CE7")("Summary"),
     ],
     style: { head: [], border: ["dim"] },
-    colWidths: [5, 30, 15, 22, 10],
+    colWidths: [5, 25, 16, 10, 30],
   });
 
   screenshots.forEach((s, i) => {
-    const date = new Date(s.uploadedAt);
-    const dateStr = date.toLocaleDateString("en-IN", {
-      day: "2-digit",
-      month: "short",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
     table.push([
       chalk.dim(String(i + 1)),
-      chalk.white(path.basename(s.originalPath).slice(0, 28)),
+      chalk.white(path.basename(s.originalPath).slice(0, 23)),
+      s.sourceApp ? chalk.yellow(s.sourceApp) : chalk.dim("—"),
       s.category ? chalk.cyan(s.category) : chalk.dim("pending"),
-      chalk.dim(dateStr),
-      s.analyzed ? chalk.green("✔") : chalk.yellow("—"),
+      s.summary ? chalk.dim(s.summary.slice(0, 28)) : chalk.dim(s.analyzed ? "—" : "pending"),
     ]);
   });
 
