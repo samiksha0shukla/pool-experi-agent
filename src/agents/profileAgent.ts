@@ -5,7 +5,7 @@
  * Every fact is cited with its source. Gaps are called out honestly.
  */
 
-import { generateText } from "../llm.js";
+import { generateText, type ChatMessage } from "../llm.js";
 
 const SYSTEM_PROMPT = `You are the profile agent for Pool, a screenshot-based personal intelligence app.
 
@@ -38,7 +38,8 @@ ABSOLUTE RULES:
 export async function runProfileAgent(
   query: string,
   profileContext: string,
-  stats: { totalScreenshots: number; analyzedScreenshots: number }
+  stats: { totalScreenshots: number; analyzedScreenshots: number },
+  chatHistory?: ChatMessage[]
 ): Promise<string> {
   const userMessage = `HERE IS THE USER'S COMPLETE PROFILE DATA:
 
@@ -54,5 +55,5 @@ THE USER ASKED: "${query}"
 
 Present their profile as a narrative — connect the dots, highlight strong signals, be honest about gaps, and suggest what screenshots would help fill them.`;
 
-  return generateText(SYSTEM_PROMPT, userMessage);
+  return generateText(SYSTEM_PROMPT, userMessage, chatHistory);
 }

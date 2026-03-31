@@ -89,15 +89,16 @@ export async function updateProfileFromAnalysis(
   }
 
   if (analysis.category === "travel") {
-    // Destination
-    if (e.destination) {
-      count(addTravelInterest(profile, e.destination, screenshotId));
-      enrichTravelDetails(profile, e.destination, e, screenshotId);
+    // Origin city → user's home location FIRST (so we know home before storing destinations)
+    if (e.origin && isValidCityName(e.origin)) {
+      count(setIdentityFact(profile, "location", e.origin, 0.6, screenshotId, "flight origin city"));
     }
 
-    // Origin city → user's home location (weak signal)
-    if (e.origin) {
-      count(setIdentityFact(profile, "location", e.origin, 0.6, screenshotId, "flight origin city"));
+    // Destination — only store if it's a clean city name, not the origin, and not ANY known home city
+    const homeCities = getKnownHomeCities(profile);
+    if (e.destination && isValidDestination(e.destination, e.origin) && !homeCities.has(e.destination.toLowerCase())) {
+      count(addTravelInterest(profile, e.destination, screenshotId));
+      enrichTravelDetails(profile, e.destination, e, screenshotId);
     }
 
     // Travel style from entity signals
@@ -675,4 +676,54 @@ function matchAndApply(
   const match = text.match(pattern);
   if (match) return handler(match);
   return 0;
+}
+
+// ══════════════════════════════════════════════════════════════
+// DESTINATION VALIDATION
+// Prevents garbage like "Bengaluru to Jabalpur", "Flights in April",
+// or origin cities from being stored as travel interests.
+// ══════════════════════════════════════════════════════════════
+
+function getKnownHomeCities(profile: UserProfile): Set<string> {
+  const cities = new Set<string>();
+  // Primary location
+  if (profile.identity.location?.value) {
+    cities.add(profile.identity.location.value.toLowerCase());
+  }
+  // Alt location (could also be home)
+  const alt = profile.identity.location_alt;
+  if (alt?.value && alt.evidence?.toLowerCase().includes("origin")) {
+    cities.add(alt.value.toLowerCase());
+  }
+  return cities;
+}
+
+function isValidDestination(destination: string, origin?: string): boolean {
+  if (!destination || destination.length < 2) return false;
+
+  const d = destination.toLowerCase();
+
+  // Reject routes ("X to Y")
+  if (/\b(to|from)\b/.test(d)) return false;
+
+  // Reject sentences ("Flights in April", "Travel on March 5")
+  if (/\b(flight|travel|booking|search|result|ticket)\b/i.test(d)) return false;
+
+  // Reject if it's just a month or date
+  if (/^(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(d)) return false;
+
+  // Reject if it matches the origin city (origin = home, not a travel interest)
+  if (origin && d === origin.toLowerCase()) return false;
+
+  // Reject if too long (real city names are short)
+  if (destination.length > 40) return false;
+
+  return true;
+}
+
+function isValidCityName(name: string): boolean {
+  if (!name || name.length < 2 || name.length > 40) return false;
+  // Must not contain route words
+  if (/\b(to|from|flight|travel|booking)\b/i.test(name)) return false;
+  return true;
 }

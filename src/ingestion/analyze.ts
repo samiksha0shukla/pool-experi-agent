@@ -24,14 +24,14 @@ const EntitiesSchema = z.object({
   album: z.string().optional().describe("Album name if visible"),
   playlistName: z.string().optional().describe("Playlist name if visible"),
   genres: z.array(z.string()).optional().describe("Music genres visible or inferable"),
-  // Travel
-  destination: z.string().optional().describe("Travel destination"),
+  // Travel — CRITICAL: for flights, origin = where user flies FROM, destination = where user flies TO
+  origin: z.string().optional().describe("The city the user is DEPARTING FROM. For flights this is the departure city (the user's home). Must be a single city name like 'Bengaluru'."),
+  destination: z.string().optional().describe("The city the user is TRAVELING TO — their actual travel destination. Must be a single city name like 'Jabalpur' or 'Tokyo'. NEVER a route like 'X to Y'. NEVER a sentence. Just the destination city name."),
   hotel: z.string().optional().describe("Hotel name"),
   airline: z.string().optional().describe("Airline name"),
   dates: z.string().optional().describe("Travel dates"),
   price: z.string().optional().describe("Price or price range"),
   activity: z.string().optional().describe("Activity or attraction"),
-  origin: z.string().optional().describe("Origin city for flights"),
   // Food
   restaurant: z.string().optional().describe("Restaurant name"),
   cuisine: z.string().optional().describe("Cuisine type"),
@@ -84,7 +84,15 @@ You must provide:
 
 4. **category**: music, travel, food, shopping, personal, or other.
 
-5. **entities**: Extract ALL named entities relevant to the category. Fill in every field that applies.
+5. **entities**: Extract ALL named entities relevant to the category.
+
+   FLIGHT SCREENSHOTS — CRITICAL:
+   When you see a flight search (Google Flights, Skyscanner, MakeMyTrip, etc.) showing "City A → City B":
+   - origin = City A (the departure city — likely the user's home)
+   - destination = City B (where the user wants to go)
+   - destination must be a SINGLE city name like "Jabalpur" — never a route like "X to Y", never a sentence
+   - For return flights (City B → City A): destination is still City B (the place they're visiting)
+   - The origin is the user's HOME CITY, not a travel interest
 
 6. **user_facts**: What can we learn about the phone's OWNER from this screenshot? Look for:
    - Their name (tickets, boarding passes, profiles, login screens)

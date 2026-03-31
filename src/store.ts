@@ -342,6 +342,11 @@ export async function saveConversation(convo: Conversation): Promise<void> {
   await writeJSON(CONVERSATIONS_PATH, convos);
 }
 
+export async function getRecentConversations(limit = 5): Promise<Conversation[]> {
+  const convos = await getConversations();
+  return convos.slice(-limit);
+}
+
 // ══════════════════════════════════════════════════════════════
 // MISC
 // ══════════════════════════════════════════════════════════════

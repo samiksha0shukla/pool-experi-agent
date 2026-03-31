@@ -5,7 +5,7 @@
  * Generates personalized music recommendations with real platform links.
  */
 
-import { generateText } from "../llm.js";
+import { generateText, generateTextWithSearch, type ChatMessage } from "../llm.js";
 
 const SYSTEM_PROMPT = `You are a music discovery agent embedded inside Pool, a screenshot-based personal intelligence app.
 
@@ -51,7 +51,9 @@ ABSOLUTE RULES:
 
 export async function runMusicAgent(
   query: string,
-  musicContext: string
+  musicContext: string,
+  chatHistory?: ChatMessage[],
+  useSearch?: boolean
 ): Promise<string> {
   const userMessage = `HERE IS EVERYTHING I KNOW ABOUT THIS USER'S MUSIC TASTE:
 
@@ -60,8 +62,12 @@ ${musicContext}
 ---
 
 THE USER ASKED: "${query}"
+${useSearch ? "\n⚡ LIVE SEARCH IS ENABLED — you can search for real-time info like concert dates, ticket availability, new releases, trending songs." : ""}
 
 Give them a personalized response. Reference their actual artists, genres, platform, and listening patterns from the data above.`;
 
-  return generateText(SYSTEM_PROMPT, userMessage);
+  if (useSearch) {
+    return generateTextWithSearch(SYSTEM_PROMPT, userMessage, chatHistory);
+  }
+  return generateText(SYSTEM_PROMPT, userMessage, chatHistory);
 }

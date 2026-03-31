@@ -24,13 +24,18 @@ import {
 import {
   getProfile,
   getScreenshots,
+  getRecentConversations,
   type UserProfile,
   type ScreenshotMeta,
+  type Conversation,
 } from "./store.js";
-import { isConfigured, generateJSON } from "./llm.js";
+import { isConfigured, generateJSON, type ChatMessage } from "./llm.js";
 import { runMusicAgent } from "./agents/musicAgent.js";
 import { runTravelAgent } from "./agents/travelAgent.js";
 import { runProfileAgent } from "./agents/profileAgent.js";
+import { runGeneralQuery } from "./agents/generalAgent.js";
+import { compareTravelOptions } from "./skills/compareTravelOptions.js";
+import { TravelParamsSchema, type TravelParams } from "./tools/index.js";
 import { updateProfileFromConversation } from "./ingestion/profileUpdater.js";
 
 // ══════════════════════════════════════════════════════════════
@@ -55,35 +60,86 @@ const IntentSchema = z.object({
   reasoning: z.string().describe("Brief explanation of why this category was chosen"),
 });
 
+// ══════════════════════════════════════════════════════════════
+// CONVERSATION HISTORY
+// ══════════════════════════════════════════════════════════════
+
+// ══════════════════════════════════════════════════════════════
+// REAL-TIME SEARCH DETECTION
+// ══════════════════════════════════════════════════════════════
+
+function needsRealTimeSearch(query: string): boolean {
+  const q = query.toLowerCase();
+  return /\b(search|find|look up|check|latest|today|tomorrow|tonight|current|now|live|available|availability|book|booking|price right now|cheapest|best price|upcoming|this week|this month|next week|real.?time|show me flights|search flights|find flights|find hotels|find restaurants|nearby|open now|weather|ticket|tickets)\b/i.test(q);
+}
+
+function needsCompareSkill(query: string): boolean {
+  return /\b(compare|comparison|vs|versus|which is (cheaper|faster|better)|all options|all modes|flights?\s+(and|or|vs)\s+trains?|trains?\s+(and|or|vs)\s+buses?|every\s+option|best\s+way\s+to\s+(travel|reach|go))\b/i.test(query.toLowerCase());
+}
+
+function buildChatHistory(conversations: Conversation[]): ChatMessage[] {
+  const history: ChatMessage[] = [];
+  for (const c of conversations) {
+    history.push({ role: "user", content: c.query });
+    // Keep full responses — no trimming, so follow-ups have complete context
+    history.push({ role: "assistant", content: c.response });
+  }
+  return history;
+}
+
+// ══════════════════════════════════════════════════════════════
+// INTENT CLASSIFICATION
+// ══════════════════════════════════════════════════════════════
+
 const INTENT_SYSTEM_PROMPT = `You classify user queries into exactly one category.
 
 Categories:
-- "music": anything about songs, albums, playlists, artists, music taste, listening suggestions, concerts, music platforms, genres, what to listen to, music recommendations, similar artists
-- "travel": anything about trips, itineraries, destinations, flights, hotels, travel planning, vacation, sightseeing, where to go, trip planning, booking, packing
-- "profile": user asking about themselves — "what do you know about me", "who am I", "what are my interests", "what have you learned", "my profile", "tell me about myself"
-- "general": anything else — greetings, help requests, ambiguous queries, or questions not about music/travel/profile
+- "music": songs, albums, playlists, artists, music taste, listening suggestions, concerts, music platforms, genres, recommendations, similar artists
+- "travel": trips, itineraries, destinations, flights, hotels, travel planning, vacation, sightseeing, trip costs, booking, packing
+- "profile": user asking about themselves — "what do you know about me", "who am I", "my interests"
+- "general": anything else — greetings, help, or truly unrelated questions
 
-Be precise. If the query mentions both music and travel, pick the PRIMARY intent.
+CRITICAL — FOLLOW-UP DETECTION:
+You receive recent conversation context below. Use it to classify ambiguous or short follow-up queries:
+- User just discussed travel, now asks "how much will it cost?" → "travel" (trip cost)
+- User just got music recs, now asks "any more like that?" → "music" (more recs)
+- User just discussed travel, now asks "tell me more" or "details?" → "travel"
+- Short vague queries ("and?", "what else?", "what about dates?") → same category as the previous conversation
+
 Return the category and a brief reasoning.`;
 
-async function classifyIntent(query: string): Promise<{ intent: Intent; reasoning: string }> {
+async function classifyIntent(
+  query: string,
+  recentConversations: Conversation[]
+): Promise<{ intent: Intent; reasoning: string }> {
   if (!isConfigured()) {
-    return classifyIntentFallback(query);
+    return classifyIntentFallback(query, recentConversations);
+  }
+
+  // Build context from recent conversations so the classifier knows what we were talking about
+  let contextHint = "";
+  if (recentConversations.length > 0) {
+    const recent = recentConversations.slice(-3);
+    contextHint = "\n\nRECENT CONVERSATION CONTEXT (use this to understand follow-up questions):\n" +
+      recent.map((c) => `User: "${c.query}" → Routed to: ${c.intent}`).join("\n");
   }
 
   try {
     const result = await generateJSON(
       INTENT_SYSTEM_PROMPT,
-      `Query: "${query}"`,
+      `${contextHint}\n\nNow classify this query: "${query}"`,
       IntentSchema
     );
     return result;
   } catch {
-    return classifyIntentFallback(query);
+    return classifyIntentFallback(query, recentConversations);
   }
 }
 
-function classifyIntentFallback(query: string): { intent: Intent; reasoning: string } {
+function classifyIntentFallback(
+  query: string,
+  recentConversations: Conversation[]
+): { intent: Intent; reasoning: string } {
   const q = query.toLowerCase();
   if (/music|song|album|playlist|listen|artist|genre|spotify|apple music|youtube music|concert|recommend.*song|suggest.*music|what.*listen/i.test(q)) {
     return { intent: "music", reasoning: "keyword match" };
@@ -94,6 +150,18 @@ function classifyIntentFallback(query: string): { intent: Intent; reasoning: str
   if (/who am i|about me|my profile|know about|my interest|tell.*about.*me|what.*learned/i.test(q)) {
     return { intent: "profile", reasoning: "keyword match" };
   }
+
+  // Follow-up detection: if the query is short/vague, check what we were just talking about
+  if (recentConversations.length > 0 && q.split(" ").length <= 8) {
+    const lastIntent = recentConversations[recentConversations.length - 1].intent as Intent;
+    if (lastIntent !== "general") {
+      // Short follow-up like "how much?" / "what dates?" → same domain as last conversation
+      if (/how much|cost|price|budget|when|what date|which|tell me more|details|and|also|what about/i.test(q)) {
+        return { intent: lastIntent, reasoning: `follow-up to previous ${lastIntent} conversation` };
+      }
+    }
+  }
+
   return { intent: "general", reasoning: "no domain match" };
 }
 
@@ -247,6 +315,51 @@ function buildProfileContext(profile: UserProfile, screenshots: ScreenshotMeta[]
 }
 
 // ══════════════════════════════════════════════════════════════
+// TRAVEL PARAMS EXTRACTION
+// ══════════════════════════════════════════════════════════════
+
+async function extractTravelParams(query: string, profile: UserProfile): Promise<TravelParams> {
+  const homeCity = profile.identity.location?.value || "Unknown";
+  const topDestination = profile.travel.interests.length > 0
+    ? [...profile.travel.interests].sort((a, b) => b.strength - a.strength)[0]
+    : null;
+  const savedDates = topDestination?.details?.datesDetected?.[0] || "";
+
+  try {
+    return await generateJSON<TravelParams>(
+      "Extract travel parameters from the user query. Use context clues to fill missing fields.",
+      `Query: "${query}"
+
+Context:
+- User's home city: ${homeCity}
+- Top travel interest: ${topDestination?.destination || "unknown"} (dates: ${savedDates})
+- If origin is not mentioned, use home city: ${homeCity}
+- If destination is not mentioned, use top interest: ${topDestination?.destination || "unknown"}
+- If date is not mentioned, use saved dates or today's date
+- Convert relative dates: "tomorrow" = next day from today, "next week" = 7 days from today`,
+      TravelParamsSchema
+    );
+  } catch {
+    // Fallback
+    return {
+      origin: homeCity,
+      destination: topDestination?.destination || "Unknown",
+      date: new Date().toISOString().split("T")[0],
+      passengers: 1,
+    };
+  }
+}
+
+function buildGeneralContext(profile: UserProfile): string {
+  const parts: string[] = [];
+  if (profile.identity.name?.value) parts.push(`User: ${profile.identity.name.value}`);
+  if (profile.identity.location?.value) parts.push(`Location: ${profile.identity.location.value}`);
+  if (profile.general.language) parts.push(`Language: ${profile.general.language}`);
+  if (parts.length === 0) parts.push("No user context available yet.");
+  return parts.join("\n");
+}
+
+// ══════════════════════════════════════════════════════════════
 // ORCHESTRATOR — MAIN ENTRY POINT
 // ══════════════════════════════════════════════════════════════
 
@@ -261,17 +374,20 @@ export async function orchestrate(query: string): Promise<OrchestratorResult> {
     log("info", `User: ${chalk.white.bold(profile.identity.name.value)}`);
   }
 
-  // ── Step 2: Load screenshots ──
-  logStep(2, totalSteps, chalk.hex("#A29BFE")("Loading screenshot context..."));
+  // ── Step 2: Load screenshots + conversation history ──
+  logStep(2, totalSteps, chalk.hex("#A29BFE")("Loading context..."));
   const screenshots = await getScreenshots();
   const analyzedCount = screenshots.filter((s) => s.analyzed).length;
   const musicCount = screenshots.filter((s) => s.category === "music").length;
   const travelCount = screenshots.filter((s) => s.category === "travel").length;
-  log("info", `${screenshots.length} total, ${analyzedCount} analyzed (${musicCount} music, ${travelCount} travel)`);
 
-  // ── Step 3: Classify intent ──
+  const recentConversations = await getRecentConversations(5);
+  const chatHistory = buildChatHistory(recentConversations);
+  log("info", `${screenshots.length} screenshots (${musicCount} music, ${travelCount} travel), ${recentConversations.length} recent chats`);
+
+  // ── Step 3: Classify intent (with conversation context) ──
   logStep(3, totalSteps, chalk.hex("#74B9FF")("Classifying intent..."));
-  const classification = await classifyIntent(query);
+  const classification = await classifyIntent(query, recentConversations);
   const intent = classification.intent;
 
   const intentIcons: Record<Intent, string> = {
@@ -299,34 +415,52 @@ export async function orchestrate(query: string): Promise<OrchestratorResult> {
       log("info", `Full profile context prepared`);
       break;
     default:
-      agentContext = "";
+      agentContext = buildGeneralContext(profile);
+      log("info", "Orchestrator will handle this directly");
       break;
   }
 
   // ── Step 5: Route to agent ──
-  logStep(5, totalSteps, chalk.hex("#6C5CE7")("Agent generating response..."));
+  const useSearch = needsRealTimeSearch(query);
+  if (useSearch) {
+    logStep(5, totalSteps, chalk.hex("#6C5CE7")("Agent generating response ") + chalk.yellow("(🔍 live search enabled)") + chalk.hex("#6C5CE7")("..."));
+  } else {
+    logStep(5, totalSteps, chalk.hex("#6C5CE7")("Agent generating response..."));
+  }
   let response: string;
 
   if (!isConfigured()) {
     response = buildUnconfiguredResponse(intent, query, screenshots.length);
   } else {
-    const spinner = startSpinner("Agent is thinking...");
+    const spinner = startSpinner(useSearch ? "Searching the web + thinking..." : "Agent is thinking...");
     try {
       switch (intent) {
         case "music":
-          response = await runMusicAgent(query, agentContext);
+          response = await runMusicAgent(query, agentContext, chatHistory, useSearch);
           break;
         case "travel":
-          response = await runTravelAgent(query, agentContext);
+          if (needsCompareSkill(query)) {
+            // Extract travel params and run comparison skill
+            const params = await extractTravelParams(query, profile);
+            log("info", `Comparing all options: ${params.origin} → ${params.destination} on ${params.date}`);
+            response = await compareTravelOptions(
+              params.origin,
+              params.destination,
+              params.date,
+              { budget: profile.general.budgetStyle, pace: profile.travel.style.pace }
+            );
+          } else {
+            response = await runTravelAgent(query, agentContext, chatHistory, useSearch);
+          }
           break;
         case "profile":
           response = await runProfileAgent(query, agentContext, {
             totalScreenshots: screenshots.length,
             analyzedScreenshots: analyzedCount,
-          });
+          }, chatHistory);
           break;
         default:
-          response = buildGeneralResponse(query);
+          response = await runGeneralQuery(query, agentContext, chatHistory, useSearch);
           break;
       }
       stopSpinner(spinner, "Response generated");
@@ -380,14 +514,3 @@ To use the ${intent} agent, set up your Gemini API key:
 You have ${screenshotCount} screenshots uploaded. Once configured, I can answer: "${query}"`;
 }
 
-function buildGeneralResponse(query: string): string {
-  return `## Pool Agent
-
-I'm your **Music** and **Travel** assistant. Here's what I can do:
-
-- 🎵 **Music:** "Suggest me some music", "What kind of music do I like?", "Find songs like Arctic Monkeys"
-- ✈️ **Travel:** "Plan my itinerary", "Where should I travel?", "Build me a Tokyo trip"
-- 👤 **Profile:** "What do you know about me?", "Who am I?"
-
-Your query "${query}" didn't match music or travel. Try rephrasing!`;
-}
