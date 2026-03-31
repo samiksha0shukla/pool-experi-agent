@@ -1,4 +1,4 @@
-import { generateText as aiGenerateText, generateObject, type CoreTool } from "ai";
+import { generateText as aiGenerateText, generateObject } from "ai";
 import { google } from "@ai-sdk/google";
 import fs from "fs/promises";
 import path from "path";
@@ -198,33 +198,6 @@ export async function generateTextWithSearch(
     model: getSearchModel(),
     system,
     prompt: userMessage,
-  });
-  return text;
-}
-
-// ── Text generation with tool calling ──
-
-export async function generateTextWithTools(
-  systemPrompt: string,
-  userMessage: string,
-  tools: Record<string, CoreTool>,
-  history?: ChatMessage[],
-  maxSteps = 5
-): Promise<string> {
-  const system = withDate(systemPrompt);
-  const messages = history
-    ? [
-        ...history.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
-        { role: "user" as const, content: userMessage },
-      ]
-    : [{ role: "user" as const, content: userMessage }];
-
-  const { text } = await aiGenerateText({
-    model: getModel(),
-    system,
-    tools,
-    maxSteps,
-    messages,
   });
   return text;
 }

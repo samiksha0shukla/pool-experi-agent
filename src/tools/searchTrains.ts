@@ -1,82 +1,146 @@
 /**
  * TOOL: searchTrains
  *
- * Searches for real-time train options between two cities.
- * Uses Gemini with Google Search grounding to find actual train data
- * from platforms like IRCTC, ConfirmTkt, RailYatri.
+ * 1. Searches Google for real train data from IRCTC, ConfirmTkt, RailYatri
+ * 2. Feeds ALL search snippets to Gemini to extract train options
+ * 3. Returns results + source links
  */
 
-import { tool } from "ai";
-import { z } from "zod";
-import { generateTextWithSearch, generateJSON } from "../llm.js";
-import { SearchResultsSchema, type SearchResults } from "./types.js";
+import { webSearch } from "./webSearch.js";
+import { generateText } from "../llm.js";
+import type { SearchResults } from "./types.js";
 
-export const searchTrains = tool({
-  description: "Search for real-time trains between two cities on a specific date. Returns train options with names, times, classes, and prices from multiple platforms.",
-  parameters: z.object({
-    origin: z.string().describe("Origin city, e.g. 'Bangalore' or 'Bengaluru'"),
-    destination: z.string().describe("Destination city, e.g. 'Jabalpur'"),
-    date: z.string().describe("Travel date in YYYY-MM-DD format, e.g. '2026-04-01'"),
-  }),
-  execute: async ({ origin, destination, date }): Promise<SearchResults> => {
-    const formattedDate = formatDate(date);
+export async function searchTrains(
+  origin: string,
+  destination: string,
+  date: string
+): Promise<SearchResults> {
+  const formattedDate = formatDateForSearch(date);
 
-    // Step 1: Search the web for real train data
-    const rawResults = await generateTextWithSearch(
-      "You are an Indian railways search assistant. Return ONLY factual train data you find. Never fabricate train numbers or schedules.",
-      `Search for trains from ${origin} to ${destination} on or around ${formattedDate}.
+  const queries = [
+    `${origin} to ${destination} train schedule IRCTC fare price`,
+    `${origin} to ${destination} train ${formattedDate} ticket availability`,
+    `${origin} ${destination} train number timing price`,
+  ];
 
-Find results from: IRCTC, ConfirmTkt, RailYatri, Trainman, MakeMyTrip trains.
-
-For each train provide:
-- Train name and train number
-- Departure time and arrival time
-- Duration
-- Available classes (Sleeper, 3AC, 2AC, 1AC) with prices for each
-- Availability status (Available, RAC, Waitlist)
-- Which platform/source you found it on
-- Number of stops or if it's a superfast/express
-
-List ALL trains you can find on this route. Be specific with exact train numbers and times.
-Today's date is ${new Date().toISOString().split("T")[0]}.`
-    );
-
-    // Step 2: Parse into structured results
+  const allResults = [];
+  for (const q of queries) {
     try {
-      const structured = await generateJSON<SearchResults>(
-        "You parse train search results into structured JSON. Only include trains with actual data. Never fabricate train numbers.",
-        `Parse these train search results into the exact JSON schema. Use classType for the class (Sleeper/3AC/2AC/1AC). If multiple classes, create separate entries for each class.
-
-RAW SEARCH RESULTS:
-${rawResults}
-
-SEARCH CONTEXT:
-- Route: ${origin} → ${destination}
-- Date: ${formattedDate}
-- Searched on: ${new Date().toISOString()}`,
-        SearchResultsSchema
-      );
-      return structured;
-    } catch {
-      return {
-        results: [],
-        searchedOn: new Date().toISOString(),
-        disclaimer: `Could not structure results. Raw data: ${rawResults.slice(0, 500)}`,
-      };
-    }
-  },
-});
-
-function formatDate(date: string): string {
-  try {
-    const d = new Date(date);
-    return d.toLocaleDateString("en-IN", {
-      weekday: "long",
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    });
-  } catch {
-    return date;
+      const results = await webSearch(q, 5);
+      allResults.push(...results);
+    } catch { /* continue */ }
   }
+
+  const seen = new Set<string>();
+  const uniqueResults = allResults.filter((r) => {
+    if (seen.has(r.link)) return false;
+    seen.add(r.link);
+    return true;
+  });
+
+  const sources = uniqueResults.map((r) => r.link);
+  const searchContext = uniqueResults
+    .map((r, i) => `[${i + 1}] ${r.title}\n${r.snippet}\n${r.link}`)
+    .join("\n\n");
+
+  if (uniqueResults.length === 0) {
+    return emptyResult(origin, destination, date, "No train results found.");
+  }
+
+  const summary = await generateText(
+    "You extract Indian railway train information from web search snippets. Be factual — extract every train name, number, timing, fare you can see.",
+    `Here are web search results for trains from ${origin} to ${destination} on/around ${formattedDate}.
+
+SEARCH RESULTS:
+${searchContext}
+
+Extract EVERY train mentioned in these snippets. For each, provide ONE LINE:
+TRAIN | Train Name & Number | Price/Fare | Class | Departure→Arrival | Duration | Platform
+
+Examples:
+TRAIN | Gondwana Express 12649 | ₹450-₹1,800 | SL/3AC/2AC | 21:30→11:45+1 | 14h 15m | IRCTC
+TRAIN | Mahakoshal Express 11071 | ₹395-₹1,500 | SL/3AC | 15:45→07:30+1 | 15h 45m | ConfirmTkt
+TRAIN | Multiple trains | from ₹350 | Various | Multiple departures | 14-20h | MakeMyTrip
+
+Rules:
+- Extract every train name and number you see — even partial info is useful
+- If you see "X trains available" or "trains from ₹Y", include that
+- Include ALL prices, classes, and timings mentioned
+- If only a price range is visible, use that (e.g., "₹395-₹1,800")
+- Don't skip any train. Every mention counts.
+- Do NOT fabricate train numbers — only use what's in the snippets`
+  );
+
+  const results = parseLines(summary);
+
+  if (results.length === 0 && summary.length > 10) {
+    return {
+      mode: "trains",
+      route: `${origin} → ${destination}`,
+      date,
+      results: [{
+        provider: "Multiple platforms",
+        operator: "Indian Railways",
+        identifier: "",
+        departureTime: "",
+        arrivalTime: "",
+        duration: "",
+        price: extractFirstPrice(summary) || "Check IRCTC",
+        stops: "",
+        classType: "Various",
+        availability: "Check IRCTC",
+        notes: summary.slice(0, 400),
+      }],
+      sources,
+      searchedAt: new Date().toISOString(),
+      disclaimer: "Check IRCTC for exact availability and booking.",
+    };
+  }
+
+  return {
+    mode: "trains",
+    route: `${origin} → ${destination}`,
+    date,
+    results,
+    sources,
+    searchedAt: new Date().toISOString(),
+    disclaimer: "Train data from web search. Check IRCTC for exact availability and waitlist status.",
+  };
+}
+
+function parseLines(text: string): SearchResults["results"] {
+  const lines = text.split("\n").filter((l) => l.trim().startsWith("TRAIN |") || l.trim().startsWith("TRAIN|"));
+  return lines.map((line) => {
+    const parts = line.split("|").map((p) => p.trim());
+    // TRAIN | Name & Number | Price | Class | Dep→Arr | Duration | Platform
+    const timeParts = (parts[4] || "").split("→");
+    return {
+      provider: parts[6] || "IRCTC",
+      operator: parts[1] || "Unknown",
+      identifier: "",
+      departureTime: timeParts[0]?.trim() || "",
+      arrivalTime: timeParts[1]?.trim() || "",
+      duration: parts[5] || "",
+      price: parts[2] || "",
+      stops: "",
+      classType: parts[3] || "Various",
+      availability: "Check IRCTC",
+      notes: "",
+    };
+  }).filter((r) => r.operator !== "Unknown" || r.price);
+}
+
+function extractFirstPrice(text: string): string | null {
+  const match = text.match(/[₹][\d,]+/);
+  return match ? match[0] : null;
+}
+
+function emptyResult(origin: string, destination: string, date: string, msg: string): SearchResults {
+  return { mode: "trains", route: `${origin} → ${destination}`, date, results: [], sources: [], searchedAt: new Date().toISOString(), disclaimer: msg };
+}
+
+function formatDateForSearch(date: string): string {
+  try {
+    return new Date(date).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
+  } catch { return date; }
 }

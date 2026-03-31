@@ -1,69 +1,64 @@
 /**
  * TRAVEL AGENT — Sub-agent of the Orchestrator
  *
- * Receives pre-processed travel context from the orchestrator.
- * Answers whatever the user asked about travel — NOT always an itinerary.
+ * Two modes:
+ * 1. Profile-based (useSearch=false): answers from screenshot/profile data
+ * 2. Search-based (useSearch=true): calls search tools, then formats results
  */
 
-import { generateText, generateTextWithTools, type ChatMessage } from "../llm.js";
+import { generateText, type ChatMessage } from "../llm.js";
 import { searchFlights } from "../tools/searchFlights.js";
 import { searchTrains } from "../tools/searchTrains.js";
 import { searchBuses } from "../tools/searchBuses.js";
+import type { SearchResults, TravelParams } from "../tools/types.js";
 
 const SYSTEM_PROMPT = `You are a travel agent embedded inside Pool, a screenshot-based personal intelligence app.
 
-You know the user through their screenshots — flights they searched, hotels they browsed, tourist spots they saved. The orchestrator gives you their ranked destinations, saved details, and preferences.
+You know the user through their screenshots — flights they searched, hotels they browsed, tourist spots they saved.
 
 MOST IMPORTANT RULE: Answer EXACTLY what the user asked. Nothing more.
 
-- "Where am I planning to go?" → Just tell them the destination and why you think so. Do NOT give an itinerary.
-- "What are my travel plans?" → Summarize what you know: destination, dates, budget. Short answer. No itinerary.
-- "Plan my trip" / "Plan my itinerary" / "Build me an itinerary" → NOW build a full day-by-day plan.
-- "How much will my trip cost?" → Just give budget estimates. No itinerary.
-- "What hotels did I save?" → Just list the hotels. No itinerary.
-- "When am I traveling?" → Just give the dates. No itinerary.
+- "Where am I planning to go?" → Short answer with destination and evidence. No itinerary.
+- "What are my travel plans?" → Brief summary. No itinerary.
+- "Plan my trip" / "Build me an itinerary" → Full day-by-day plan.
+- "How much will my trip cost?" → Budget estimates only. No itinerary.
+- "Search flights / trains / buses" → Present search results clearly.
+- "When am I traveling?" → Just the dates.
 
-WHEN THE USER ASKS FOR AN ITINERARY (explicitly):
-1. Pick the strongest destination if none specified, explain why
-2. Anchor on their saved places (hotels, activities, restaurants from screenshots)
-3. Fill gaps with well-known options matching their style
-4. Relaxed pace: 2 activities/day default
-5. Respect dietary restrictions, budget, and preferences
-6. Include practical info: transit, costs, booking tips
-
-WHEN THE USER ASKS A SIMPLE QUESTION:
-- Give a short, direct answer
-- Don't add unsolicited planning
-
-WHEN THE USER ASKS TO SEARCH FOR FLIGHTS/TRAINS/BUSES:
-You have TOOLS available that can search the web for real-time travel data:
-- searchFlights: search for actual flights with real prices and times
-- searchTrains: search for actual trains with schedules and availability
-- searchBuses: search for actual buses with operators and prices
-
-USE THESE TOOLS when the user asks to search, find, check availability, or compare transport options.
-After getting tool results, present them clearly with a comparison table and your recommendation.
+WHEN SEARCH RESULTS ARE PROVIDED:
+You will receive real search results from Google. Present them clearly:
+- Sort by price (cheapest first)
+- Include all details: operator, times, duration, price, platform
+- Highlight the best option
+- Always note that prices are approximate
 
 FORMAT:
-- Use markdown
-- For simple answers: a few lines, maybe bullet points
-- For itineraries: ## heading, ### per day, full structure
-- For search results: clear table/list with prices, times, airlines/operators
-- Always be concise for simple questions
+- Markdown with ## and ### headers
+- Tables or clean lists for search results
+- Concise for simple questions, detailed for itineraries/searches
 
 RULES:
-- NEVER give an itinerary unless the user explicitly asks for one
-- When user asks to search: USE YOUR TOOLS, don't say "I can't search"
-- Never fabricate data — use tool results or say "no results found"
+- NEVER give an itinerary unless explicitly asked
+- When search results are provided, present ALL of them, don't skip any
+- Never fabricate data
+- Use ₹ for Indian routes, $ for international
 - Respect dietary restrictions
-- Use the user's currency (₹ for India, $ for US, etc.)`;
+- CRITICAL: If the user asks about a specific route (e.g., "Delhi to Jabalpur"), ALWAYS use that route — even if their profile shows a different route. The user's explicit query ALWAYS overrides the profile. Never substitute a profile route for what the user actually asked.`;
 
 export async function runTravelAgent(
   query: string,
   travelContext: string,
   chatHistory?: ChatMessage[],
-  useSearch?: boolean
+  useSearch?: boolean,
+  travelParams?: TravelParams
 ): Promise<string> {
+
+  if (useSearch && travelParams) {
+    // ── SEARCH MODE: Call tools, then format results ──
+    return await searchAndRespond(query, travelContext, travelParams, chatHistory);
+  }
+
+  // ── PROFILE MODE: Answer from profile/screenshot data ──
   const userMessage = `USER'S TRAVEL DATA:
 
 ${travelContext}
@@ -71,18 +66,100 @@ ${travelContext}
 ---
 
 USER'S QUESTION: "${query}"
-${useSearch ? "\n⚡ You have search tools available. Use searchFlights, searchTrains, or searchBuses to find real-time data. DO NOT say 'I cannot search' — call the tools instead." : ""}
 
-Answer their specific question. Match your response to what they actually asked.`;
+Answer their specific question from the profile data above.`;
 
-  if (useSearch) {
-    return generateTextWithTools(
-      SYSTEM_PROMPT,
-      userMessage,
-      { searchFlights, searchTrains, searchBuses },
-      chatHistory,
-      6 // max steps: tool call → result → possibly another tool → final response
-    );
-  }
   return generateText(SYSTEM_PROMPT, userMessage, chatHistory);
+}
+
+async function searchAndRespond(
+  query: string,
+  travelContext: string,
+  params: TravelParams,
+  chatHistory?: ChatMessage[]
+): Promise<string> {
+  const q = query.toLowerCase();
+
+  // Determine which transport modes to search
+  const searchFlightsMode = /flight|fly|plane|air|suggest/i.test(q) || isGenericSearch(q);
+  const searchTrainsMode = /train|rail|irctc/i.test(q) || isGenericSearch(q);
+  const searchBusesMode = /bus|road/i.test(q) || isGenericSearch(q);
+
+  // Search in parallel — only the modes the user asked about
+  const searches: Array<Promise<SearchResults>> = [];
+  const labels: string[] = [];
+
+  if (searchFlightsMode) {
+    searches.push(searchFlights(params.origin, params.destination, params.date));
+    labels.push("flights");
+  }
+  if (searchTrainsMode) {
+    searches.push(searchTrains(params.origin, params.destination, params.date));
+    labels.push("trains");
+  }
+  if (searchBusesMode) {
+    searches.push(searchBuses(params.origin, params.destination, params.date));
+    labels.push("buses");
+  }
+
+  const settled = await Promise.allSettled(searches);
+
+  // Build search results context
+  const resultSections: string[] = [];
+  resultSections.push(`SEARCH: ${params.origin} → ${params.destination} on ${params.date}`);
+  resultSections.push(`MODES SEARCHED: ${labels.join(", ")}`);
+  resultSections.push("");
+
+  for (let i = 0; i < settled.length; i++) {
+    const label = labels[i].toUpperCase();
+    const result = settled[i];
+
+    if (result.status === "fulfilled" && result.value.results.length > 0) {
+      const sr = result.value;
+      resultSections.push(`${label} (${sr.results.length} options found):`);
+      for (const r of sr.results) {
+        resultSections.push(`  ${r.operator} ${r.identifier} | ${r.departureTime}→${r.arrivalTime} | ${r.duration} | ${r.price} | ${r.classType} | ${r.provider}`);
+      }
+      resultSections.push(`  Sources: ${sr.sources.join(", ")}`);
+      resultSections.push(`  ${sr.disclaimer}`);
+    } else {
+      const reason = result.status === "rejected" ? result.reason?.message || "Search failed" : "No results found";
+      resultSections.push(`${label}: ${reason}`);
+    }
+    resultSections.push("");
+  }
+
+  const searchData = resultSections.join("\n");
+
+  // Pass profile context and chat history BUT make the explicit query + search results dominate
+  const userMessage = `BACKGROUND (for personalization only — do NOT use this to change the route):
+${travelContext}
+
+════════════════════════════════════════════
+THE USER EXPLICITLY ASKED FOR: ${params.origin} → ${params.destination} on ${params.date}
+THIS IS THE ROUTE YOU MUST PRESENT. NOT any other route from the profile or chat history.
+════════════════════════════════════════════
+
+REAL-TIME SEARCH RESULTS FOR ${params.origin} → ${params.destination}:
+${searchData}
+
+USER'S QUESTION: "${query}"
+
+INSTRUCTIONS:
+1. Present ONLY the search results above for ${params.origin} → ${params.destination}
+2. Sort by price (cheapest first). Highlight the best option.
+3. Show ALL results — do not skip any
+4. Include source platform links
+5. If no results found, say so and suggest checking platforms directly
+6. You MAY use the background profile for personalization (e.g., user's name, preferences)
+7. You MUST NOT change the route to match the profile — the user asked for ${params.origin} → ${params.destination}, not any other route
+8. Even if the profile says the user usually flies Bengaluru→Jabalpur, RIGHT NOW they asked about ${params.origin} → ${params.destination}`;
+
+  return generateText(SYSTEM_PROMPT, userMessage, chatHistory);
+}
+
+function isGenericSearch(query: string): boolean {
+  // Generic searches like "search tickets", "find options", "check availability", "suggest options" → search all modes
+  return /\b(ticket|option|availab|search|find|check|cheapest|best|suggest|give|show|get)\b/i.test(query) &&
+    !/\b(flight|train|bus|plane|rail|road)\b/i.test(query);
 }

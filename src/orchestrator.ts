@@ -29,13 +29,13 @@ import {
   type ScreenshotMeta,
   type Conversation,
 } from "./store.js";
-import { isConfigured, generateJSON, type ChatMessage } from "./llm.js";
+import { isConfigured, generateText, generateJSON, type ChatMessage } from "./llm.js";
 import { runMusicAgent } from "./agents/musicAgent.js";
 import { runTravelAgent } from "./agents/travelAgent.js";
 import { runProfileAgent } from "./agents/profileAgent.js";
 import { runGeneralQuery } from "./agents/generalAgent.js";
 import { compareTravelOptions } from "./skills/compareTravelOptions.js";
-import { TravelParamsSchema, type TravelParams } from "./tools/index.js";
+import type { TravelParams } from "./tools/types.js";
 import { updateProfileFromConversation } from "./ingestion/profileUpdater.js";
 
 // ══════════════════════════════════════════════════════════════
@@ -70,7 +70,29 @@ const IntentSchema = z.object({
 
 function needsRealTimeSearch(query: string): boolean {
   const q = query.toLowerCase();
-  return /\b(search|find|look up|check|latest|today|tomorrow|tonight|current|now|live|available|availability|book|booking|price right now|cheapest|best price|upcoming|this week|this month|next week|real.?time|show me flights|search flights|find flights|find hotels|find restaurants|nearby|open now|weather|ticket|tickets)\b/i.test(q);
+
+  // Explicit search keywords
+  if (/\b(search|find|look up|check|latest|today|tomorrow|tonight|current|now|live|available|availability|book|booking|price right now|cheapest|best price|upcoming|this week|this month|next week|next month|real.?time|show me flights|search flights|find flights|find hotels|find restaurants|nearby|open now|weather|ticket|tickets)\b/i.test(q)) {
+    return true;
+  }
+
+  // Query mentions a specific transport route → needs search
+  // "flights from X to Y", "train to Z", "bus from A to B", "flight options from X"
+  if (/\b(flights?|trains?|buses?|fare|airfare)\b/i.test(q) && /\b(from|to|between|for)\b/i.test(q)) {
+    return true;
+  }
+
+  // "suggest flights", "show trains", "get buses", "flight options"
+  if (/\b(suggest|show|get|give|list)\b.*\b(flights?|trains?|buses?|option)/i.test(q)) {
+    return true;
+  }
+
+  // Bare "flights from X to Y" or "trains to Y"
+  if (/\b(flights?|trains?|buses?)\b/i.test(q) && /\b[A-Z][a-z]+\b/.test(query)) {
+    return true;
+  }
+
+  return false;
 }
 
 function needsCompareSkill(query: string): boolean {
@@ -326,28 +348,54 @@ async function extractTravelParams(query: string, profile: UserProfile): Promise
   const savedDates = topDestination?.details?.datesDetected?.[0] || "";
 
   try {
-    return await generateJSON<TravelParams>(
-      "Extract travel parameters from the user query. Use context clues to fill missing fields.",
-      `Query: "${query}"
+    const result = await generateText(
+      "You extract travel parameters from user queries. Return ONLY a JSON object. Nothing else — no explanation, no markdown.",
+      `Extract origin, destination, and date from this query:
 
-Context:
-- User's home city: ${homeCity}
-- Top travel interest: ${topDestination?.destination || "unknown"} (dates: ${savedDates})
-- If origin is not mentioned, use home city: ${homeCity}
-- If destination is not mentioned, use top interest: ${topDestination?.destination || "unknown"}
-- If date is not mentioned, use saved dates or today's date
-- Convert relative dates: "tomorrow" = next day from today, "next week" = 7 days from today`,
-      TravelParamsSchema
+"${query}"
+
+RULES — follow in this exact priority order:
+1. If the user EXPLICITLY says "from X" → origin = X. Do NOT override with their home city.
+2. If the user EXPLICITLY says "to Y" → destination = Y. Do NOT override with their saved interests.
+3. If the user says a date like "5th May" or "May 5" → date = that date in YYYY-MM-DD.
+4. If the user says "tomorrow" → date = the day after today.
+5. If the user says "next month" → date = 1st of next month.
+6. ONLY if origin is truly not mentioned at all → use "${homeCity}".
+7. ONLY if destination is truly not mentioned at all → use "${topDestination?.destination || "unknown"}".
+8. ONLY if no date is mentioned at all → use "${savedDates || "tomorrow"}".
+
+The user's words ALWAYS win over profile defaults. If they say "from Delhi" → origin is Delhi, even if their home is ${homeCity}.
+
+Return ONLY: {"origin": "...", "destination": "...", "date": "YYYY-MM-DD"}`
     );
-  } catch {
-    // Fallback
-    return {
-      origin: homeCity,
-      destination: topDestination?.destination || "Unknown",
-      date: new Date().toISOString().split("T")[0],
-      passengers: 1,
-    };
+
+    // Parse the JSON from the response
+    const jsonMatch = result.match(/\{[^}]+\}/);
+    if (jsonMatch) {
+      const parsed = JSON.parse(jsonMatch[0]);
+      const extracted = {
+        origin: parsed.origin || homeCity,
+        destination: parsed.destination || topDestination?.destination || "Unknown",
+        date: parsed.date || new Date().toISOString().split("T")[0],
+      };
+      log("info", `Params extracted: ${extracted.origin} → ${extracted.destination} on ${extracted.date}`);
+      return extracted;
+    }
+    log("warn", `Could not parse JSON from LLM response: ${result.slice(0, 100)}`);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    log("warn", `Param extraction failed: ${msg}`);
   }
+
+  // Fallback — LLM extraction failed completely, use profile defaults
+  log("warn", `Param extraction fell through to fallback — using profile defaults`);
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  return {
+    origin: homeCity,
+    destination: topDestination?.destination || "Unknown",
+    date: tomorrow.toISOString().split("T")[0],
+  };
 }
 
 function buildGeneralContext(profile: UserProfile): string {
@@ -440,7 +488,6 @@ export async function orchestrate(query: string): Promise<OrchestratorResult> {
           break;
         case "travel":
           if (needsCompareSkill(query)) {
-            // Extract travel params and run comparison skill
             const params = await extractTravelParams(query, profile);
             log("info", `Comparing all options: ${params.origin} → ${params.destination} on ${params.date}`);
             response = await compareTravelOptions(
@@ -449,8 +496,12 @@ export async function orchestrate(query: string): Promise<OrchestratorResult> {
               params.date,
               { budget: profile.general.budgetStyle, pace: profile.travel.style.pace }
             );
+          } else if (useSearch) {
+            const params = await extractTravelParams(query, profile);
+            log("info", `Searching: ${params.origin} → ${params.destination} on ${params.date}`);
+            response = await runTravelAgent(query, agentContext, chatHistory, true, params);
           } else {
-            response = await runTravelAgent(query, agentContext, chatHistory, useSearch);
+            response = await runTravelAgent(query, agentContext, chatHistory, false);
           }
           break;
         case "profile":
