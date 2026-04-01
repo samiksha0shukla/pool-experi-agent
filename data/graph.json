@@ -1,0 +1,4235 @@
+{
+  "options": {
+    "type": "directed",
+    "multi": false,
+    "allowSelfLoops": true
+  },
+  "attributes": {},
+  "nodes": [
+    {
+      "key": "user:self",
+      "attributes": {
+        "type": "user"
+      }
+    },
+    {
+      "key": "ss:ss_1774862573204_xknf97",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Spotify",
+        "summary": "A Spotify 'Liked Songs' playlist with song details is displayed."
+      }
+    },
+    {
+      "key": "song:kallo",
+      "attributes": {
+        "type": "song",
+        "name": "Kallo",
+        "artist": "Komal Chaudhary, Harjee..."
+      }
+    },
+    {
+      "key": "artist:komal chaudhary, harjee...",
+      "attributes": {
+        "type": "artist",
+        "name": "Komal Chaudhary, Harjee..."
+      }
+    },
+    {
+      "key": "song:kal chaudhvin ki raat...",
+      "attributes": {
+        "type": "song",
+        "name": "Kal Chaudhvin Ki Raat...",
+        "artist": "Jagjit Singh"
+      }
+    },
+    {
+      "key": "artist:jagjit singh",
+      "attributes": {
+        "type": "artist",
+        "name": "Jagjit Singh"
+      }
+    },
+    {
+      "key": "song:sheesha - aakhya mai...",
+      "attributes": {
+        "type": "song",
+        "name": "Sheesha - Aakhya Mai...",
+        "artist": "Mitta Ror, Swara Verma"
+      }
+    },
+    {
+      "key": "artist:mitta ror, swara verma",
+      "attributes": {
+        "type": "artist",
+        "name": "Mitta Ror, Swara Verma"
+      }
+    },
+    {
+      "key": "song:naam tera",
+      "attributes": {
+        "type": "song",
+        "name": "Naam Tera",
+        "artist": "Ndee Kundu"
+      }
+    },
+    {
+      "key": "artist:ndee kundu",
+      "attributes": {
+        "type": "artist",
+        "name": "Ndee Kundu"
+      }
+    },
+    {
+      "key": "song:ittar",
+      "attributes": {
+        "type": "song",
+        "name": "Ittar",
+        "artist": "Jasmine Sandlas, B Pr..."
+      }
+    },
+    {
+      "key": "artist:jasmine sandlas, b pr...",
+      "attributes": {
+        "type": "artist",
+        "name": "Jasmine Sandlas, B Pr..."
+      }
+    },
+    {
+      "key": "song:sheesha - aakhya mai aakh ghali jo bairan",
+      "attributes": {
+        "type": "song",
+        "name": "Sheesha - Aakhya Mai Aakh Ghali Jo Bairan",
+        "artist": "Mitta Ror, Swara Verma"
+      }
+    },
+    {
+      "key": "ss:ss_1774862922609_udlrau",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Spotify",
+        "summary": "Spotify showing the Liked Songs playlist with songs by various artists."
+      }
+    },
+    {
+      "key": "ss:ss_1774864200226_9ezzls",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Google Flights",
+        "summary": "Flight search from Bengaluru to Jabalpur on Indigo for April 4th-18th for 1 passenger."
+      }
+    },
+    {
+      "key": "destination:jabalpur",
+      "attributes": {
+        "type": "destination",
+        "name": "Jabalpur"
+      }
+    },
+    {
+      "key": "ss:ss_1774864243303_phg3cz",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Google Flights",
+        "summary": "Flight search results from Jabalpur to Bengaluru on IndiGo for April 4th-18th."
+      }
+    },
+    {
+      "key": "ss:ss_1774981131450_2kuir8",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "KAYAK",
+        "summary": "KAYAK: Flights from Bengaluru to Portugal for $258 on Thu 5/7."
+      }
+    },
+    {
+      "key": "destination:portugal",
+      "attributes": {
+        "type": "destination",
+        "name": "Portugal"
+      }
+    },
+    {
+      "key": "ss:ss_1775030126512_xs2q03",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A YouTube Music screenshot featuring the song \"Lagan Laagi Re\" by Amit Trivedi."
+      }
+    },
+    {
+      "key": "artist:amit trivedi",
+      "attributes": {
+        "type": "artist",
+        "name": "Amit Trivedi"
+      }
+    },
+    {
+      "key": "artist:shreya g",
+      "attributes": {
+        "type": "artist",
+        "name": "Shreya G"
+      }
+    },
+    {
+      "key": "song:lagan laagi re",
+      "attributes": {
+        "type": "song",
+        "name": "Lagan Laagi Re",
+        "artist": "Amit Trivedi"
+      }
+    },
+    {
+      "key": "ss:ss_1775030422456_t673aa",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "The user is listening to 'Lagan Laagi Re' by Amit Trivedi on YouTube Music."
+      }
+    },
+    {
+      "key": "ss:ss_1775030648371_zo1tz6",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A screenshot from YouTube Music playing the song \"Lagan Laagi Re\" by Amit Trivedi."
+      }
+    },
+    {
+      "key": "ss:ss_1775030777408_93xbea",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Apple Music",
+        "summary": "Screenshot of a music player interface on an iPhone playing \"The Gentleman\"."
+      }
+    },
+    {
+      "key": "artist:simran hora",
+      "attributes": {
+        "type": "artist",
+        "name": "Simran Hora"
+      }
+    },
+    {
+      "key": "song:the gentleman",
+      "attributes": {
+        "type": "song",
+        "name": "The Gentleman",
+        "artist": "Simran Hora"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "Screenshot from YouTube Music featuring playlists like Easy Mornings and Tollywood Hitlist."
+      }
+    },
+    {
+      "key": "artist:shubh",
+      "attributes": {
+        "type": "artist",
+        "name": "Shubh"
+      }
+    },
+    {
+      "key": "artist:karan aujla",
+      "attributes": {
+        "type": "artist",
+        "name": "Karan Aujla"
+      }
+    },
+    {
+      "key": "artist:sidhu moose wala",
+      "attributes": {
+        "type": "artist",
+        "name": "Sidhu Moose Wala"
+      }
+    },
+    {
+      "key": "artist:pritam",
+      "attributes": {
+        "type": "artist",
+        "name": "Pritam"
+      }
+    },
+    {
+      "key": "artist:a. r. rahman",
+      "attributes": {
+        "type": "artist",
+        "name": "A. R. Rahman"
+      }
+    },
+    {
+      "key": "artist:shreya ghoshal",
+      "attributes": {
+        "type": "artist",
+        "name": "Shreya Ghoshal"
+      }
+    },
+    {
+      "key": "artist:anirudh ravichander",
+      "attributes": {
+        "type": "artist",
+        "name": "Anirudh Ravichander"
+      }
+    },
+    {
+      "key": "artist:devi sri prasad",
+      "attributes": {
+        "type": "artist",
+        "name": "Devi Sri Prasad"
+      }
+    },
+    {
+      "key": "artist:ram mirivala",
+      "attributes": {
+        "type": "artist",
+        "name": "Ram Mirivala"
+      }
+    },
+    {
+      "key": "genre:hip hop",
+      "attributes": {
+        "type": "genre",
+        "name": "Hip Hop"
+      }
+    },
+    {
+      "key": "song:aaya sher (from \"the paradise\"...",
+      "attributes": {
+        "type": "song",
+        "name": "Aaya Sher (From \"The Paradise\"...",
+        "artist": "Anirudh Ravichander"
+      }
+    },
+    {
+      "key": "song:rai rai raa raa (telugu)",
+      "attributes": {
+        "type": "song",
+        "name": "Rai Rai Raa Raa (Telugu)",
+        "artist": "A.R. Rahman"
+      }
+    },
+    {
+      "key": "artist:a.r. rahman",
+      "attributes": {
+        "type": "artist",
+        "name": "A.R. Rahman"
+      }
+    },
+    {
+      "key": "song:collar ey etthara",
+      "attributes": {
+        "type": "song",
+        "name": "Collar Ey Etthara",
+        "artist": "Devi Sri Prasad"
+      }
+    },
+    {
+      "key": "platform:youtube music",
+      "attributes": {
+        "type": "platform",
+        "name": "YouTube Music"
+      }
+    },
+    {
+      "key": "ss:ss_1775030983158_mrcm1s",
+      "attributes": {
+        "type": "screenshot",
+        "category": "personal",
+        "sourceApp": "unknown",
+        "summary": "This screenshot displays the control center on an iPhone."
+      }
+    },
+    {
+      "key": "ss:ss_1775031046928_nuekww",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "YouTube Music screen showing \"Party Song Bollywood\" playlist."
+      }
+    },
+    {
+      "key": "song:saat samundar paar",
+      "attributes": {
+        "type": "song",
+        "name": "Saat Samundar Paar",
+        "artist": "Sadhana Sargam"
+      }
+    },
+    {
+      "key": "artist:sadhana sargam",
+      "attributes": {
+        "type": "artist",
+        "name": "Sadhana Sargam"
+      }
+    },
+    {
+      "key": "song:ankhiyon se goli maare",
+      "attributes": {
+        "type": "song",
+        "name": "ANKHIYON SE GOLI MAARE",
+        "artist": "SONU NIGAM, JASPINDER NARULA"
+      }
+    },
+    {
+      "key": "artist:sonu nigam, jaspinder narula",
+      "attributes": {
+        "type": "artist",
+        "name": "SONU NIGAM, JASPINDER NARULA"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Spotify",
+        "summary": "This is a screenshot of the Spotify app, showcasing music suggestions."
+      }
+    },
+    {
+      "key": "artist:arijit singh",
+      "attributes": {
+        "type": "artist",
+        "name": "Arijit Singh"
+      }
+    },
+    {
+      "key": "artist:alka yagnik",
+      "attributes": {
+        "type": "artist",
+        "name": "Alka Yagnik"
+      }
+    },
+    {
+      "key": "artist:k. s. chithra",
+      "attributes": {
+        "type": "artist",
+        "name": "K. S. Chithra"
+      }
+    },
+    {
+      "key": "artist:shankar mahadevan",
+      "attributes": {
+        "type": "artist",
+        "name": "Shankar Mahadevan"
+      }
+    },
+    {
+      "key": "artist:kishore bhosle",
+      "attributes": {
+        "type": "artist",
+        "name": "Kishore Bhosle"
+      }
+    },
+    {
+      "key": "artist:sachet-parampara",
+      "attributes": {
+        "type": "artist",
+        "name": "Sachet-Parampara"
+      }
+    },
+    {
+      "key": "artist:parampara tandon",
+      "attributes": {
+        "type": "artist",
+        "name": "Parampara Tandon"
+      }
+    },
+    {
+      "key": "song:raanjhan (from \"do patti\")",
+      "attributes": {
+        "type": "song",
+        "name": "Raanjhan (From \"Do Patti\")",
+        "artist": "Sachet-Parampara, Parampara Tandon"
+      }
+    },
+    {
+      "key": "ss:ss_1775031243936_sjszp0",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Apple Music",
+        "summary": "Screenshot of a music player interface on a phone, playing \"Raanjhan\" by Sachet-Parampara."
+      }
+    },
+    {
+      "key": "artist:sachet-parampara, parampara",
+      "attributes": {
+        "type": "artist",
+        "name": "Sachet-Parampara, Parampara"
+      }
+    },
+    {
+      "key": "ss:ss_1775031265586_jnpicl",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Apple Music",
+        "summary": "The screenshot shows an iPhone lock screen with music player controls."
+      }
+    },
+    {
+      "key": "artist:ram miriyala ar",
+      "attributes": {
+        "type": "artist",
+        "name": "Ram Miriyala ar"
+      }
+    },
+    {
+      "key": "ss:ss_1775031287940_iyfheh",
+      "attributes": {
+        "type": "screenshot",
+        "category": "personal",
+        "sourceApp": "Settings",
+        "summary": "The screenshot displays the control center of an iOS device playing the song Collar Ey Etthara."
+      }
+    },
+    {
+      "key": "ss:ss_1775031304913_764pgf",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A music app displaying playlists like 'Easy Mornings' and 'Tollywood Hitlist'."
+      }
+    },
+    {
+      "key": "song:aaya sher (from \"the...",
+      "attributes": {
+        "type": "song",
+        "name": "Aaya Sher (From \"The...",
+        "artist": "Anirudh Ravichander"
+      }
+    },
+    {
+      "key": "ss:ss_1775031316196_hhq6sw",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Apple Music",
+        "summary": "Screenshot of an iPhone lock screen playing 'The Gentleman' by Simran Hora."
+      }
+    },
+    {
+      "key": "ss:ss_1775031338076_m0sce7",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A YouTube Music screenshot playing Lagan Laagi Re by Amit Trivedi."
+      }
+    },
+    {
+      "key": "ss:ss_1775031358225_0o0tjy",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A YouTube Music interface displaying song \"Yaaron\" by Ankur Tewari & The Ghalat Family."
+      }
+    },
+    {
+      "key": "artist:ankur tewari & the ghalat family",
+      "attributes": {
+        "type": "artist",
+        "name": "Ankur Tewari & The Ghalat Family"
+      }
+    },
+    {
+      "key": "song:yaaron",
+      "attributes": {
+        "type": "song",
+        "name": "Yaaron",
+        "artist": "Ankur Tewari & The Ghalat"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "Screenshot from YouTube Music app showing music recommendations and Hindi Hits playlist."
+      }
+    },
+    {
+      "key": "artist:musical vibes",
+      "attributes": {
+        "type": "artist",
+        "name": "Musical vibes"
+      }
+    },
+    {
+      "key": "artist:rajesh kumar",
+      "attributes": {
+        "type": "artist",
+        "name": "RAJESH KUMAR"
+      }
+    },
+    {
+      "key": "artist:jordan critz",
+      "attributes": {
+        "type": "artist",
+        "name": "Jordan Critz"
+      }
+    },
+    {
+      "key": "artist:ankur tewari",
+      "attributes": {
+        "type": "artist",
+        "name": "Ankur Tewari"
+      }
+    },
+    {
+      "key": "artist:atif aslam",
+      "attributes": {
+        "type": "artist",
+        "name": "Atif Aslam"
+      }
+    },
+    {
+      "key": "genre:hindi hits",
+      "attributes": {
+        "type": "genre",
+        "name": "Hindi Hits"
+      }
+    },
+    {
+      "key": "song:dhurandhar 2 all song...",
+      "attributes": {
+        "type": "song",
+        "name": "Dhurandhar 2 All Song...",
+        "artist": "Musical vibes"
+      }
+    },
+    {
+      "key": "song:party song bolyw...",
+      "attributes": {
+        "type": "song",
+        "name": "PARTY SONG BOLYW...",
+        "artist": "RAJESH KUMAR"
+      }
+    },
+    {
+      "key": "song:starry night",
+      "attributes": {
+        "type": "song",
+        "name": "Starry Night",
+        "artist": "Jordan Critz"
+      }
+    },
+    {
+      "key": "song:aaye kuch abr",
+      "attributes": {
+        "type": "song",
+        "name": "Aaye Kuch Abr",
+        "artist": "Atif Aslam"
+      }
+    },
+    {
+      "key": "song:lagan laagi re (feat. shreya gh...",
+      "attributes": {
+        "type": "song",
+        "name": "Lagan Laagi Re (feat. Shreya Gh...",
+        "artist": "Amit Trivedi"
+      }
+    },
+    {
+      "key": "artist:ankur tewari & the ghalat",
+      "attributes": {
+        "type": "artist",
+        "name": "Ankur Tewari & The Ghalat"
+      }
+    },
+    {
+      "key": "ss:ss_1775031385243_9pt1e6",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A playlist of Bollywood Party Songs by Rajesh Kumar on YouTube Music."
+      }
+    },
+    {
+      "key": "ss:ss_1775031399860_gd6e8w",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "Screenshot of the YouTube Music app playing the song \"Saat Samundar Paar\"."
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Spotify",
+        "summary": "A Spotify home screen featuring popular radio stations and albums."
+      }
+    },
+    {
+      "key": "artist:sachet-parampara, parampara tandon",
+      "attributes": {
+        "type": "artist",
+        "name": "Sachet-Parampara, Parampara Tandon"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Spotify",
+        "summary": "Screenshot from Spotify showing a Hindi music playlist and currently playing song."
+      }
+    },
+    {
+      "key": "artist:shashwat sachdev",
+      "attributes": {
+        "type": "artist",
+        "name": "Shashwat Sachdev"
+      }
+    },
+    {
+      "key": "artist:bombay rockers",
+      "attributes": {
+        "type": "artist",
+        "name": "Bombay Rockers"
+      }
+    },
+    {
+      "key": "artist:faheem abdullah",
+      "attributes": {
+        "type": "artist",
+        "name": "Faheem Abdullah"
+      }
+    },
+    {
+      "key": "artist:irshad kamil",
+      "attributes": {
+        "type": "artist",
+        "name": "Irshad Kamil"
+      }
+    },
+    {
+      "key": "artist:anuv jain",
+      "attributes": {
+        "type": "artist",
+        "name": "Anuv Jain"
+      }
+    },
+    {
+      "key": "genre:hindi",
+      "attributes": {
+        "type": "genre",
+        "name": "Hindi"
+      }
+    },
+    {
+      "key": "song:dhurandhar the revenge - aari a...",
+      "attributes": {
+        "type": "song",
+        "name": "Dhurandhar The Revenge - Aari A...",
+        "artist": "Shashwat Sachdev, Bombay Rockers, Irs..."
+      }
+    },
+    {
+      "key": "artist:shashwat sachdev, bombay rockers, irs...",
+      "attributes": {
+        "type": "artist",
+        "name": "Shashwat Sachdev, Bombay Rockers, Irs..."
+      }
+    },
+    {
+      "key": "song:arz kiya hai | coke studio bharat",
+      "attributes": {
+        "type": "song",
+        "name": "Arz Kiya Hai | Coke Studio Bharat",
+        "artist": "Anuv Jain"
+      }
+    },
+    {
+      "key": "song:aawaara angaara",
+      "attributes": {
+        "type": "song",
+        "name": "Aawaara Angaara",
+        "artist": "A.R. Rahman, Faheem Abdullah, Irshad Kamil"
+      }
+    },
+    {
+      "key": "artist:a.r. rahman, faheem abdullah, irshad kamil",
+      "attributes": {
+        "type": "artist",
+        "name": "A.R. Rahman, Faheem Abdullah, Irshad Kamil"
+      }
+    },
+    {
+      "key": "song:dhurandhar the revenge - aari aari",
+      "attributes": {
+        "type": "song",
+        "name": "Dhurandhar The Revenge - Aari Aari",
+        "artist": "Shashwat Sachdev, Bombay Rockers, Irsh"
+      }
+    },
+    {
+      "key": "artist:shashwat sachdev, bombay rockers, irsh",
+      "attributes": {
+        "type": "artist",
+        "name": "Shashwat Sachdev, Bombay Rockers, Irsh"
+      }
+    },
+    {
+      "key": "platform:spotify",
+      "attributes": {
+        "type": "platform",
+        "name": "Spotify"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Spotify",
+        "summary": "Screenshot of Aashiqui 2 album on Spotify with music tracks listed."
+      }
+    },
+    {
+      "key": "artist:mithoon",
+      "attributes": {
+        "type": "artist",
+        "name": "Mithoon"
+      }
+    },
+    {
+      "key": "artist:ankit tiwari",
+      "attributes": {
+        "type": "artist",
+        "name": "Ankit Tiwari"
+      }
+    },
+    {
+      "key": "artist:jeet gannguli",
+      "attributes": {
+        "type": "artist",
+        "name": "Jeet Gannguli"
+      }
+    },
+    {
+      "key": "song:tum hi ho",
+      "attributes": {
+        "type": "song",
+        "name": "Tum Hi Ho",
+        "artist": "Arijit Singh, Mithoon"
+      }
+    },
+    {
+      "key": "song:sunn raha hai",
+      "attributes": {
+        "type": "song",
+        "name": "Sunn Raha Hai",
+        "artist": "Ankit Tiwari, Sandeep Nath"
+      }
+    },
+    {
+      "key": "song:chahun main ya naa",
+      "attributes": {
+        "type": "song",
+        "name": "Chahun Main Ya Naa",
+        "artist": "Palak Muchhal, Arijit Singh, Jeet Gannguli, Irshad Kamil"
+      }
+    },
+    {
+      "key": "artist:palak muchhal",
+      "attributes": {
+        "type": "artist",
+        "name": "Palak Muchhal"
+      }
+    },
+    {
+      "key": "song:hum mar jayenge",
+      "attributes": {
+        "type": "song",
+        "name": "Hum Mar Jayenge",
+        "artist": "Tulsi Kumar Arijit Singh Jeet Gannguli Irshad Kamil"
+      }
+    },
+    {
+      "key": "artist:tulsi kumar",
+      "attributes": {
+        "type": "artist",
+        "name": "Tulsi Kumar"
+      }
+    },
+    {
+      "key": "song:aasan nahin yahan",
+      "attributes": {
+        "type": "song",
+        "name": "Aasan Nahin Yahan",
+        "artist": "Arijit Singh, Jeet Gannguli, Irshad Kamil"
+      }
+    },
+    {
+      "key": "ss:ss_1775031447265_wx5bpo",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A screenshot of the YouTube Music app, displaying trending playlists and quick picks."
+      }
+    },
+    {
+      "key": "song:khawne gorachand, khawne kaa...",
+      "attributes": {
+        "type": "song",
+        "name": "Khawne Gorachand, Khawne Kaa...",
+        "artist": "Arijit Singh"
+      }
+    },
+    {
+      "key": "song:shiv kailash (live in mumbai)",
+      "attributes": {
+        "type": "song",
+        "name": "Shiv Kailash (Live in Mumbai)",
+        "artist": "Rishab Rikhiram Sharma"
+      }
+    },
+    {
+      "key": "artist:rishab rikhiram sharma",
+      "attributes": {
+        "type": "artist",
+        "name": "Rishab Rikhiram Sharma"
+      }
+    },
+    {
+      "key": "song:sanson ki malas",
+      "attributes": {
+        "type": "song",
+        "name": "Sanson Ki Malas",
+        "artist": "Nikhil-Vinay"
+      }
+    },
+    {
+      "key": "artist:nikhil-vinay",
+      "attributes": {
+        "type": "artist",
+        "name": "Nikhil-Vinay"
+      }
+    },
+    {
+      "key": "song:kehdoon tumhen (from...",
+      "attributes": {
+        "type": "song",
+        "name": "Kehdoon Tumhen (From...",
+        "artist": "Kishore Kumar, Asha Bhosle"
+      }
+    },
+    {
+      "key": "artist:kishore kumar, asha bhosle",
+      "attributes": {
+        "type": "artist",
+        "name": "Kishore Kumar, Asha Bhosle"
+      }
+    },
+    {
+      "key": "ss:ss_1775031460201_vtlnd4",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A song 'Mere Khwabon Mein' by Lata Mangeshkar on YouTube Music."
+      }
+    },
+    {
+      "key": "artist:lata mangeshkar",
+      "attributes": {
+        "type": "artist",
+        "name": "Lata Mangeshkar"
+      }
+    },
+    {
+      "key": "song:mere khwabon mein",
+      "attributes": {
+        "type": "song",
+        "name": "Mere Khwabon Mein",
+        "artist": "Lata Mangeshkar"
+      }
+    },
+    {
+      "key": "ss:ss_1775031469893_ylfesw",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "The screenshot shows the home screen of YouTube Music with wedding season playlists."
+      }
+    },
+    {
+      "key": "song:choli ke peeche",
+      "attributes": {
+        "type": "song",
+        "name": "Choli Ke Peeche",
+        "artist": "Alka Yagnik & Ila Arun"
+      }
+    },
+    {
+      "key": "artist:alka yagnik & ila arun",
+      "attributes": {
+        "type": "artist",
+        "name": "Alka Yagnik & Ila Arun"
+      }
+    },
+    {
+      "key": "ss:ss_1775031484233_30bl7g",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube",
+        "summary": "Screenshot of YouTube showing a video for the song Dooron Dooron."
+      }
+    },
+    {
+      "key": "song:dooron dooron",
+      "attributes": {
+        "type": "song",
+        "name": "Dooron Dooron",
+        "artist": "Paresh Pahuja"
+      }
+    },
+    {
+      "key": "artist:paresh pahuja",
+      "attributes": {
+        "type": "artist",
+        "name": "Paresh Pahuja"
+      }
+    },
+    {
+      "key": "ss:ss_1775031494714_dah5gu",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "A music playing interface on YouTube Music featuring \"Waltz in C-Sharp Minor, Op. 64\"."
+      }
+    },
+    {
+      "key": "artist:chad lawson",
+      "attributes": {
+        "type": "artist",
+        "name": "Chad Lawson"
+      }
+    },
+    {
+      "key": "artist:judy kang",
+      "attributes": {
+        "type": "artist",
+        "name": "Judy Kang"
+      }
+    },
+    {
+      "key": "artist:rubin kodheli",
+      "attributes": {
+        "type": "artist",
+        "name": "Rubin Kodheli"
+      }
+    },
+    {
+      "key": "song:waltz in c-sharp minor, op. 64",
+      "attributes": {
+        "type": "song",
+        "name": "Waltz in C-Sharp Minor, Op. 64",
+        "artist": "Chad Lawson"
+      }
+    },
+    {
+      "key": "ss:ss_1775031505725_uakhsg",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "Playing Waltz in C-Sharp Minor, Op. 64 by Chad Lawson on YouTube Music."
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "The screenshot displays the YouTube Music app interface with album and playlist suggestions."
+      }
+    },
+    {
+      "key": "genre:dance",
+      "attributes": {
+        "type": "genre",
+        "name": "Dance"
+      }
+    },
+    {
+      "key": "song:tum mile (original motion picture soundtrack)",
+      "attributes": {
+        "type": "song",
+        "name": "Tum Mile (Original Motion Picture Soundtrack)",
+        "artist": "Pritam"
+      }
+    },
+    {
+      "key": "song:waltz in c-sharp minor, op....",
+      "attributes": {
+        "type": "song",
+        "name": "Waltz in C-Sharp Minor, Op....",
+        "artist": "Chad Lawson"
+      }
+    },
+    {
+      "key": "ss:ss_1775032135022_uy8sv0",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "YouTube Music",
+        "summary": "Screenshot from YouTube Music showing a Bollywood playlist and music playback."
+      }
+    },
+    {
+      "key": "artist:sonu nigam",
+      "attributes": {
+        "type": "artist",
+        "name": "SONU NIGAM"
+      }
+    },
+    {
+      "key": "artist:jaspinder narula",
+      "attributes": {
+        "type": "artist",
+        "name": "JASPINDER NARULA"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o",
+      "attributes": {
+        "type": "screenshot",
+        "category": "music",
+        "sourceApp": "Spotify",
+        "summary": "Screenshot of the 'Aashiqui 2' album on Spotify, showing song list and playback controls."
+      }
+    },
+    {
+      "key": "artist:sandeep nath",
+      "attributes": {
+        "type": "artist",
+        "name": "Sandeep Nath"
+      }
+    },
+    {
+      "key": "artist:arijit singh, mithoon",
+      "attributes": {
+        "type": "artist",
+        "name": "Arijit Singh, Mithoon"
+      }
+    },
+    {
+      "key": "artist:ankit tiwari, sandeep nath",
+      "attributes": {
+        "type": "artist",
+        "name": "Ankit Tiwari, Sandeep Nath"
+      }
+    },
+    {
+      "key": "artist:palak muchhal, arijit singh, jeet gannguli, irshad kamil",
+      "attributes": {
+        "type": "artist",
+        "name": "Palak Muchhal, Arijit Singh, Jeet Gannguli, Irshad Kamil"
+      }
+    },
+    {
+      "key": "artist:tulsi kumar arijit singh jeet gannguli irshad kamil",
+      "attributes": {
+        "type": "artist",
+        "name": "Tulsi Kumar Arijit Singh Jeet Gannguli Irshad Kamil"
+      }
+    },
+    {
+      "key": "artist:arijit singh, jeet gannguli, irshad kamil",
+      "attributes": {
+        "type": "artist",
+        "name": "Arijit Singh, Jeet Gannguli, Irshad Kamil"
+      }
+    },
+    {
+      "key": "ss:ss_1775034920314_mbmq30",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "This is a screenshot of a private Tuk Tuk tour in Lisbon."
+      }
+    },
+    {
+      "key": "ss:ss_1775034929319_2cl3uv",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "Listing for a Douro Valley Wine Tour with Lunch and River Cruise"
+      }
+    },
+    {
+      "key": "ss:ss_1775034940662_l8gyq1",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "A walking tour in Lisbon is being advertised."
+      }
+    },
+    {
+      "key": "ss:ss_1775034949608_x38qyo",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Google",
+        "summary": "A Google search results page for tourist places in Portugal."
+      }
+    },
+    {
+      "key": "ss:ss_1775034957574_avj3y0",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Chrome",
+        "summary": "Google search results for tourist places in Portugal showing top sights and experiences."
+      }
+    },
+    {
+      "key": "ss:ss_1775034966170_7ihlhk",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Chrome",
+        "summary": "Google search results for tourist places in Portugal. Top sights are displayed."
+      }
+    },
+    {
+      "key": "ss:ss_1775034974814_3cx5e8",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "The screenshot advertises a Sintra Jeep Safari experience for 59.00€."
+      }
+    },
+    {
+      "key": "ss:ss_1775034982624_2kxwju",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "Advertisement for 'Sunset Hike, Tapas & Wine at Secret Beach' experience, starting at 59.00€."
+      }
+    },
+    {
+      "key": "ss:ss_1775034990571_nb27fy",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "This screenshot shows an advertisement for Pena Palace Jeep Safari at €59.00."
+      }
+    },
+    {
+      "key": "ss:ss_1775034998825_1tfu1d",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Safari",
+        "summary": "This is a screenshot from the mingoexperiences.com website offering tours in Lisbon."
+      }
+    },
+    {
+      "key": "ss:ss_1775035006355_rcv5eu",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Google",
+        "summary": "Google search results for tourist places in Portugal are displayed."
+      }
+    },
+    {
+      "key": "ss:ss_1775035022813_kbr3bh",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Booking.com",
+        "summary": "Airbnb listing showing reviews, map, and pricing for a place in Penha de França."
+      }
+    },
+    {
+      "key": "ss:ss_1775035032316_rq6buq",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Airbnb",
+        "summary": "Airbnb showing guest reviews and reservation details for a place in Lisbon."
+      }
+    },
+    {
+      "key": "ss:ss_1775035039686_3e1wia",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Airbnb",
+        "summary": "Airbnb listing for a bed in a 6-dorm room at Avenue Hostel & Suites in Lisbon, Portugal."
+      }
+    },
+    {
+      "key": "hotel:avenue hostel & suites",
+      "attributes": {
+        "type": "hotel",
+        "name": "Avenue Hostel & Suites"
+      }
+    },
+    {
+      "key": "ss:ss_1775035048716_hmj7iq",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Airbnb",
+        "summary": "This is a screenshot from Airbnb for a rental in Lisbon, Portugal."
+      }
+    },
+    {
+      "key": "ss:ss_1775035056898_0i7ywg",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Booking.com",
+        "summary": "Airbnb listing in Lisbon: Amazing BR in Lapa/Estrela for ₹18,134."
+      }
+    },
+    {
+      "key": "ss:ss_1775035064572_mnxpr2",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Airbnb",
+        "summary": "Airbnb listing in Lisbon for \"Amazing BR in Lapa/Estrela\" from April 26 - May 1."
+      }
+    },
+    {
+      "key": "ss:ss_1775035072918_9q51oo",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "Listing for a bed in a 6-bed dorm at This Is Lisbon Hostel for ₹14,280."
+      }
+    },
+    {
+      "key": "hotel:this is lisbon hostel",
+      "attributes": {
+        "type": "hotel",
+        "name": "This Is Lisbon Hostel"
+      }
+    },
+    {
+      "key": "ss:ss_1775035212449_xslsae",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "Tour booking for a private Tuk Tuk tour of Lisbon with a local, costs ₹9,960."
+      }
+    },
+    {
+      "key": "ss:ss_1775035221301_w4989c",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "Douro Valley Wine Tour with Lunch, Wine Tastings and River Cruise for ₹10,956."
+      }
+    },
+    {
+      "key": "ss:ss_1775035232160_xffny6",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "A tour of Lisbon City Center is being advertised for ₹331."
+      }
+    },
+    {
+      "key": "ss:ss_1775035240819_jplyrp",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Google",
+        "summary": "Google search results for tourist places in Portugal."
+      }
+    },
+    {
+      "key": "ss:ss_1775035248855_2n2n9w",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Google",
+        "summary": "Google search results for tourist places in Portugal, showing top sights."
+      }
+    },
+    {
+      "key": "ss:ss_1775035257448_j5u7cy",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Chrome",
+        "summary": "A search for tourist places in Portugal shows top sights like Belém Tower and Jerónimos Monastery."
+      }
+    },
+    {
+      "key": "ss:ss_1775035266109_rpv3qc",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Safari",
+        "summary": "Sintra Jeep Safari experience from 59.00 € with a book now button."
+      }
+    },
+    {
+      "key": "ss:ss_1775035273624_554olb",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "Screenshot shows a travel ad for \"Sunset Hike, Tapas & Wine at Secret Beach\" for 59.00€."
+      }
+    },
+    {
+      "key": "ss:ss_1775035281408_i2gu6e",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "unknown",
+        "summary": "Screenshot shows a Pena Palace Jeep Safari tour offer starting from €59.00."
+      }
+    },
+    {
+      "key": "ss:ss_1775035288991_5xq5kk",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Safari",
+        "summary": "This screenshot is from mingoexperiences.com advertising experiences in Lisbon, Portugal."
+      }
+    },
+    {
+      "key": "ss:ss_1775035297106_r8iyg8",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Google",
+        "summary": "A Google search result for tourist places in Portugal."
+      }
+    },
+    {
+      "key": "ss:ss_1775035305474_5s9qpg",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Skyscanner",
+        "summary": "Skyscanner flight search results for Bengaluru to Lisbon on May 2-9, 2024."
+      }
+    },
+    {
+      "key": "ss:ss_1775035336931_9x8kg5",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Booking.com",
+        "summary": "Airbnb listing with reviews, location map, price, and booking details."
+      }
+    },
+    {
+      "key": "ss:ss_1775035344478_l4009s",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Booking.com",
+        "summary": "Airbnb listing in Lisbon, Portugal with guest reviews and pricing details."
+      }
+    },
+    {
+      "key": "ss:ss_1775035352271_asujum",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Booking.com",
+        "summary": "An Airbnb listing for \"Avenue Hostel & Suites - Bed in 6 Dorm\" in Lisbon, Portugal."
+      }
+    },
+    {
+      "key": "hotel:avenue hostel & suites - bed in 6 dorm",
+      "attributes": {
+        "type": "hotel",
+        "name": "Avenue Hostel & Suites - Bed in 6 Dorm"
+      }
+    },
+    {
+      "key": "ss:ss_1775035360983_1qx9mp",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Booking.com",
+        "summary": "This is a Booking.com screen showing location in Lisbon, Portugal with a price of ₹18,134."
+      }
+    },
+    {
+      "key": "ss:ss_1775035368596_fhbizq",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Airbnb",
+        "summary": "Airbnb listing for a private room in Lisbon, Portugal."
+      }
+    },
+    {
+      "key": "ss:ss_1775035376768_0a7mrn",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Airbnb",
+        "summary": "Airbnb listing in Lisbon for 'Amazing BR in Lapa/Estrela' from Apr 26 to May 1."
+      }
+    },
+    {
+      "key": "hotel:amazing br in lapa/estrela",
+      "attributes": {
+        "type": "hotel",
+        "name": "Amazing BR in Lapa/Estrela"
+      }
+    },
+    {
+      "key": "ss:ss_1775035385665_c3tnwm",
+      "attributes": {
+        "type": "screenshot",
+        "category": "travel",
+        "sourceApp": "Booking.com",
+        "summary": "Listing for a bed in a 6-bed dorm at This Is Lisbon Hostel in Lisbon, Portugal."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "key": "user:self->UPLOADED->ss:ss_1774862573204_xknf97",
+      "source": "user:self",
+      "target": "ss:ss_1774862573204_xknf97",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1774862573204_xknf97->CONTAINS->song:kallo",
+      "source": "ss:ss_1774862573204_xknf97",
+      "target": "song:kallo",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:kallo->BELONGS_TO->artist:komal chaudhary, harjee...",
+      "source": "song:kallo",
+      "target": "artist:komal chaudhary, harjee...",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1774862573204_xknf97->CONTAINS->song:kal chaudhvin ki raat...",
+      "source": "ss:ss_1774862573204_xknf97",
+      "target": "song:kal chaudhvin ki raat...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:kal chaudhvin ki raat...->BELONGS_TO->artist:jagjit singh",
+      "source": "song:kal chaudhvin ki raat...",
+      "target": "artist:jagjit singh",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1774862573204_xknf97->CONTAINS->song:sheesha - aakhya mai...",
+      "source": "ss:ss_1774862573204_xknf97",
+      "target": "song:sheesha - aakhya mai...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:sheesha - aakhya mai...->BELONGS_TO->artist:mitta ror, swara verma",
+      "source": "song:sheesha - aakhya mai...",
+      "target": "artist:mitta ror, swara verma",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1774862573204_xknf97->CONTAINS->song:naam tera",
+      "source": "ss:ss_1774862573204_xknf97",
+      "target": "song:naam tera",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:naam tera->BELONGS_TO->artist:ndee kundu",
+      "source": "song:naam tera",
+      "target": "artist:ndee kundu",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1774862573204_xknf97->CONTAINS->song:ittar",
+      "source": "ss:ss_1774862573204_xknf97",
+      "target": "song:ittar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:ittar->BELONGS_TO->artist:jasmine sandlas, b pr...",
+      "source": "song:ittar",
+      "target": "artist:jasmine sandlas, b pr...",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1774862573204_xknf97->CONTAINS->song:sheesha - aakhya mai aakh ghali jo bairan",
+      "source": "ss:ss_1774862573204_xknf97",
+      "target": "song:sheesha - aakhya mai aakh ghali jo bairan",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:sheesha - aakhya mai aakh ghali jo bairan->BELONGS_TO->artist:mitta ror, swara verma",
+      "source": "song:sheesha - aakhya mai aakh ghali jo bairan",
+      "target": "artist:mitta ror, swara verma",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1774862922609_udlrau",
+      "source": "user:self",
+      "target": "ss:ss_1774862922609_udlrau",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1774862922609_udlrau->CONTAINS->song:kallo",
+      "source": "ss:ss_1774862922609_udlrau",
+      "target": "song:kallo",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1774862922609_udlrau->CONTAINS->song:kal chaudhvin ki raat...",
+      "source": "ss:ss_1774862922609_udlrau",
+      "target": "song:kal chaudhvin ki raat...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1774862922609_udlrau->CONTAINS->song:sheesha - aakhya mai...",
+      "source": "ss:ss_1774862922609_udlrau",
+      "target": "song:sheesha - aakhya mai...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1774862922609_udlrau->CONTAINS->song:naam tera",
+      "source": "ss:ss_1774862922609_udlrau",
+      "target": "song:naam tera",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1774862922609_udlrau->CONTAINS->song:ittar",
+      "source": "ss:ss_1774862922609_udlrau",
+      "target": "song:ittar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1774862922609_udlrau->CONTAINS->song:sheesha - aakhya mai aakh ghali jo bairan",
+      "source": "ss:ss_1774862922609_udlrau",
+      "target": "song:sheesha - aakhya mai aakh ghali jo bairan",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1774864200226_9ezzls",
+      "source": "user:self",
+      "target": "ss:ss_1774864200226_9ezzls",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1774864200226_9ezzls->CONTAINS->destination:jabalpur",
+      "source": "ss:ss_1774864200226_9ezzls",
+      "target": "destination:jabalpur",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->INTERESTED_IN->destination:jabalpur",
+      "source": "user:self",
+      "target": "destination:jabalpur",
+      "attributes": {
+        "type": "INTERESTED_IN"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1774864243303_phg3cz",
+      "source": "user:self",
+      "target": "ss:ss_1774864243303_phg3cz",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1774981131450_2kuir8",
+      "source": "user:self",
+      "target": "ss:ss_1774981131450_2kuir8",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1774981131450_2kuir8->CONTAINS->destination:portugal",
+      "source": "ss:ss_1774981131450_2kuir8",
+      "target": "destination:portugal",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->INTERESTED_IN->destination:portugal",
+      "source": "user:self",
+      "target": "destination:portugal",
+      "attributes": {
+        "type": "INTERESTED_IN"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775030126512_xs2q03",
+      "source": "user:self",
+      "target": "ss:ss_1775030126512_xs2q03",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775030126512_xs2q03->CONTAINS->artist:amit trivedi",
+      "source": "ss:ss_1775030126512_xs2q03",
+      "target": "artist:amit trivedi",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:amit trivedi",
+      "source": "user:self",
+      "target": "artist:amit trivedi",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030126512_xs2q03->CONTAINS->artist:shreya g",
+      "source": "ss:ss_1775030126512_xs2q03",
+      "target": "artist:shreya g",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:shreya g",
+      "source": "user:self",
+      "target": "artist:shreya g",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030126512_xs2q03->CONTAINS->song:lagan laagi re",
+      "source": "ss:ss_1775030126512_xs2q03",
+      "target": "song:lagan laagi re",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:lagan laagi re->BELONGS_TO->artist:amit trivedi",
+      "source": "song:lagan laagi re",
+      "target": "artist:amit trivedi",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775030422456_t673aa",
+      "source": "user:self",
+      "target": "ss:ss_1775030422456_t673aa",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775030422456_t673aa->CONTAINS->artist:amit trivedi",
+      "source": "ss:ss_1775030422456_t673aa",
+      "target": "artist:amit trivedi",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775030422456_t673aa->CONTAINS->artist:shreya g",
+      "source": "ss:ss_1775030422456_t673aa",
+      "target": "artist:shreya g",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775030422456_t673aa->CONTAINS->song:lagan laagi re",
+      "source": "ss:ss_1775030422456_t673aa",
+      "target": "song:lagan laagi re",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775030648371_zo1tz6",
+      "source": "user:self",
+      "target": "ss:ss_1775030648371_zo1tz6",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775030648371_zo1tz6->CONTAINS->artist:amit trivedi",
+      "source": "ss:ss_1775030648371_zo1tz6",
+      "target": "artist:amit trivedi",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775030648371_zo1tz6->CONTAINS->artist:shreya g",
+      "source": "ss:ss_1775030648371_zo1tz6",
+      "target": "artist:shreya g",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775030648371_zo1tz6->CONTAINS->song:lagan laagi re",
+      "source": "ss:ss_1775030648371_zo1tz6",
+      "target": "song:lagan laagi re",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775030777408_93xbea",
+      "source": "user:self",
+      "target": "ss:ss_1775030777408_93xbea",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775030777408_93xbea->CONTAINS->artist:simran hora",
+      "source": "ss:ss_1775030777408_93xbea",
+      "target": "artist:simran hora",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:simran hora",
+      "source": "user:self",
+      "target": "artist:simran hora",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030777408_93xbea->CONTAINS->song:the gentleman",
+      "source": "ss:ss_1775030777408_93xbea",
+      "target": "song:the gentleman",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:the gentleman->BELONGS_TO->artist:simran hora",
+      "source": "song:the gentleman",
+      "target": "artist:simran hora",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775030877614_lqowo6",
+      "source": "user:self",
+      "target": "ss:ss_1775030877614_lqowo6",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:shubh",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:shubh",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:shubh",
+      "source": "user:self",
+      "target": "artist:shubh",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:karan aujla",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:karan aujla",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:karan aujla",
+      "source": "user:self",
+      "target": "artist:karan aujla",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:sidhu moose wala",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:sidhu moose wala",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:sidhu moose wala",
+      "source": "user:self",
+      "target": "artist:sidhu moose wala",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:pritam",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:pritam",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:pritam",
+      "source": "user:self",
+      "target": "artist:pritam",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:a. r. rahman",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:a. r. rahman",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:a. r. rahman",
+      "source": "user:self",
+      "target": "artist:a. r. rahman",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:shreya ghoshal",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:shreya ghoshal",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:shreya ghoshal",
+      "source": "user:self",
+      "target": "artist:shreya ghoshal",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:anirudh ravichander",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:anirudh ravichander",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:anirudh ravichander",
+      "source": "user:self",
+      "target": "artist:anirudh ravichander",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:devi sri prasad",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:devi sri prasad",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:devi sri prasad",
+      "source": "user:self",
+      "target": "artist:devi sri prasad",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->artist:ram mirivala",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "artist:ram mirivala",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:ram mirivala",
+      "source": "user:self",
+      "target": "artist:ram mirivala",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->genre:hip hop",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "genre:hip hop",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->PREFERS->genre:hip hop",
+      "source": "user:self",
+      "target": "genre:hip hop",
+      "attributes": {
+        "type": "PREFERS"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->song:aaya sher (from \"the paradise\"...",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "song:aaya sher (from \"the paradise\"...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:aaya sher (from \"the paradise\"...->BELONGS_TO->artist:anirudh ravichander",
+      "source": "song:aaya sher (from \"the paradise\"...",
+      "target": "artist:anirudh ravichander",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->song:rai rai raa raa (telugu)",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "song:rai rai raa raa (telugu)",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:rai rai raa raa (telugu)->BELONGS_TO->artist:a.r. rahman",
+      "source": "song:rai rai raa raa (telugu)",
+      "target": "artist:a.r. rahman",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->song:collar ey etthara",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "song:collar ey etthara",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:collar ey etthara->BELONGS_TO->artist:devi sri prasad",
+      "source": "song:collar ey etthara",
+      "target": "artist:devi sri prasad",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775030877614_lqowo6->CONTAINS->platform:youtube music",
+      "source": "ss:ss_1775030877614_lqowo6",
+      "target": "platform:youtube music",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->PREFERS->platform:youtube music",
+      "source": "user:self",
+      "target": "platform:youtube music",
+      "attributes": {
+        "type": "PREFERS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775030983158_mrcm1s",
+      "source": "user:self",
+      "target": "ss:ss_1775030983158_mrcm1s",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031046928_nuekww",
+      "source": "user:self",
+      "target": "ss:ss_1775031046928_nuekww",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031046928_nuekww->CONTAINS->song:saat samundar paar",
+      "source": "ss:ss_1775031046928_nuekww",
+      "target": "song:saat samundar paar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:saat samundar paar->BELONGS_TO->artist:sadhana sargam",
+      "source": "song:saat samundar paar",
+      "target": "artist:sadhana sargam",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031046928_nuekww->CONTAINS->song:ankhiyon se goli maare",
+      "source": "ss:ss_1775031046928_nuekww",
+      "target": "song:ankhiyon se goli maare",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:ankhiyon se goli maare->BELONGS_TO->artist:sonu nigam, jaspinder narula",
+      "source": "song:ankhiyon se goli maare",
+      "target": "artist:sonu nigam, jaspinder narula",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031126900_it53dw",
+      "source": "user:self",
+      "target": "ss:ss_1775031126900_it53dw",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:arijit singh",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:arijit singh",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:arijit singh",
+      "source": "user:self",
+      "target": "artist:arijit singh",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:pritam",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:pritam",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:alka yagnik",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:alka yagnik",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:alka yagnik",
+      "source": "user:self",
+      "target": "artist:alka yagnik",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:a.r. rahman",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:a.r. rahman",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:a.r. rahman",
+      "source": "user:self",
+      "target": "artist:a.r. rahman",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:k. s. chithra",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:k. s. chithra",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:k. s. chithra",
+      "source": "user:self",
+      "target": "artist:k. s. chithra",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:shankar mahadevan",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:shankar mahadevan",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:shankar mahadevan",
+      "source": "user:self",
+      "target": "artist:shankar mahadevan",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:kishore bhosle",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:kishore bhosle",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:kishore bhosle",
+      "source": "user:self",
+      "target": "artist:kishore bhosle",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:sachet-parampara",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:sachet-parampara",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:sachet-parampara",
+      "source": "user:self",
+      "target": "artist:sachet-parampara",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->artist:parampara tandon",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "artist:parampara tandon",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:parampara tandon",
+      "source": "user:self",
+      "target": "artist:parampara tandon",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031126900_it53dw->CONTAINS->song:raanjhan (from \"do patti\")",
+      "source": "ss:ss_1775031126900_it53dw",
+      "target": "song:raanjhan (from \"do patti\")",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:raanjhan (from \"do patti\")->BELONGS_TO->artist:sachet-parampara",
+      "source": "song:raanjhan (from \"do patti\")",
+      "target": "artist:sachet-parampara",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031243936_sjszp0",
+      "source": "user:self",
+      "target": "ss:ss_1775031243936_sjszp0",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031243936_sjszp0->CONTAINS->song:raanjhan (from \"do patti\")",
+      "source": "ss:ss_1775031243936_sjszp0",
+      "target": "song:raanjhan (from \"do patti\")",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:raanjhan (from \"do patti\")->BELONGS_TO->artist:sachet-parampara, parampara",
+      "source": "song:raanjhan (from \"do patti\")",
+      "target": "artist:sachet-parampara, parampara",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031265586_jnpicl",
+      "source": "user:self",
+      "target": "ss:ss_1775031265586_jnpicl",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031265586_jnpicl->CONTAINS->artist:devi sri prasad",
+      "source": "ss:ss_1775031265586_jnpicl",
+      "target": "artist:devi sri prasad",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031265586_jnpicl->CONTAINS->artist:ram miriyala ar",
+      "source": "ss:ss_1775031265586_jnpicl",
+      "target": "artist:ram miriyala ar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:ram miriyala ar",
+      "source": "user:self",
+      "target": "artist:ram miriyala ar",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031265586_jnpicl->CONTAINS->song:collar ey etthara",
+      "source": "ss:ss_1775031265586_jnpicl",
+      "target": "song:collar ey etthara",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031287940_iyfheh",
+      "source": "user:self",
+      "target": "ss:ss_1775031287940_iyfheh",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031304913_764pgf",
+      "source": "user:self",
+      "target": "ss:ss_1775031304913_764pgf",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031304913_764pgf->CONTAINS->song:aaya sher (from \"the paradise\"...",
+      "source": "ss:ss_1775031304913_764pgf",
+      "target": "song:aaya sher (from \"the paradise\"...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031304913_764pgf->CONTAINS->song:rai rai raa raa (telugu)",
+      "source": "ss:ss_1775031304913_764pgf",
+      "target": "song:rai rai raa raa (telugu)",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031304913_764pgf->CONTAINS->song:collar ey etthara",
+      "source": "ss:ss_1775031304913_764pgf",
+      "target": "song:collar ey etthara",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031304913_764pgf->CONTAINS->song:aaya sher (from \"the...",
+      "source": "ss:ss_1775031304913_764pgf",
+      "target": "song:aaya sher (from \"the...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:aaya sher (from \"the...->BELONGS_TO->artist:anirudh ravichander",
+      "source": "song:aaya sher (from \"the...",
+      "target": "artist:anirudh ravichander",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031316196_hhq6sw",
+      "source": "user:self",
+      "target": "ss:ss_1775031316196_hhq6sw",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031316196_hhq6sw->CONTAINS->artist:simran hora",
+      "source": "ss:ss_1775031316196_hhq6sw",
+      "target": "artist:simran hora",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031316196_hhq6sw->CONTAINS->song:the gentleman",
+      "source": "ss:ss_1775031316196_hhq6sw",
+      "target": "song:the gentleman",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031338076_m0sce7",
+      "source": "user:self",
+      "target": "ss:ss_1775031338076_m0sce7",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031338076_m0sce7->CONTAINS->artist:amit trivedi",
+      "source": "ss:ss_1775031338076_m0sce7",
+      "target": "artist:amit trivedi",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031338076_m0sce7->CONTAINS->artist:shreya g",
+      "source": "ss:ss_1775031338076_m0sce7",
+      "target": "artist:shreya g",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031338076_m0sce7->CONTAINS->song:lagan laagi re",
+      "source": "ss:ss_1775031338076_m0sce7",
+      "target": "song:lagan laagi re",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031358225_0o0tjy",
+      "source": "user:self",
+      "target": "ss:ss_1775031358225_0o0tjy",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031358225_0o0tjy->CONTAINS->artist:ankur tewari & the ghalat family",
+      "source": "ss:ss_1775031358225_0o0tjy",
+      "target": "artist:ankur tewari & the ghalat family",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:ankur tewari & the ghalat family",
+      "source": "user:self",
+      "target": "artist:ankur tewari & the ghalat family",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031358225_0o0tjy->CONTAINS->song:yaaron",
+      "source": "ss:ss_1775031358225_0o0tjy",
+      "target": "song:yaaron",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:yaaron->BELONGS_TO->artist:ankur tewari & the ghalat family",
+      "source": "song:yaaron",
+      "target": "artist:ankur tewari & the ghalat family",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031369721_rab6wd",
+      "source": "user:self",
+      "target": "ss:ss_1775031369721_rab6wd",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->artist:musical vibes",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "artist:musical vibes",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:musical vibes",
+      "source": "user:self",
+      "target": "artist:musical vibes",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->artist:rajesh kumar",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "artist:rajesh kumar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:rajesh kumar",
+      "source": "user:self",
+      "target": "artist:rajesh kumar",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->artist:jordan critz",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "artist:jordan critz",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:jordan critz",
+      "source": "user:self",
+      "target": "artist:jordan critz",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->artist:ankur tewari",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "artist:ankur tewari",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:ankur tewari",
+      "source": "user:self",
+      "target": "artist:ankur tewari",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->artist:atif aslam",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "artist:atif aslam",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:atif aslam",
+      "source": "user:self",
+      "target": "artist:atif aslam",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->artist:amit trivedi",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "artist:amit trivedi",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->artist:shreya ghoshal",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "artist:shreya ghoshal",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->genre:hindi hits",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "genre:hindi hits",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->PREFERS->genre:hindi hits",
+      "source": "user:self",
+      "target": "genre:hindi hits",
+      "attributes": {
+        "type": "PREFERS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->song:dhurandhar 2 all song...",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "song:dhurandhar 2 all song...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:dhurandhar 2 all song...->BELONGS_TO->artist:musical vibes",
+      "source": "song:dhurandhar 2 all song...",
+      "target": "artist:musical vibes",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->song:party song bolyw...",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "song:party song bolyw...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:party song bolyw...->BELONGS_TO->artist:rajesh kumar",
+      "source": "song:party song bolyw...",
+      "target": "artist:rajesh kumar",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->song:starry night",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "song:starry night",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:starry night->BELONGS_TO->artist:jordan critz",
+      "source": "song:starry night",
+      "target": "artist:jordan critz",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->song:yaaron",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "song:yaaron",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:yaaron->BELONGS_TO->artist:ankur tewari",
+      "source": "song:yaaron",
+      "target": "artist:ankur tewari",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->song:aaye kuch abr",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "song:aaye kuch abr",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:aaye kuch abr->BELONGS_TO->artist:atif aslam",
+      "source": "song:aaye kuch abr",
+      "target": "artist:atif aslam",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031369721_rab6wd->CONTAINS->song:lagan laagi re (feat. shreya gh...",
+      "source": "ss:ss_1775031369721_rab6wd",
+      "target": "song:lagan laagi re (feat. shreya gh...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:lagan laagi re (feat. shreya gh...->BELONGS_TO->artist:amit trivedi",
+      "source": "song:lagan laagi re (feat. shreya gh...",
+      "target": "artist:amit trivedi",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "song:yaaron->BELONGS_TO->artist:ankur tewari & the ghalat",
+      "source": "song:yaaron",
+      "target": "artist:ankur tewari & the ghalat",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031385243_9pt1e6",
+      "source": "user:self",
+      "target": "ss:ss_1775031385243_9pt1e6",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031385243_9pt1e6->CONTAINS->song:saat samundar paar",
+      "source": "ss:ss_1775031385243_9pt1e6",
+      "target": "song:saat samundar paar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031385243_9pt1e6->CONTAINS->song:ankhiyon se goli maare",
+      "source": "ss:ss_1775031385243_9pt1e6",
+      "target": "song:ankhiyon se goli maare",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031399860_gd6e8w",
+      "source": "user:self",
+      "target": "ss:ss_1775031399860_gd6e8w",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031399860_gd6e8w->CONTAINS->artist:sadhana sargam",
+      "source": "ss:ss_1775031399860_gd6e8w",
+      "target": "artist:sadhana sargam",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:sadhana sargam",
+      "source": "user:self",
+      "target": "artist:sadhana sargam",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031399860_gd6e8w->CONTAINS->song:saat samundar paar",
+      "source": "ss:ss_1775031399860_gd6e8w",
+      "target": "song:saat samundar paar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031399860_gd6e8w->CONTAINS->platform:youtube music",
+      "source": "ss:ss_1775031399860_gd6e8w",
+      "target": "platform:youtube music",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031411465_igjc0x",
+      "source": "user:self",
+      "target": "ss:ss_1775031411465_igjc0x",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:arijit singh",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:arijit singh",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:pritam",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:pritam",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:alka yagnik",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:alka yagnik",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:a.r. rahman",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:a.r. rahman",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:k. s. chithra",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:k. s. chithra",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:shankar mahadevan",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:shankar mahadevan",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:kishore bhosle",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:kishore bhosle",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:sachet-parampara",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:sachet-parampara",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->artist:parampara tandon",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "artist:parampara tandon",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031411465_igjc0x->CONTAINS->song:raanjhan (from \"do patti\")",
+      "source": "ss:ss_1775031411465_igjc0x",
+      "target": "song:raanjhan (from \"do patti\")",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:raanjhan (from \"do patti\")->BELONGS_TO->artist:sachet-parampara, parampara tandon",
+      "source": "song:raanjhan (from \"do patti\")",
+      "target": "artist:sachet-parampara, parampara tandon",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031422373_j1luzd",
+      "source": "user:self",
+      "target": "ss:ss_1775031422373_j1luzd",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->artist:shashwat sachdev",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "artist:shashwat sachdev",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:shashwat sachdev",
+      "source": "user:self",
+      "target": "artist:shashwat sachdev",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->artist:bombay rockers",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "artist:bombay rockers",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:bombay rockers",
+      "source": "user:self",
+      "target": "artist:bombay rockers",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->artist:a.r. rahman",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "artist:a.r. rahman",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->artist:faheem abdullah",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "artist:faheem abdullah",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:faheem abdullah",
+      "source": "user:self",
+      "target": "artist:faheem abdullah",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->artist:irshad kamil",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "artist:irshad kamil",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:irshad kamil",
+      "source": "user:self",
+      "target": "artist:irshad kamil",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->artist:anuv jain",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "artist:anuv jain",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:anuv jain",
+      "source": "user:self",
+      "target": "artist:anuv jain",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->genre:hindi",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "genre:hindi",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->PREFERS->genre:hindi",
+      "source": "user:self",
+      "target": "genre:hindi",
+      "attributes": {
+        "type": "PREFERS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->song:dhurandhar the revenge - aari a...",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "song:dhurandhar the revenge - aari a...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:dhurandhar the revenge - aari a...->BELONGS_TO->artist:shashwat sachdev, bombay rockers, irs...",
+      "source": "song:dhurandhar the revenge - aari a...",
+      "target": "artist:shashwat sachdev, bombay rockers, irs...",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->song:arz kiya hai | coke studio bharat",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "song:arz kiya hai | coke studio bharat",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:arz kiya hai | coke studio bharat->BELONGS_TO->artist:anuv jain",
+      "source": "song:arz kiya hai | coke studio bharat",
+      "target": "artist:anuv jain",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->song:aawaara angaara",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "song:aawaara angaara",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:aawaara angaara->BELONGS_TO->artist:a.r. rahman, faheem abdullah, irshad kamil",
+      "source": "song:aawaara angaara",
+      "target": "artist:a.r. rahman, faheem abdullah, irshad kamil",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->song:dhurandhar the revenge - aari aari",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "song:dhurandhar the revenge - aari aari",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:dhurandhar the revenge - aari aari->BELONGS_TO->artist:shashwat sachdev, bombay rockers, irsh",
+      "source": "song:dhurandhar the revenge - aari aari",
+      "target": "artist:shashwat sachdev, bombay rockers, irsh",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031422373_j1luzd->CONTAINS->platform:spotify",
+      "source": "ss:ss_1775031422373_j1luzd",
+      "target": "platform:spotify",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->PREFERS->platform:spotify",
+      "source": "user:self",
+      "target": "platform:spotify",
+      "attributes": {
+        "type": "PREFERS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031434470_15bnni",
+      "source": "user:self",
+      "target": "ss:ss_1775031434470_15bnni",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni->CONTAINS->artist:mithoon",
+      "source": "ss:ss_1775031434470_15bnni",
+      "target": "artist:mithoon",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:mithoon",
+      "source": "user:self",
+      "target": "artist:mithoon",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni->CONTAINS->artist:ankit tiwari",
+      "source": "ss:ss_1775031434470_15bnni",
+      "target": "artist:ankit tiwari",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:ankit tiwari",
+      "source": "user:self",
+      "target": "artist:ankit tiwari",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni->CONTAINS->artist:jeet gannguli",
+      "source": "ss:ss_1775031434470_15bnni",
+      "target": "artist:jeet gannguli",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:jeet gannguli",
+      "source": "user:self",
+      "target": "artist:jeet gannguli",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni->CONTAINS->song:tum hi ho",
+      "source": "ss:ss_1775031434470_15bnni",
+      "target": "song:tum hi ho",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:tum hi ho->BELONGS_TO->artist:arijit singh",
+      "source": "song:tum hi ho",
+      "target": "artist:arijit singh",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni->CONTAINS->song:sunn raha hai",
+      "source": "ss:ss_1775031434470_15bnni",
+      "target": "song:sunn raha hai",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:sunn raha hai->BELONGS_TO->artist:ankit tiwari",
+      "source": "song:sunn raha hai",
+      "target": "artist:ankit tiwari",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni->CONTAINS->song:chahun main ya naa",
+      "source": "ss:ss_1775031434470_15bnni",
+      "target": "song:chahun main ya naa",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:chahun main ya naa->BELONGS_TO->artist:palak muchhal",
+      "source": "song:chahun main ya naa",
+      "target": "artist:palak muchhal",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni->CONTAINS->song:hum mar jayenge",
+      "source": "ss:ss_1775031434470_15bnni",
+      "target": "song:hum mar jayenge",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:hum mar jayenge->BELONGS_TO->artist:tulsi kumar",
+      "source": "song:hum mar jayenge",
+      "target": "artist:tulsi kumar",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031434470_15bnni->CONTAINS->song:aasan nahin yahan",
+      "source": "ss:ss_1775031434470_15bnni",
+      "target": "song:aasan nahin yahan",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:aasan nahin yahan->BELONGS_TO->artist:arijit singh",
+      "source": "song:aasan nahin yahan",
+      "target": "artist:arijit singh",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031447265_wx5bpo",
+      "source": "user:self",
+      "target": "ss:ss_1775031447265_wx5bpo",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031447265_wx5bpo->CONTAINS->song:khawne gorachand, khawne kaa...",
+      "source": "ss:ss_1775031447265_wx5bpo",
+      "target": "song:khawne gorachand, khawne kaa...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:khawne gorachand, khawne kaa...->BELONGS_TO->artist:arijit singh",
+      "source": "song:khawne gorachand, khawne kaa...",
+      "target": "artist:arijit singh",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031447265_wx5bpo->CONTAINS->song:shiv kailash (live in mumbai)",
+      "source": "ss:ss_1775031447265_wx5bpo",
+      "target": "song:shiv kailash (live in mumbai)",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:shiv kailash (live in mumbai)->BELONGS_TO->artist:rishab rikhiram sharma",
+      "source": "song:shiv kailash (live in mumbai)",
+      "target": "artist:rishab rikhiram sharma",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031447265_wx5bpo->CONTAINS->song:sanson ki malas",
+      "source": "ss:ss_1775031447265_wx5bpo",
+      "target": "song:sanson ki malas",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:sanson ki malas->BELONGS_TO->artist:nikhil-vinay",
+      "source": "song:sanson ki malas",
+      "target": "artist:nikhil-vinay",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031447265_wx5bpo->CONTAINS->song:kehdoon tumhen (from...",
+      "source": "ss:ss_1775031447265_wx5bpo",
+      "target": "song:kehdoon tumhen (from...",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:kehdoon tumhen (from...->BELONGS_TO->artist:kishore kumar, asha bhosle",
+      "source": "song:kehdoon tumhen (from...",
+      "target": "artist:kishore kumar, asha bhosle",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031460201_vtlnd4",
+      "source": "user:self",
+      "target": "ss:ss_1775031460201_vtlnd4",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031460201_vtlnd4->CONTAINS->artist:lata mangeshkar",
+      "source": "ss:ss_1775031460201_vtlnd4",
+      "target": "artist:lata mangeshkar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:lata mangeshkar",
+      "source": "user:self",
+      "target": "artist:lata mangeshkar",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031460201_vtlnd4->CONTAINS->song:mere khwabon mein",
+      "source": "ss:ss_1775031460201_vtlnd4",
+      "target": "song:mere khwabon mein",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:mere khwabon mein->BELONGS_TO->artist:lata mangeshkar",
+      "source": "song:mere khwabon mein",
+      "target": "artist:lata mangeshkar",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031469893_ylfesw",
+      "source": "user:self",
+      "target": "ss:ss_1775031469893_ylfesw",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031469893_ylfesw->CONTAINS->song:choli ke peeche",
+      "source": "ss:ss_1775031469893_ylfesw",
+      "target": "song:choli ke peeche",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:choli ke peeche->BELONGS_TO->artist:alka yagnik & ila arun",
+      "source": "song:choli ke peeche",
+      "target": "artist:alka yagnik & ila arun",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031484233_30bl7g",
+      "source": "user:self",
+      "target": "ss:ss_1775031484233_30bl7g",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031484233_30bl7g->CONTAINS->song:dooron dooron",
+      "source": "ss:ss_1775031484233_30bl7g",
+      "target": "song:dooron dooron",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:dooron dooron->BELONGS_TO->artist:paresh pahuja",
+      "source": "song:dooron dooron",
+      "target": "artist:paresh pahuja",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031494714_dah5gu",
+      "source": "user:self",
+      "target": "ss:ss_1775031494714_dah5gu",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031494714_dah5gu->CONTAINS->artist:chad lawson",
+      "source": "ss:ss_1775031494714_dah5gu",
+      "target": "artist:chad lawson",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:chad lawson",
+      "source": "user:self",
+      "target": "artist:chad lawson",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031494714_dah5gu->CONTAINS->artist:judy kang",
+      "source": "ss:ss_1775031494714_dah5gu",
+      "target": "artist:judy kang",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:judy kang",
+      "source": "user:self",
+      "target": "artist:judy kang",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031494714_dah5gu->CONTAINS->artist:rubin kodheli",
+      "source": "ss:ss_1775031494714_dah5gu",
+      "target": "artist:rubin kodheli",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:rubin kodheli",
+      "source": "user:self",
+      "target": "artist:rubin kodheli",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031494714_dah5gu->CONTAINS->song:waltz in c-sharp minor, op. 64",
+      "source": "ss:ss_1775031494714_dah5gu",
+      "target": "song:waltz in c-sharp minor, op. 64",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:waltz in c-sharp minor, op. 64->BELONGS_TO->artist:chad lawson",
+      "source": "song:waltz in c-sharp minor, op. 64",
+      "target": "artist:chad lawson",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031505725_uakhsg",
+      "source": "user:self",
+      "target": "ss:ss_1775031505725_uakhsg",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031505725_uakhsg->CONTAINS->artist:chad lawson",
+      "source": "ss:ss_1775031505725_uakhsg",
+      "target": "artist:chad lawson",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031505725_uakhsg->CONTAINS->artist:judy kang",
+      "source": "ss:ss_1775031505725_uakhsg",
+      "target": "artist:judy kang",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031505725_uakhsg->CONTAINS->artist:rubin kodheli",
+      "source": "ss:ss_1775031505725_uakhsg",
+      "target": "artist:rubin kodheli",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031505725_uakhsg->CONTAINS->song:waltz in c-sharp minor, op. 64",
+      "source": "ss:ss_1775031505725_uakhsg",
+      "target": "song:waltz in c-sharp minor, op. 64",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775031516495_4ndum2",
+      "source": "user:self",
+      "target": "ss:ss_1775031516495_4ndum2",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2->CONTAINS->artist:shashwat sachdev",
+      "source": "ss:ss_1775031516495_4ndum2",
+      "target": "artist:shashwat sachdev",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2->CONTAINS->artist:pritam",
+      "source": "ss:ss_1775031516495_4ndum2",
+      "target": "artist:pritam",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2->CONTAINS->artist:chad lawson",
+      "source": "ss:ss_1775031516495_4ndum2",
+      "target": "artist:chad lawson",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2->CONTAINS->artist:judy kang",
+      "source": "ss:ss_1775031516495_4ndum2",
+      "target": "artist:judy kang",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2->CONTAINS->genre:dance",
+      "source": "ss:ss_1775031516495_4ndum2",
+      "target": "genre:dance",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->PREFERS->genre:dance",
+      "source": "user:self",
+      "target": "genre:dance",
+      "attributes": {
+        "type": "PREFERS"
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2->CONTAINS->song:tum mile (original motion picture soundtrack)",
+      "source": "ss:ss_1775031516495_4ndum2",
+      "target": "song:tum mile (original motion picture soundtrack)",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:tum mile (original motion picture soundtrack)->BELONGS_TO->artist:pritam",
+      "source": "song:tum mile (original motion picture soundtrack)",
+      "target": "artist:pritam",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2->CONTAINS->song:waltz in c-sharp minor, op....",
+      "source": "ss:ss_1775031516495_4ndum2",
+      "target": "song:waltz in c-sharp minor, op....",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:waltz in c-sharp minor, op....->BELONGS_TO->artist:chad lawson",
+      "source": "song:waltz in c-sharp minor, op....",
+      "target": "artist:chad lawson",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775031516495_4ndum2->CONTAINS->platform:youtube music",
+      "source": "ss:ss_1775031516495_4ndum2",
+      "target": "platform:youtube music",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775032135022_uy8sv0",
+      "source": "user:self",
+      "target": "ss:ss_1775032135022_uy8sv0",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775032135022_uy8sv0->CONTAINS->artist:rajesh kumar",
+      "source": "ss:ss_1775032135022_uy8sv0",
+      "target": "artist:rajesh kumar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775032135022_uy8sv0->CONTAINS->artist:sadhana sargam",
+      "source": "ss:ss_1775032135022_uy8sv0",
+      "target": "artist:sadhana sargam",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775032135022_uy8sv0->CONTAINS->artist:sonu nigam",
+      "source": "ss:ss_1775032135022_uy8sv0",
+      "target": "artist:sonu nigam",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:sonu nigam",
+      "source": "user:self",
+      "target": "artist:sonu nigam",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032135022_uy8sv0->CONTAINS->artist:jaspinder narula",
+      "source": "ss:ss_1775032135022_uy8sv0",
+      "target": "artist:jaspinder narula",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:jaspinder narula",
+      "source": "user:self",
+      "target": "artist:jaspinder narula",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032135022_uy8sv0->CONTAINS->song:saat samundar paar",
+      "source": "ss:ss_1775032135022_uy8sv0",
+      "target": "song:saat samundar paar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775032135022_uy8sv0->CONTAINS->song:ankhiyon se goli maare",
+      "source": "ss:ss_1775032135022_uy8sv0",
+      "target": "song:ankhiyon se goli maare",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775032205395_x6df3o",
+      "source": "user:self",
+      "target": "ss:ss_1775032205395_x6df3o",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->artist:mithoon",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "artist:mithoon",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->artist:ankit tiwari",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "artist:ankit tiwari",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->artist:jeet gannguli",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "artist:jeet gannguli",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->artist:arijit singh",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "artist:arijit singh",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->artist:sandeep nath",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "artist:sandeep nath",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:sandeep nath",
+      "source": "user:self",
+      "target": "artist:sandeep nath",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->artist:palak muchhal",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "artist:palak muchhal",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:palak muchhal",
+      "source": "user:self",
+      "target": "artist:palak muchhal",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->artist:irshad kamil",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "artist:irshad kamil",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->artist:tulsi kumar",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "artist:tulsi kumar",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->LISTENS_TO->artist:tulsi kumar",
+      "source": "user:self",
+      "target": "artist:tulsi kumar",
+      "attributes": {
+        "type": "LISTENS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->song:tum hi ho",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "song:tum hi ho",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:tum hi ho->BELONGS_TO->artist:arijit singh, mithoon",
+      "source": "song:tum hi ho",
+      "target": "artist:arijit singh, mithoon",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->song:sunn raha hai",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "song:sunn raha hai",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:sunn raha hai->BELONGS_TO->artist:ankit tiwari, sandeep nath",
+      "source": "song:sunn raha hai",
+      "target": "artist:ankit tiwari, sandeep nath",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->song:chahun main ya naa",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "song:chahun main ya naa",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:chahun main ya naa->BELONGS_TO->artist:palak muchhal, arijit singh, jeet gannguli, irshad kamil",
+      "source": "song:chahun main ya naa",
+      "target": "artist:palak muchhal, arijit singh, jeet gannguli, irshad kamil",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->song:hum mar jayenge",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "song:hum mar jayenge",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:hum mar jayenge->BELONGS_TO->artist:tulsi kumar arijit singh jeet gannguli irshad kamil",
+      "source": "song:hum mar jayenge",
+      "target": "artist:tulsi kumar arijit singh jeet gannguli irshad kamil",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "ss:ss_1775032205395_x6df3o->CONTAINS->song:aasan nahin yahan",
+      "source": "ss:ss_1775032205395_x6df3o",
+      "target": "song:aasan nahin yahan",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "song:aasan nahin yahan->BELONGS_TO->artist:arijit singh, jeet gannguli, irshad kamil",
+      "source": "song:aasan nahin yahan",
+      "target": "artist:arijit singh, jeet gannguli, irshad kamil",
+      "attributes": {
+        "type": "BELONGS_TO"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034920314_mbmq30",
+      "source": "user:self",
+      "target": "ss:ss_1775034920314_mbmq30",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034929319_2cl3uv",
+      "source": "user:self",
+      "target": "ss:ss_1775034929319_2cl3uv",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034940662_l8gyq1",
+      "source": "user:self",
+      "target": "ss:ss_1775034940662_l8gyq1",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034949608_x38qyo",
+      "source": "user:self",
+      "target": "ss:ss_1775034949608_x38qyo",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034957574_avj3y0",
+      "source": "user:self",
+      "target": "ss:ss_1775034957574_avj3y0",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034966170_7ihlhk",
+      "source": "user:self",
+      "target": "ss:ss_1775034966170_7ihlhk",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034974814_3cx5e8",
+      "source": "user:self",
+      "target": "ss:ss_1775034974814_3cx5e8",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034982624_2kxwju",
+      "source": "user:self",
+      "target": "ss:ss_1775034982624_2kxwju",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034990571_nb27fy",
+      "source": "user:self",
+      "target": "ss:ss_1775034990571_nb27fy",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775034998825_1tfu1d",
+      "source": "user:self",
+      "target": "ss:ss_1775034998825_1tfu1d",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035006355_rcv5eu",
+      "source": "user:self",
+      "target": "ss:ss_1775035006355_rcv5eu",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035022813_kbr3bh",
+      "source": "user:self",
+      "target": "ss:ss_1775035022813_kbr3bh",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035032316_rq6buq",
+      "source": "user:self",
+      "target": "ss:ss_1775035032316_rq6buq",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035039686_3e1wia",
+      "source": "user:self",
+      "target": "ss:ss_1775035039686_3e1wia",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775035039686_3e1wia->CONTAINS->hotel:avenue hostel & suites",
+      "source": "ss:ss_1775035039686_3e1wia",
+      "target": "hotel:avenue hostel & suites",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035048716_hmj7iq",
+      "source": "user:self",
+      "target": "ss:ss_1775035048716_hmj7iq",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035056898_0i7ywg",
+      "source": "user:self",
+      "target": "ss:ss_1775035056898_0i7ywg",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035064572_mnxpr2",
+      "source": "user:self",
+      "target": "ss:ss_1775035064572_mnxpr2",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035072918_9q51oo",
+      "source": "user:self",
+      "target": "ss:ss_1775035072918_9q51oo",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775035072918_9q51oo->CONTAINS->hotel:this is lisbon hostel",
+      "source": "ss:ss_1775035072918_9q51oo",
+      "target": "hotel:this is lisbon hostel",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035212449_xslsae",
+      "source": "user:self",
+      "target": "ss:ss_1775035212449_xslsae",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035221301_w4989c",
+      "source": "user:self",
+      "target": "ss:ss_1775035221301_w4989c",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035232160_xffny6",
+      "source": "user:self",
+      "target": "ss:ss_1775035232160_xffny6",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035240819_jplyrp",
+      "source": "user:self",
+      "target": "ss:ss_1775035240819_jplyrp",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035248855_2n2n9w",
+      "source": "user:self",
+      "target": "ss:ss_1775035248855_2n2n9w",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035257448_j5u7cy",
+      "source": "user:self",
+      "target": "ss:ss_1775035257448_j5u7cy",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035266109_rpv3qc",
+      "source": "user:self",
+      "target": "ss:ss_1775035266109_rpv3qc",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035273624_554olb",
+      "source": "user:self",
+      "target": "ss:ss_1775035273624_554olb",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035281408_i2gu6e",
+      "source": "user:self",
+      "target": "ss:ss_1775035281408_i2gu6e",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035288991_5xq5kk",
+      "source": "user:self",
+      "target": "ss:ss_1775035288991_5xq5kk",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035297106_r8iyg8",
+      "source": "user:self",
+      "target": "ss:ss_1775035297106_r8iyg8",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035305474_5s9qpg",
+      "source": "user:self",
+      "target": "ss:ss_1775035305474_5s9qpg",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035336931_9x8kg5",
+      "source": "user:self",
+      "target": "ss:ss_1775035336931_9x8kg5",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035344478_l4009s",
+      "source": "user:self",
+      "target": "ss:ss_1775035344478_l4009s",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035352271_asujum",
+      "source": "user:self",
+      "target": "ss:ss_1775035352271_asujum",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775035352271_asujum->CONTAINS->hotel:avenue hostel & suites - bed in 6 dorm",
+      "source": "ss:ss_1775035352271_asujum",
+      "target": "hotel:avenue hostel & suites - bed in 6 dorm",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035360983_1qx9mp",
+      "source": "user:self",
+      "target": "ss:ss_1775035360983_1qx9mp",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035368596_fhbizq",
+      "source": "user:self",
+      "target": "ss:ss_1775035368596_fhbizq",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035376768_0a7mrn",
+      "source": "user:self",
+      "target": "ss:ss_1775035376768_0a7mrn",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775035376768_0a7mrn->CONTAINS->hotel:amazing br in lapa/estrela",
+      "source": "ss:ss_1775035376768_0a7mrn",
+      "target": "hotel:amazing br in lapa/estrela",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    },
+    {
+      "key": "user:self->UPLOADED->ss:ss_1775035385665_c3tnwm",
+      "source": "user:self",
+      "target": "ss:ss_1775035385665_c3tnwm",
+      "attributes": {
+        "type": "UPLOADED"
+      }
+    },
+    {
+      "key": "ss:ss_1775035385665_c3tnwm->CONTAINS->hotel:this is lisbon hostel",
+      "source": "ss:ss_1775035385665_c3tnwm",
+      "target": "hotel:this is lisbon hostel",
+      "attributes": {
+        "type": "CONTAINS"
+      }
+    }
+  ]
+}
