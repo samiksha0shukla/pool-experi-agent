@@ -172,17 +172,25 @@ export async function updateProfileFromConversation(
   let updated = 0;
   const q = query.toLowerCase();
 
-  // All conversation-extracted facts get confidence 1.0 (user stated directly)
-
   // ── Identity ──
+  // ONLY match explicit name declarations — "my name is X" or "call me X"
+  // Do NOT match "i'm" (too ambiguous — "i'm thinking", "i'm planning", "i'm from")
   updated += matchAndApply(query,
-    /(?:my name is|i'm|i am|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-    (m) => setIdentityFact(store, "name", m[1]!, 1.0, "conversation", "user stated directly") === "added" ? 1 : 0
+    /(?:my name is|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
+    (m) => {
+      const name = m[1]!.trim();
+      if (!isValidPersonName(name)) return 0;
+      return setIdentityFact(store, "name", name, 0.85, "conversation", "user stated in conversation") === "added" ? 1 : 0;
+    }
   );
 
   updated += matchAndApply(query,
-    /(?:i live in|i'm from|i am from|based in|located in|i stay in|my city is|my home is)\s+([A-Z][a-z]+(?:[\s,]+[A-Z][a-z]+)*)/i,
-    (m) => setIdentityFact(store, "location", m[1]!, 1.0, "conversation", "user stated directly") === "added" ? 1 : 0
+    /(?:i live in|i'm from|i am from|based in|located in|i stay in|my city is|my home is|my home town (?:is |in ))\s*([A-Z][a-z]+(?:[\s,]+[A-Z][a-z]+)*)/i,
+    (m) => {
+      const loc = m[1]!.trim();
+      if (!isValidCityName(loc)) return 0;
+      return setIdentityFact(store, "location", loc, 0.85, "conversation", "user stated in conversation") === "added" ? 1 : 0;
+    }
   );
 
   // ── Food preferences ──
@@ -369,28 +377,41 @@ function setIdentityFact(
   source: string,
   evidence: string
 ): "added" | "reinforced" | "skipped" {
+  // Validate before storing
+  if (key === "name" && !isValidPersonName(value)) return "skipped";
+  if (key === "location" && !isValidCityName(value)) return "skipped";
+
   const existing = store.getFactsByType(key);
   const topExisting = existing.length > 0 ? existing[0] : null;
 
   // Same value → reinforce
   if (topExisting && topExisting.fact_value.toLowerCase() === value.toLowerCase()) {
     store.reinforceFact(key, value, source);
-    store.setProfileValue(`identity.${key}`, value, Math.min(1.0, topExisting.confidence + 0.05), [
-      ...store.sqlite.getFactSources(key, value),
-      source,
-    ]);
+    const allSources = store.sqlite.getFactSources(key, value);
+    const newConfidence = Math.min(1.0, topExisting.confidence + 0.05);
+    // Only promote to profile_kv if we have 2+ independent sources
+    if (allSources.length >= 2 || source === "conversation") {
+      store.setProfileValue(`identity.${key}`, value, newConfidence, [...allSources, source]);
+    }
     return "reinforced";
   }
 
-  // Contradiction with stronger existing → skip (keep both in facts table)
+  // Contradiction with stronger existing → store as candidate but don't promote
   if (topExisting && topExisting.confidence >= 0.5 && confidence < topExisting.confidence) {
     store.addFact({ factType: key, factValue: value, confidence, source, evidence });
     return "skipped";
   }
 
-  // New fact or higher confidence → set as primary
+  // New fact — always store in facts table for tracking
   store.addFact({ factType: key, factValue: value, confidence, source, evidence });
-  store.setProfileValue(`identity.${key}`, value, confidence, [source]);
+
+  // Only promote to profile_kv (user-facing identity) if:
+  // 1. User stated it directly in conversation (high trust), OR
+  // 2. High confidence (>= 0.85) from a screenshot (e.g., boarding pass with clear name)
+  // A random name seen in one screenshot at 0.7 confidence does NOT get promoted.
+  if (source === "conversation" || confidence >= 0.85) {
+    store.setProfileValue(`identity.${key}`, value, confidence, [source]);
+  }
   return "added";
 }
 
@@ -718,5 +739,58 @@ function isValidDestination(destination: string, origin?: string): boolean {
 function isValidCityName(name: string): boolean {
   if (!name || name.length < 2 || name.length > 40) return false;
   if (/\b(to|from|flight|travel|booking)\b/i.test(name)) return false;
+  return true;
+}
+
+// ══════════════════════════════════════════════════════════════
+// NAME VALIDATION
+// Prevents garbage like "thinking of", "planning to", "looking at"
+// from being stored as a person's name.
+// ══════════════════════════════════════════════════════════════
+
+const NOT_A_NAME = new Set([
+  // Common verbs that follow "I'm" / "I am"
+  "thinking", "planning", "looking", "going", "trying", "wanting",
+  "searching", "checking", "browsing", "visiting", "booking",
+  "interested", "excited", "wondering", "considering", "hoping",
+  "currently", "actually", "really", "just", "also", "still",
+  "not", "very", "so", "too", "here", "there", "back",
+  // Common non-name words that regex might capture
+  "the", "this", "that", "from", "into", "with", "about",
+  "good", "fine", "okay", "sure", "done", "new", "happy",
+  "hungry", "tired", "busy", "free", "home", "based",
+  // Travel/flight terms that vision might mistake for names
+  "economy", "business", "premium", "first", "class", "round", "trip",
+  "departure", "arrival", "terminal", "gate", "boarding", "check",
+  "direct", "nonstop", "layover", "transfer", "connecting",
+  // Common UI/app text
+  "settings", "profile", "search", "explore", "discover", "library",
+  "download", "upload", "share", "save", "liked", "songs", "playlist",
+  "account", "premium", "subscribe", "login", "sign",
+]);
+
+function isValidPersonName(name: string): boolean {
+  if (!name || name.length < 2 || name.length > 40) return false;
+
+  const words = name.toLowerCase().split(/\s+/);
+
+  // First word must not be a common non-name word
+  if (NOT_A_NAME.has(words[0]!)) return false;
+
+  // Must not contain verbs/prepositions/articles
+  for (const word of words) {
+    if (NOT_A_NAME.has(word)) return false;
+  }
+
+  // Must not end with common suffixes that indicate it's a phrase, not a name
+  if (/\b(of|to|at|in|on|for|the|and|or|but|is|was|are)\s*$/i.test(name)) return false;
+
+  // Must look like a proper noun — at least one word starting with uppercase
+  // (in the original input, not lowercased)
+  if (!/[A-Z]/.test(name.charAt(0))) return false;
+
+  // Must not be all lowercase (after the first letter)
+  // Single-word names are fine: "Samiksha", "John"
+  // Multi-word names are fine: "Samiksha Shukla", "John Doe"
   return true;
 }

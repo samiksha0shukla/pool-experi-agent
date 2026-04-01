@@ -1,10 +1,25 @@
+# Dependencies
 node_modules/
+
+# Build output
 dist/
+*.tsbuildinfo
+
+# Environment & secrets
+.env
+
+# Runtime data
 data/screenshots/
 data/responses/
 data/profile.json
 data/screenshots.json
 data/conversations.json
-*.tsbuildinfo
-.env
+data/pool.db
+data/vectors/
+
+# OS files
+.DS_Store
+
+# Dev artifacts
 pool-ss/
+*.tgz

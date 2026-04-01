@@ -48,29 +48,31 @@ export async function searchBuses(
   }
 
   const summary = await generateText(
-    "You extract bus travel information from web search snippets. Be factual — extract every operator, price, bus type you can find.",
+    "You extract and validate bus travel information from web search snippets. Be strict — only include verified results.",
     `Here are web search results for buses from ${origin} to ${destination} on/around ${formattedDate}.
 
 SEARCH RESULTS:
 ${searchContext}
 
-Extract EVERY bus option mentioned. For each, provide ONE LINE:
+VALIDATION — only include results where:
+- The result is specifically about ${origin} → ${destination} bus route
+- There's an actual operator name, price, or timing for THIS route
+- NOT generic bus booking pages that don't show this specific route
+
+For each VALIDATED bus, output:
 BUS | Operator Name | Price | Bus Type | Departure→Arrival | Duration | Platform
 
-Examples:
-BUS | VRL Travels | ₹1,200 | AC Sleeper | 20:00→10:30+1 | 14h 30m | RedBus
-BUS | SRS Travels | ₹1,500 | Volvo Multi-Axle | 21:30→11:00+1 | 13h 30m | AbhiBus
-BUS | Multiple operators | from ₹800 | Various | Multiple departures | 12-16h | RedBus
-BUS | KSRTC | ₹950 | Non-AC Sleeper | 19:00→09:00+1 | 14h | MakeMyTrip
+If NO results contain genuine ${origin}→${destination} bus data, output:
+NO_BUSES | No buses found on the ${origin} to ${destination} route. This route may not have bus service.
 
-Rules:
-- Extract every operator name and price you see
-- If you see "X buses starting from ₹Y", include that
-- Include bus types (AC, Non-AC, Sleeper, Semi-Sleeper, Volvo, etc.)
-- Include ratings if mentioned (e.g., 4.2★)
-- Don't skip any bus mention. Every data point counts.
-- Do NOT fabricate operators — only use what's in the snippets`
+Be strict. Don't extract data from results about different routes.`
   );
+
+  if (summary.includes("NO_BUSES")) {
+    const suggestion = summary.split("\n").find((l) => l.includes("NO_BUSES"))?.split("|").slice(1).join("|").trim() ||
+      `No buses found for ${origin} → ${destination}.`;
+    return emptyResult(origin, destination, date, suggestion);
+  }
 
   const results = parseLines(summary);
 

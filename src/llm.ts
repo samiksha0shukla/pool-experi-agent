@@ -27,7 +27,7 @@ function getModel() {
 
 function getSearchModel() {
   checkApiKey();
-  return google(MODEL_ID, { useSearchGrounding: true });
+  return google(MODEL_ID);
 }
 
 // ── Message type for conversation history ──
@@ -112,7 +112,7 @@ export async function analyzeImage(
       {
         role: "user",
         content: [
-          { type: "image", image: imageBuffer, mimeType },
+          { type: "image", image: imageBuffer, mediaType: mimeType },
           { type: "text", text: prompt },
         ],
       },
@@ -153,7 +153,7 @@ export async function extractOCR(imagePath: string): Promise<string> {
       {
         role: "user",
         content: [
-          { type: "image", image: imageBuffer, mimeType },
+          { type: "image", image: imageBuffer, mediaType: mimeType },
           { type: "text", text: OCR_PROMPT },
         ],
       },
@@ -188,7 +188,7 @@ export async function analyzeImageJSON<T>(
       {
         role: "user",
         content: [
-          { type: "image", image: imageBuffer, mimeType },
+          { type: "image", image: imageBuffer, mediaType: mimeType },
           { type: "text", text: prompt },
         ],
       },

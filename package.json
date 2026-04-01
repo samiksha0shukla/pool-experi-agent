@@ -1,17 +1,45 @@
 {
   "name": "pool-agent",
   "version": "1.0.0",
-  "description": "Pool Agent CLI - Screenshot intelligence agent",
+  "description": "Pool Agent CLI - Screenshot intelligence agent with music discovery, travel search, and profile building",
   "type": "module",
+  "bin": {
+    "pool-agent": "./dist/cli.js"
+  },
+  "main": "./dist/cli.js",
+  "files": [
+    "dist",
+    "INSTRUCTIONS.md",
+    ".env.example"
+  ],
   "scripts": {
+    "build": "tsc",
     "start": "tsx src/cli.ts",
     "dev": "tsx watch src/cli.ts",
+    "prepare": "npm run build",
     "reprocess": "tsx src/reprocess.ts",
-    "migrate": "tsx src/knowledge/migrate.ts"
+    "migrate": "tsx src/knowledge/migrate.ts",
+    "typecheck": "tsc --noEmit"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cli",
+    "agent",
+    "screenshot",
+    "music",
+    "travel",
+    "ai",
+    "gemini",
+    "intelligence"
+  ],
+  "author": "samiksha0shukla",
   "license": "ISC",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/samiksha0shukla/pool-experi-agent.git"
+  },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.13",
     "@types/chokidar": "^1.7.5",

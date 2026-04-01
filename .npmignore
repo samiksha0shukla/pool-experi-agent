@@ -1,0 +1,21 @@
+# Source (compiled output is in dist/)
+src/
+tsconfig.json
+*.tsbuildinfo
+
+# Environment & secrets
+.env
+.env.example
+
+# Runtime data
+data/
+pool-ss/
+
+# Dev & docs (not needed for npm package)
+.git/
+.DS_Store
+*.md
+!INSTRUCTIONS.md
+
+# Test artifacts
+*.tgz

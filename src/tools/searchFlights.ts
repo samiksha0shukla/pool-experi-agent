@@ -50,60 +50,57 @@ export async function searchFlights(
     return emptyResult(origin, destination, date, "No search results found.");
   }
 
-  // Step 2: Ask Gemini to extract flight info from the search snippets
+  // Step 2: Ask Gemini to extract AND VALIDATE flight info from search snippets
   const summary = await generateText(
-    `You are a flight data extractor. You read web search snippets and extract every piece of flight information you can find.`,
+    `You are a flight data extractor and validator. You read web search snippets and extract ONLY genuine, verified flight results.`,
     `Here are web search results for flights from ${origin} to ${destination} on ${formattedDate}.
 
 SEARCH RESULTS:
 ${searchContext}
 
-From these search snippets, extract EVERY flight option or price you can find. For each, list:
-- Airline (IndiGo, Air India, SpiceJet, Vistara, etc.) — if mentioned
-- Price — exact if available, or range
-- Platform (which website: MakeMyTrip, Yatra, ixigo, Cleartrip, Expedia, Skyscanner)
-- Any times, flight numbers, or duration if mentioned
-- Any offers or discounts mentioned
+TASK: Extract flight options. But FIRST, validate each search result:
 
-Format each as:
+VALIDATION RULES — reject results that:
+- Are generic airport/city pages WITHOUT specific ${origin}→${destination} route pricing
+- Show flights to/from a DIFFERENT city than what was asked (e.g., asked Jabalpur→Portugal but result shows Delhi→Mumbai)
+- Are link-only results with no actual price or airline for THIS specific route
+- Show "lowest prices" or "cheapest flights" without any actual price for ${origin}→${destination}
+- Are about a completely different route even if they mention one of the cities
+
+ONLY include results where you can see ACTUAL flight data for ${origin} → ${destination}:
+- A specific airline operating this route
+- A specific price for this route (not a generic "flights from ₹X" for a different route)
+- Actual departure/arrival times for this route
+
+For each VALIDATED flight, output:
 FLIGHT | Airline | Price | Platform | Details
 
-Examples:
-FLIGHT | IndiGo | ₹5,567 | ixigo | Departing 06:55, cheapest option on Apr 1
-FLIGHT | Multiple Airlines | from ₹4,816 | Yatra | Lowest fare available
-FLIGHT | IndiGo/SpiceJet | $55-56 | Expedia | Multiple options available
+If NO search results contain genuine ${origin}→${destination} flight data, output EXACTLY:
+NO_DIRECT_FLIGHTS | No direct or connecting flights found from ${origin} to ${destination}. This route may not have regular service. Consider flying from a major nearby hub (Delhi, Mumbai, Bengaluru) instead.
 
-Extract EVERYTHING you can see — even partial info is useful. Include every platform and every price point mentioned.
-If a snippet mentions a price or airline, include it. Don't skip anything.`
+Be strict. It's better to return NO_DIRECT_FLIGHTS than to present fake or irrelevant results.`
   );
 
-  // Step 3: Parse the FLIGHT lines
-  const results = parseFlightLines(summary);
+  // Step 3: Check for NO_DIRECT_FLIGHTS
+  if (summary.includes("NO_DIRECT_FLIGHTS")) {
+    // Extract the suggestion from the NO_DIRECT_FLIGHTS line
+    const noFlightLine = summary.split("\n").find((l) => l.includes("NO_DIRECT_FLIGHTS"));
+    const suggestion = noFlightLine?.split("|").slice(1).join("|").trim() ||
+      `No direct flights found from ${origin} to ${destination}. Try a major hub like Delhi or Mumbai.`;
 
-  // If Gemini couldn't parse into lines, store the raw summary as a single result
-  if (results.length === 0 && summary.length > 10) {
     return {
       mode: "flights",
       route: `${origin} → ${destination}`,
       date,
-      results: [{
-        provider: "Multiple platforms",
-        operator: "Various airlines",
-        identifier: "",
-        departureTime: "",
-        arrivalTime: "",
-        duration: "",
-        price: extractFirstPrice(summary) || "See sources",
-        stops: "",
-        classType: "Economy",
-        availability: "Check platforms",
-        notes: summary.slice(0, 300),
-      }],
+      results: [],
       sources,
       searchedAt: new Date().toISOString(),
-      disclaimer: "Data from web search. Check platforms for exact prices and booking.",
+      disclaimer: suggestion,
     };
   }
+
+  // Step 4: Parse the FLIGHT lines
+  const results = parseFlightLines(summary);
 
   return {
     mode: "flights",
@@ -112,7 +109,9 @@ If a snippet mentions a price or airline, include it. Don't skip anything.`
     results,
     sources,
     searchedAt: new Date().toISOString(),
-    disclaimer: "Prices approximate from web search. Check platforms for exact availability.",
+    disclaimer: results.length > 0
+      ? "Prices approximate from web search. Check platforms for exact availability."
+      : `Could not find verified flight results for ${origin} → ${destination}. This route may have limited service.`,
   };
 }
 

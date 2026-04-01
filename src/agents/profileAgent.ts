@@ -11,52 +11,82 @@ import type { KnowledgeStore } from "../knowledge/store.js";
 
 const SYSTEM_PROMPT = `You are the profile agent for Pool, a screenshot-based personal intelligence app.
 
-Your job is to present what Pool has learned about the user — clearly, warmly, and honestly. You're showing them their own data, not guessing about them.
+Your job is to present what Pool has learned about the user — clearly, warmly, and honestly.
 
 HOW TO PRESENT THE PROFILE:
 - Walk through each section: Identity, Music Taste, Travel Interests, Food & Lifestyle
-- For each fact, mention HOW it was learned (e.g., "from your Spotify screenshot" or "you mentioned this in conversation")
-- Show confidence levels — "I'm 95% sure your name is Samiksha (from a boarding pass screenshot)" vs "I think you might like Japanese food (seen once)"
-- Highlight the STRONGEST signals — if they have 8 indie rock artists, that's a strong signal worth emphasizing
-- Call out gaps directly — "I don't know your travel budget yet. A screenshot of a flight search would help."
+- For each fact, ALWAYS mention the actual source — which screenshot or conversation it came from
+- Use natural language to describe certainty. NEVER show raw percentages like "95% confidence" or "100% confident"
+  Instead use phrases like:
+  - "Based on your Spotify screenshots..." (strong evidence)
+  - "It looks like..." or "From what I can see..." (moderate evidence)
+  - "I noticed once in a screenshot that..." (weak evidence, single source)
+- Highlight patterns — if the same artist appears across 5 screenshots, that's meaningful
 
-FORMAT — respond in clean markdown:
+CRITICAL — VALIDATE BEFORE PRESENTING:
+- Before stating any identity fact (name, location), check: does this actually make sense?
+  - A name should look like a real person's name (not a verb, phrase, or random word)
+  - A location should be a real place name
+- If a fact looks wrong or implausible, say "I'm not sure about this" or skip it entirely
+- If a fact has only 1 source, present it cautiously: "From one screenshot, it looks like..."
+- If multiple sources agree, present it confidently: "Across several screenshots..."
+- NEVER say "you told me" unless the source is explicitly "conversation" AND the value makes logical sense
+
+FORMAT:
 - ## Your Pool Profile
 - ### sections for each area
-- Use bullet points for facts
-- End with "What Would Help Me Learn More" section suggesting specific screenshot types
-
-WHAT MAKES THIS DIFFERENT FROM A DATABASE DUMP:
-- Don't just list facts — connect them into a narrative
-- "You're clearly into indie rock — Arctic Monkeys, Tame Impala, and Prateek Kuhad show up across 8 of your screenshots. You listen on Spotify, and your vibe leans introspective and chill."
-- This is a profile STORY, not a JSON readout
+- Bullet points for facts, always with source context
+- End with "What Would Help Me Learn More" suggesting specific screenshot types
 
 ABSOLUTE RULES:
 - Never fabricate facts not present in the profile data
-- If a section is completely empty, say "Nothing here yet" and suggest what screenshots would help
-- Present confidence honestly — don't say "you love X" if confidence is 0.5
-- Be warm and conversational, like a thoughtful friend summarizing what they know about you`;
+- Never show raw confidence numbers or percentages to the user
+- Never present a dubious fact as certain — if it doesn't look right, flag it or skip it
+- If a section is empty, say "Nothing here yet" and suggest what screenshots would help
+- Be warm and conversational, like a thoughtful friend`;
 
 /**
  * Build complete profile context by querying the knowledge store.
  */
+function describeSource(source: string): string {
+  if (source === "conversation") return "from conversation";
+  if (source === "migration") return "from earlier data";
+  if (source.startsWith("ss_")) return "from screenshot";
+  return `from ${source}`;
+}
+
+function describeStrength(fact: { confidence: number; source: string }, allSources: string[]): string {
+  const count = allSources.length;
+  if (count >= 3) return `seen across ${count} sources — strong signal`;
+  if (count === 2) return `seen in 2 sources`;
+  return `${describeSource(fact.source)} — single source`;
+}
+
 function buildProfileContext(store: KnowledgeStore): string {
   const parts: string[] = [];
 
   // ── Identity ──
   parts.push("=== IDENTITY ===");
-  const nameFacts = store.getFactsByType("name");
   const locationFacts = store.getFactsByType("location");
   const langFacts = store.getFactsByType("language");
-  if (nameFacts.length > 0) {
-    const n = nameFacts[0]!;
-    parts.push(`Name: ${n.fact_value} (${(n.confidence * 100).toFixed(0)}% confidence, source: ${n.source})`);
+
+  // Name: prefer the promoted value from profile_kv, fall back to facts
+  const promotedName = store.getProfileValue("identity.name");
+  const nameFacts = store.getFactsByType("name");
+  if (promotedName) {
+    const sources = store.sqlite.getFactSources("name", promotedName.value);
+    parts.push(`Name: "${promotedName.value}" (${describeStrength({ confidence: promotedName.confidence, source: sources[0] || "unknown" }, sources)})`);
+  } else if (nameFacts.length > 0) {
+    // We have candidate names but none promoted — present cautiously
+    const candidates = nameFacts.slice(0, 3).map((n) => `"${n.fact_value}"`).join(", ");
+    parts.push(`Name: NOT CONFIRMED — candidate names spotted in screenshots: ${candidates}. These are names visible in screenshots but not confirmed as the user's own name. Do NOT present these as the user's name. Ask the user to confirm.`);
   } else {
-    parts.push("Name: Unknown");
+    parts.push("Name: Not detected yet");
   }
   if (locationFacts.length > 0) {
     const l = locationFacts[0]!;
-    parts.push(`Location: ${l.fact_value} (${(l.confidence * 100).toFixed(0)}% confidence, source: ${l.source})`);
+    const sources = store.sqlite.getFactSources("location", l.fact_value);
+    parts.push(`Location: "${l.fact_value}" (${describeStrength(l, sources)})`);
   }
   if (langFacts.length > 0) {
     parts.push(`Languages: ${langFacts.map((l) => l.fact_value).join(", ")}`);
@@ -65,14 +95,14 @@ function buildProfileContext(store: KnowledgeStore): string {
   // ── Music ──
   parts.push("\n=== MUSIC ===");
   const platform = store.getProfileValue("music.preferredPlatform");
-  if (platform) parts.push(`Platform: ${platform.value} (${(platform.confidence * 100).toFixed(0)}% confidence)`);
+  if (platform) parts.push(`Platform: ${platform.value}`);
   const artists = store.getFactsByType("liked_artist");
   if (artists.length > 0) {
-    parts.push(`Artists (${artists.length}): ${artists.map((a) => `${a.fact_value} (${(a.confidence * 100).toFixed(0)}%)`).join(", ")}`);
+    parts.push(`Artists (${artists.length}): ${artists.map((a) => a.fact_value).join(", ")}`);
   }
   const genres = store.getFactsByType("genre");
   if (genres.length > 0) {
-    parts.push(`Genres: ${genres.map((g) => `${g.fact_value} (${(g.confidence * 100).toFixed(0)}%)`).join(", ")}`);
+    parts.push(`Genres: ${genres.map((g) => g.fact_value).join(", ")}`);
   }
   const songs = store.getFactsByType("liked_song");
   if (songs.length > 0) {
@@ -92,9 +122,10 @@ function buildProfileContext(store: KnowledgeStore): string {
   const destinations = store.getFactsByType("travel_interest");
   if (destinations.length > 0) {
     for (const dest of destinations) {
+      const sources = store.sqlite.getFactSources("travel_interest", dest.fact_value);
       const prefix = `travel.detail.${dest.fact_value.toLowerCase()}`;
       const details = store.getProfileSection(prefix);
-      parts.push(`  ${dest.fact_value}: ${(dest.confidence * 100).toFixed(0)}% confidence`);
+      parts.push(`  ${dest.fact_value} (${describeStrength(dest, sources)})`);
       for (const d of details) {
         parts.push(`    ${d.key.replace(`${prefix}.`, "")}: ${d.value}`);
       }

@@ -48,28 +48,31 @@ export async function searchTrains(
   }
 
   const summary = await generateText(
-    "You extract Indian railway train information from web search snippets. Be factual — extract every train name, number, timing, fare you can see.",
+    "You extract and validate Indian railway train information from web search snippets. Be strict — only include verified results.",
     `Here are web search results for trains from ${origin} to ${destination} on/around ${formattedDate}.
 
 SEARCH RESULTS:
 ${searchContext}
 
-Extract EVERY train mentioned in these snippets. For each, provide ONE LINE:
+VALIDATION — only include results where:
+- The search result is specifically about ${origin} → ${destination} train route
+- There's an actual train name/number, price, or timing for THIS route
+- NOT generic railway pages that just mention one of the cities
+
+For each VALIDATED train, output:
 TRAIN | Train Name & Number | Price/Fare | Class | Departure→Arrival | Duration | Platform
 
-Examples:
-TRAIN | Gondwana Express 12649 | ₹450-₹1,800 | SL/3AC/2AC | 21:30→11:45+1 | 14h 15m | IRCTC
-TRAIN | Mahakoshal Express 11071 | ₹395-₹1,500 | SL/3AC | 15:45→07:30+1 | 15h 45m | ConfirmTkt
-TRAIN | Multiple trains | from ₹350 | Various | Multiple departures | 14-20h | MakeMyTrip
+If NO results contain genuine ${origin}→${destination} train data, output:
+NO_TRAINS | No trains found on the ${origin} to ${destination} route. This route may not have direct train service.
 
-Rules:
-- Extract every train name and number you see — even partial info is useful
-- If you see "X trains available" or "trains from ₹Y", include that
-- Include ALL prices, classes, and timings mentioned
-- If only a price range is visible, use that (e.g., "₹395-₹1,800")
-- Don't skip any train. Every mention counts.
-- Do NOT fabricate train numbers — only use what's in the snippets`
+Be strict. Don't extract data from results about different routes.`
   );
+
+  if (summary.includes("NO_TRAINS")) {
+    const suggestion = summary.split("\n").find((l) => l.includes("NO_TRAINS"))?.split("|").slice(1).join("|").trim() ||
+      `No trains found for ${origin} → ${destination}.`;
+    return emptyResult(origin, destination, date, suggestion);
+  }
 
   const results = parseLines(summary);
 
