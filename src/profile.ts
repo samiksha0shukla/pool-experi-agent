@@ -1,10 +1,10 @@
 import chalk from "chalk";
 import { blank, log, logHeader, logDivider } from "./logger.js";
-import { getProfile, getScreenshots } from "./store.js";
+import type { KnowledgeStore } from "./knowledge/store.js";
 
-export async function viewProfile(): Promise<void> {
-  const profile = await getProfile();
-  const screenshots = await getScreenshots();
+export async function viewProfile(store: KnowledgeStore): Promise<void> {
+  const screenshots = store.getAllScreenshots();
+  const meta = store.getProfileMeta();
 
   blank();
   logHeader("Your Profile");
@@ -26,7 +26,7 @@ export async function viewProfile(): Promise<void> {
       `  ${chalk.dim("|")}  ` +
       `${chalk.yellow("Pending:")} ${chalk.white(String(pending))}` +
       `  ${chalk.dim("|")}  ` +
-      `${chalk.dim("v" + profile.profileVersion)}`
+      `${chalk.dim("v" + meta.version)}`
   );
   blank();
   logDivider();
@@ -34,114 +34,105 @@ export async function viewProfile(): Promise<void> {
   // ── Identity ──
   blank();
   console.log(`  ${chalk.bold.hex("#6C5CE7")("👤 Identity")}`);
-  const { identity } = profile;
-  const identityKeys = Object.keys(identity).filter((k) => identity[k]);
-  if (identityKeys.length === 0) {
+  const nameFacts = store.getFactsByType("name");
+  const locationFacts = store.getFactsByType("location");
+  if (nameFacts.length === 0 && locationFacts.length === 0) {
     console.log(`  ${chalk.dim("   Not yet detected — upload boarding passes, tickets, or profile screenshots")}`);
   } else {
-    for (const key of identityKeys) {
-      const f = identity[key]!;
+    for (const f of nameFacts) {
       const conf = (f.confidence * 100).toFixed(0);
-      const srcCount = f.sources.length;
       console.log(
-        `  ${chalk.dim("   " + key + ":")} ${chalk.white.bold(f.value)}` +
-          `  ${chalk.dim(`(${conf}% · ${srcCount} source${srcCount > 1 ? "s" : ""})`)}`
+        `  ${chalk.dim("   name:")} ${chalk.white.bold(f.factValue)}` +
+          `  ${chalk.dim(`(${conf}% · source: ${f.source})`)}`
+      );
+    }
+    for (const f of locationFacts) {
+      const conf = (f.confidence * 100).toFixed(0);
+      console.log(
+        `  ${chalk.dim("   location:")} ${chalk.white.bold(f.factValue)}` +
+          `  ${chalk.dim(`(${conf}% · source: ${f.source})`)}`
       );
     }
   }
 
   // ── Music ──
-  const { music } = profile;
   blank();
   console.log(`  ${chalk.bold.hex("#1DB954")("🎵 Music Profile")}`);
 
-  // Platform
-  if (music.preferredPlatform?.value) {
-    const p = music.preferredPlatform;
+  const platform = store.getProfileValue("music.preferredPlatform");
+  if (platform) {
     console.log(
-      `  ${chalk.dim("   Platform:")} ${chalk.white.bold(p.value)}` +
-        `  ${chalk.dim(`(${(p.confidence * 100).toFixed(0)}% · ${p.sources.length} source${p.sources.length > 1 ? "s" : ""})`)}`
+      `  ${chalk.dim("   Platform:")} ${chalk.white.bold(platform.value)}` +
+        `  ${chalk.dim(`(${(platform.confidence * 100).toFixed(0)}%)`)}`
     );
   } else {
     console.log(`  ${chalk.dim("   Platform: not yet detected")}`);
   }
 
-  // Genres
-  if (music.genres.length > 0) {
+  const genres = store.getFactsByType("genre");
+  if (genres.length > 0) {
     console.log(`  ${chalk.dim("   Genres:")}`);
-    const sorted = [...music.genres].sort((a, b) => b.strength - a.strength);
-    for (const g of sorted.slice(0, 6)) {
-      const barLen = Math.round(g.strength * 10);
+    for (const g of genres.slice(0, 6)) {
+      const barLen = Math.round(g.confidence * 10);
       const bar = "█".repeat(barLen);
       const empty = "░".repeat(10 - barLen);
       console.log(
-        `  ${chalk.dim("     ")}${chalk.hex("#1DB954")(bar)}${chalk.dim(empty)} ${chalk.white(g.genre)} ${chalk.dim(`(${g.artistCount} artist${g.artistCount > 1 ? "s" : ""})`)}`
+        `  ${chalk.dim("     ")}${chalk.hex("#1DB954")(bar)}${chalk.dim(empty)} ${chalk.white(g.factValue)}`
       );
     }
   } else {
     console.log(`  ${chalk.dim("   Genres: not yet detected")}`);
   }
 
-  // Artists
-  if (music.favoriteArtists.length > 0) {
-    const sorted = [...music.favoriteArtists].sort((a, b) => b.mentions - a.mentions);
-    const top = sorted.slice(0, 8);
+  const artists = store.getFactsByType("liked_artist");
+  if (artists.length > 0) {
+    const top = artists.slice(0, 8);
     console.log(
-      `  ${chalk.dim("   Top Artists:")} ${top.map((a) => `${chalk.white(a.name)} ${chalk.dim(`(×${a.mentions})`)}`).join(chalk.dim(", "))}`
+      `  ${chalk.dim("   Top Artists:")} ${top.map((a) => `${chalk.white(a.factValue)} ${chalk.dim(`(${(a.confidence * 100).toFixed(0)}%)`)}`).join(chalk.dim(", "))}`
     );
   }
 
-  // Songs
-  if (music.likedSongs.length > 0) {
-    console.log(`  ${chalk.dim("   Songs seen:")} ${chalk.white(String(music.likedSongs.length))} tracks`);
+  const songs = store.getFactsByType("liked_song");
+  if (songs.length > 0) {
+    console.log(`  ${chalk.dim("   Songs seen:")} ${chalk.white(String(songs.length))} tracks`);
   }
 
-  // Playlists
-  if (music.playlistsSeen.length > 0) {
+  const playlists = store.getFactsByType("playlist");
+  if (playlists.length > 0) {
     console.log(
-      `  ${chalk.dim("   Playlists:")} ${music.playlistsSeen.map((p) => chalk.white(p.name)).join(chalk.dim(", "))}`
+      `  ${chalk.dim("   Playlists:")} ${playlists.map((p) => chalk.white(p.factValue)).join(chalk.dim(", "))}`
     );
   }
 
-  // Listening patterns
-  const lp = music.listeningPatterns;
-  if (lp.moodPreference || lp.energyLevel || lp.languages.length > 0) {
+  const mood = store.getProfileValue("music.moodPreference");
+  const energy = store.getProfileValue("music.energyLevel");
+  const langFacts = store.getFactsByType("language");
+  if (mood || energy || langFacts.length > 0) {
     console.log(`  ${chalk.dim("   Patterns:")}`);
-    if (lp.moodPreference) console.log(`  ${chalk.dim("     Mood:")} ${chalk.white(lp.moodPreference)}`);
-    if (lp.energyLevel) console.log(`  ${chalk.dim("     Energy:")} ${chalk.white(lp.energyLevel)}`);
-    if (lp.languages.length > 0) console.log(`  ${chalk.dim("     Languages:")} ${chalk.white(lp.languages.join(", "))}`);
-    const contexts = Object.entries(lp.contextPreferences);
-    if (contexts.length > 0) {
-      for (const [ctx, pref] of contexts) {
-        console.log(`  ${chalk.dim(`     While ${ctx}:`)} ${chalk.white(pref)}`);
-      }
-    }
+    if (mood) console.log(`  ${chalk.dim("     Mood:")} ${chalk.white(mood.value)}`);
+    if (energy) console.log(`  ${chalk.dim("     Energy:")} ${chalk.white(energy.value)}`);
+    if (langFacts.length > 0) console.log(`  ${chalk.dim("     Languages:")} ${chalk.white(langFacts.map((l) => l.factValue).join(", "))}`);
   }
 
   // ── Travel ──
-  const { travel } = profile;
   blank();
   console.log(`  ${chalk.bold.hex("#0984E3")("✈️  Travel Profile")}`);
 
-  if (travel.interests.length > 0) {
+  const destinations = store.getFactsByType("travel_interest");
+  if (destinations.length > 0) {
     console.log(`  ${chalk.dim("   Destinations:")}`);
-    const sorted = [...travel.interests].sort((a, b) => b.strength - a.strength);
-    for (const d of sorted.slice(0, 6)) {
-      const barLen = Math.round(d.strength * 10);
+    for (const d of destinations.slice(0, 6)) {
+      const barLen = Math.round(d.confidence * 10);
       const bar = "█".repeat(barLen);
       const empty = "░".repeat(10 - barLen);
       console.log(
-        `  ${chalk.dim("     ")}${chalk.hex("#0984E3")(bar)}${chalk.dim(empty)} ${chalk.white.bold(d.destination)}` +
-          `  ${chalk.dim(`(${d.screenshotCount} screenshot${d.screenshotCount > 1 ? "s" : ""})`)}`
+        `  ${chalk.dim("     ")}${chalk.hex("#0984E3")(bar)}${chalk.dim(empty)} ${chalk.white.bold(d.factValue)}`
       );
-      // Show details if rich
-      const det = d.details;
-      const parts: string[] = [];
-      if (det.hotelsSaved.length > 0) parts.push(`${det.hotelsSaved.length} hotel${det.hotelsSaved.length > 1 ? "s" : ""}`);
-      if (det.activitiesSaved.length > 0) parts.push(`${det.activitiesSaved.length} activit${det.activitiesSaved.length > 1 ? "ies" : "y"}`);
-      if (det.datesDetected.length > 0) parts.push(`dates: ${det.datesDetected[0]}`);
-      if (det.budgetSignals.length > 0) parts.push(`budget: ${det.budgetSignals[0]}`);
-      if (parts.length > 0) {
+      // Show details
+      const prefix = `travel.detail.${d.factValue.toLowerCase()}`;
+      const details = store.getProfileSection(prefix);
+      if (details.length > 0) {
+        const parts = details.map((det) => `${det.key.replace(`${prefix}.`, "")}: ${det.value}`);
         console.log(`  ${chalk.dim("           " + parts.join(" · "))}`);
       }
     }
@@ -149,40 +140,40 @@ export async function viewProfile(): Promise<void> {
     console.log(`  ${chalk.dim("   Destinations: not yet detected")}`);
   }
 
-  // Travel style
-  const style = travel.style;
-  const styleEntries = Object.entries(style).filter(([, v]) => v !== null);
-  if (styleEntries.length > 0) {
+  const styleKV = store.getProfileSection("travel.style.");
+  if (styleKV.length > 0) {
     console.log(`  ${chalk.dim("   Style:")}`);
-    for (const [key, val] of styleEntries) {
-      console.log(`  ${chalk.dim("     " + key + ":")} ${chalk.white(val!)}`);
+    for (const s of styleKV) {
+      console.log(`  ${chalk.dim("     " + s.key.replace("travel.style.", "") + ":")} ${chalk.white(s.value)}`);
     }
   }
 
   // ── General ──
-  const { general } = profile;
   blank();
   console.log(`  ${chalk.bold.hex("#A29BFE")("🌐 General")}`);
 
-  if (general.language) {
-    console.log(`  ${chalk.dim("   Language:")} ${chalk.white(general.language)}`);
-  }
-  if (general.foodPreferences.length > 0) {
-    console.log(`  ${chalk.dim("   Food:")} ${chalk.white(general.foodPreferences.join(", "))}`);
-  }
-  if (general.budgetStyle) {
-    console.log(`  ${chalk.dim("   Budget:")} ${chalk.white(general.budgetStyle)}`);
-  }
-  if (general.personalitySignals.length > 0) {
-    console.log(`  ${chalk.dim("   Signals:")} ${chalk.white(general.personalitySignals.join(", "))}`);
-  }
+  const language = store.getProfileValue("general.language");
+  const foodPrefs = store.getFactsByType("food_preference");
+  const budget = store.getProfileValue("general.budgetStyle");
+  const personality = store.getProfileValue("general.personalitySignals");
 
-  if (!general.language && general.foodPreferences.length === 0 && !general.budgetStyle && general.personalitySignals.length === 0) {
+  if (language) console.log(`  ${chalk.dim("   Language:")} ${chalk.white(language.value)}`);
+  if (foodPrefs.length > 0) console.log(`  ${chalk.dim("   Food:")} ${chalk.white(foodPrefs.map((f) => f.factValue).join(", "))}`);
+  if (budget) console.log(`  ${chalk.dim("   Budget:")} ${chalk.white(budget.value)}`);
+  if (personality) console.log(`  ${chalk.dim("   Signals:")} ${chalk.white(personality.value)}`);
+
+  if (!language && foodPrefs.length === 0 && !budget && !personality) {
     console.log(`  ${chalk.dim("   Not enough data yet — keep uploading screenshots")}`);
   }
 
+  // ── Knowledge Graph Stats ──
+  blank();
+  console.log(`  ${chalk.bold.hex("#E17055")("🔗 Knowledge Graph")}`);
+  console.log(`  ${chalk.dim("   Nodes:")} ${chalk.white(String(store.graph.nodeCount))}`);
+  console.log(`  ${chalk.dim("   Edges:")} ${chalk.white(String(store.graph.edgeCount))}`);
+
   blank();
   logDivider();
-  log("info", chalk.dim(`Profile version ${profile.profileVersion} · Last updated: ${profile.lastUpdated || "never"}`));
+  log("info", chalk.dim(`Profile version ${meta.version} · Last updated: ${meta.lastUpdated || "never"}`));
   blank();
 }

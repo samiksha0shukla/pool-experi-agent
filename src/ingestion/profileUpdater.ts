@@ -2,7 +2,7 @@
  * PROFILE UPDATER
  *
  * Pure code logic — no LLM calls. Takes structured analysis output
- * and deterministically routes facts into the user profile.
+ * and deterministically routes facts into the knowledge store.
  *
  * Two entry points:
  *   1. updateProfileFromAnalysis()  — called after each screenshot is analyzed
@@ -18,12 +18,7 @@
  *   7. Confidence thresholds: <0.5 skip, 0.5-0.8 with caveat, >0.8 confident
  */
 
-import {
-  getProfile,
-  saveProfile,
-  type UserProfile,
-  type ProfileFact,
-} from "../store.js";
+import type { KnowledgeStore } from "../knowledge/store.js";
 import type { ScreenshotAnalysis, UserFact } from "./analyze.js";
 
 // ══════════════════════════════════════════════════════════════
@@ -31,10 +26,10 @@ import type { ScreenshotAnalysis, UserFact } from "./analyze.js";
 // ══════════════════════════════════════════════════════════════
 
 export async function updateProfileFromAnalysis(
+  store: KnowledgeStore,
   screenshotId: string,
   analysis: ScreenshotAnalysis
 ): Promise<{ factsAdded: number; factsReinforced: number }> {
-  const profile = await getProfile();
   let factsAdded = 0;
   let factsReinforced = 0;
 
@@ -46,86 +41,122 @@ export async function updateProfileFromAnalysis(
   // ── 1. Process explicit user_facts from vision analysis ──
   for (const fact of analysis.user_facts) {
     if (fact.confidence < 0.5) continue;
-    count(routeUserFact(profile, screenshotId, fact));
+    count(routeUserFact(store, screenshotId, fact));
   }
 
   // ── 2. Process entities from vision analysis ──
-  // Entities are the structured data (songs, artists, destinations, etc.)
-  // that the vision model extracted. These go into domain-specific profile sections.
   const e = analysis.entities;
 
+  // Add screenshot to graph
+  store.graph.addScreenshot(screenshotId, {
+    category: analysis.category,
+    sourceApp: analysis.sourceApp,
+    summary: analysis.summary,
+  });
+
   if (analysis.category === "music") {
-    // Platform — from entities AND from sourceApp detection
-    if (e.platform) count(setMusicPlatform(profile, e.platform, 0.85, screenshotId));
+    // Platform
+    if (e.platform) count(setMusicPlatform(store, e.platform, 0.85, screenshotId));
     if (analysis.sourceApp) {
       const mapped = mapAppToPlatform(analysis.sourceApp);
-      if (mapped) count(setMusicPlatform(profile, mapped, 0.9, screenshotId));
+      if (mapped) count(setMusicPlatform(store, mapped, 0.9, screenshotId));
     }
 
     // Artists
     if (e.artists) {
-      for (const name of e.artists) count(addArtist(profile, name, screenshotId));
+      for (const name of e.artists) {
+        count(addArtist(store, name, screenshotId));
+        store.graph.addEntityFromScreenshot(screenshotId, "artist", name);
+      }
     }
 
     // Genres
     if (e.genres) {
-      for (const g of e.genres) count(addGenre(profile, g));
+      for (const g of e.genres) {
+        count(addGenre(store, g, screenshotId));
+        store.graph.addEntityFromScreenshot(screenshotId, "genre", g);
+      }
     }
 
     // Songs
     if (e.songs) {
       for (const song of e.songs) {
-        if (song.title) addSong(profile, song.title, song.artist || "Unknown", screenshotId);
+        if (song.title) {
+          addSong(store, song.title, song.artist || "Unknown", screenshotId);
+          store.graph.addEntityFromScreenshot(screenshotId, "song", song.title, { artist: song.artist });
+          if (song.artist) {
+            store.graph.addEntityRelation("song", song.title, "artist", song.artist, "BELONGS_TO");
+          }
+        }
       }
     }
 
     // Playlist
     if (e.playlistName) {
-      addPlaylist(profile, e.playlistName, e.platform || analysis.sourceApp || "Unknown", screenshotId);
+      addPlaylist(store, e.playlistName, e.platform || analysis.sourceApp || "Unknown", screenshotId);
     }
 
-    // After accumulating music data, infer listening patterns
-    inferListeningPatterns(profile);
+    // Platform in graph
+    if (e.platform) {
+      store.graph.addEntityFromScreenshot(screenshotId, "platform", e.platform);
+    }
+
+    // Infer listening patterns from accumulated genre data
+    inferListeningPatterns(store);
   }
 
   if (analysis.category === "travel") {
-    // Origin city → user's home location FIRST (so we know home before storing destinations)
+    // Origin city → user's home location
     if (e.origin && isValidCityName(e.origin)) {
-      count(setIdentityFact(profile, "location", e.origin, 0.6, screenshotId, "flight origin city"));
+      count(setIdentityFact(store, "location", e.origin, 0.6, screenshotId, "flight origin city"));
     }
 
-    // Destination — only store if it's a clean city name, not the origin, and not ANY known home city
-    const homeCities = getKnownHomeCities(profile);
+    // Destination
+    const homeCities = getKnownHomeCities(store);
     if (e.destination && isValidDestination(e.destination, e.origin) && !homeCities.has(e.destination.toLowerCase())) {
-      count(addTravelInterest(profile, e.destination, screenshotId));
-      enrichTravelDetails(profile, e.destination, e, screenshotId);
+      count(addTravelInterest(store, e.destination, screenshotId));
+      enrichTravelDetails(store, e.destination, e, screenshotId);
+      store.graph.addEntityFromScreenshot(screenshotId, "destination", e.destination);
     }
 
-    // Travel style from entity signals
-    inferTravelStyle(profile, e);
+    // Hotels in graph
+    if (e.hotel) {
+      store.graph.addEntityFromScreenshot(screenshotId, "hotel", e.hotel);
+      if (e.destination) {
+        store.graph.addEntityRelation("destination", e.destination, "hotel", e.hotel, "HAS_HOTEL");
+      }
+    }
+
+    // Travel style
+    inferTravelStyle(store, e);
   }
 
   if (analysis.category === "food") {
-    if (e.cuisine) count(addFoodPreference(profile, e.cuisine));
-    if (e.restaurant) addRestaurant(profile, e.restaurant, e.cuisine, e.location);
+    if (e.cuisine) {
+      count(addFoodPreference(store, e.cuisine, screenshotId));
+      store.graph.addEntityFromScreenshot(screenshotId, "cuisine", e.cuisine);
+    }
+    if (e.restaurant) {
+      addRestaurant(store, e.restaurant, e.cuisine, e.location);
+    }
   }
 
   // ── 3. Cross-domain extraction ──
-  // A personal screenshot might contain a name. A food screenshot might contain a location.
-  if (e.personName) count(setIdentityFact(profile, "name", e.personName, 0.7, screenshotId, "name visible in screenshot"));
+  if (e.personName) count(setIdentityFact(store, "name", e.personName, 0.7, screenshotId, "name visible in screenshot"));
   if (e.location && analysis.category !== "travel") {
-    count(setIdentityFact(profile, "location", e.location, 0.5, screenshotId, "location visible in screenshot"));
+    count(setIdentityFact(store, "location", e.location, 0.5, screenshotId, "location visible in screenshot"));
   }
 
   // ── 4. General signals ──
-  addPersonalitySignal(profile, analysis.category);
+  addPersonalitySignal(store, analysis.category);
 
   // ── 5. Meta ──
-  profile.totalScreenshots++;
-  profile.profileVersion++;
-  profile.lastUpdated = new Date().toISOString();
+  store.incrementProfileVersion();
+  store.sqlite.setMeta("last_updated", new Date().toISOString());
 
-  await saveProfile(profile);
+  // Persist graph
+  await store.persistGraph();
+
   return { factsAdded, factsReinforced };
 }
 
@@ -134,10 +165,10 @@ export async function updateProfileFromAnalysis(
 // ══════════════════════════════════════════════════════════════
 
 export async function updateProfileFromConversation(
+  store: KnowledgeStore,
   query: string,
   _response: string
 ): Promise<number> {
-  const profile = await getProfile();
   let updated = 0;
   const q = query.toLowerCase();
 
@@ -146,97 +177,92 @@ export async function updateProfileFromConversation(
   // ── Identity ──
   updated += matchAndApply(query,
     /(?:my name is|i'm|i am|call me)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/i,
-    (m) => setIdentityFact(profile, "name", m[1], 1.0, "conversation", "user stated directly") === "added" ? 1 : 0
+    (m) => setIdentityFact(store, "name", m[1]!, 1.0, "conversation", "user stated directly") === "added" ? 1 : 0
   );
 
   updated += matchAndApply(query,
     /(?:i live in|i'm from|i am from|based in|located in|i stay in|my city is|my home is)\s+([A-Z][a-z]+(?:[\s,]+[A-Z][a-z]+)*)/i,
-    (m) => setIdentityFact(profile, "location", m[1], 1.0, "conversation", "user stated directly") === "added" ? 1 : 0
+    (m) => setIdentityFact(store, "location", m[1]!, 1.0, "conversation", "user stated directly") === "added" ? 1 : 0
   );
 
   // ── Food preferences ──
   const foodPatterns = /\b(vegetarian|vegan|non[- ]?veg|pescatarian|gluten[- ]?free|halal|kosher|jain|eggetarian|lacto[- ]?vegetarian)\b/gi;
   let foodMatch;
   while ((foodMatch = foodPatterns.exec(q)) !== null) {
-    const pref = foodMatch[1].toLowerCase();
-    if (!profile.general.foodPreferences.some((p) => p.toLowerCase() === pref)) {
-      profile.general.foodPreferences.push(pref);
-      updated++;
-    }
-    // Architecture rule: food preference should also update travel style
-    if (!profile.travel.style.food || !profile.travel.style.food.includes(pref)) {
-      profile.travel.style.food = profile.travel.style.food
-        ? `${profile.travel.style.food}, ${pref} options important`
+    const pref = foodMatch[1]!.toLowerCase();
+    addFoodPreference(store, pref, "conversation");
+    // Also update travel style
+    const currentTravelFood = store.getProfileValue("travel.style.food");
+    if (!currentTravelFood || !currentTravelFood.value.includes(pref)) {
+      const newVal = currentTravelFood
+        ? `${currentTravelFood.value}, ${pref} options important`
         : `${pref} options important`;
+      store.setProfileValue("travel.style.food", newVal);
     }
+    updated++;
   }
 
   // ── Music platform ──
   const platMatch = q.match(/(?:i\s+(?:use|prefer|listen\s+on|like|love)|my\s+(?:platform|app)\s+is)\s+(spotify|youtube\s*music|apple\s*music|amazon\s*music|soundcloud|tidal|deezer)/i);
   if (platMatch) {
-    profile.music.preferredPlatform = {
-      value: platMatch[1].trim(),
-      confidence: 1.0,
-      sources: ["conversation"],
-      evidence: "user stated directly",
-    };
+    setMusicPlatform(store, platMatch[1]!.trim(), 1.0, "conversation");
     updated++;
   }
 
   // ── Listening context preferences ──
   const contextMatch = query.match(/(?:i\s+(?:prefer|like|listen\s+to|play|enjoy))\s+(.+?)\s+(?:when|while|for|during)\s+(working|studying|sleeping|driving|exercising|cooking|relaxing|running|meditating|reading|commuting|partying)/i);
   if (contextMatch) {
-    profile.music.listeningPatterns.contextPreferences[contextMatch[2].toLowerCase()] = contextMatch[1].trim();
+    store.setProfileValue(`music.context.${contextMatch[2]!.toLowerCase()}`, contextMatch[1]!.trim());
     updated++;
   }
 
   // ── Music mood / energy ──
   const moodMatch = q.match(/i\s+(?:like|prefer|enjoy|love)\s+(chill|energetic|upbeat|calm|intense|mellow|relaxing|sad|happy|introspective|dark|ambient)\s+music/i);
   if (moodMatch) {
-    profile.music.listeningPatterns.moodPreference = moodMatch[1].toLowerCase();
+    store.setProfileValue("music.moodPreference", moodMatch[1]!.toLowerCase());
     updated++;
   }
 
   // ── Budget style ──
   const budgetMatch = q.match(/(?:i\s+(?:am|like|prefer|travel)\s+(?:a\s+)?|my\s+(?:style|budget)\s+is\s+)(budget|luxury|mid[- ]?range|backpack(?:er|ing)?|premium|frugal|splurge)/i);
   if (budgetMatch) {
-    profile.general.budgetStyle = budgetMatch[1].toLowerCase();
-    profile.travel.style.budget = budgetMatch[1].toLowerCase();
+    store.setProfileValue("general.budgetStyle", budgetMatch[1]!.toLowerCase());
+    store.setProfileValue("travel.style.budget", budgetMatch[1]!.toLowerCase());
     updated++;
   }
 
   // ── Travel pace ──
   const paceMatch = q.match(/(?:i\s+(?:like|prefer|want)\s+(?:a\s+)?)(relaxed|packed|slow|fast|chill|intense|busy|lazy|moderate)\s+(?:pace|itinerary|trip|travel|schedule)/i);
   if (paceMatch) {
-    profile.travel.style.pace = paceMatch[1].toLowerCase();
+    store.setProfileValue("travel.style.pace", paceMatch[1]!.toLowerCase());
     updated++;
   }
 
   // ── Travel activities ──
   const actMatch = q.match(/i\s+(?:like|prefer|enjoy|love)\s+(adventure|culture|beaches|nature|shopping|nightlife|history|food|hiking|photography|art|museums|temples|sightseeing)\s+(?:when\s+)?(?:travel|trip|vacation)?/i);
   if (actMatch) {
-    profile.travel.style.activities = profile.travel.style.activities
-      ? `${profile.travel.style.activities}, ${actMatch[1].toLowerCase()}`
-      : actMatch[1].toLowerCase();
+    const currentAct = store.getProfileValue("travel.style.activities");
+    const newVal = currentAct
+      ? `${currentAct.value}, ${actMatch[1]!.toLowerCase()}`
+      : actMatch[1]!.toLowerCase();
+    store.setProfileValue("travel.style.activities", newVal);
     updated++;
   }
 
   // ── Travel accommodation ──
   const accomMatch = q.match(/i\s+(?:like|prefer|stay\s+in|book)\s+(hostels?|hotels?|boutique\s+hotels?|airbnb|resorts?|ryokans?|homestays?|luxury\s+hotels?|budget\s+hotels?)/i);
   if (accomMatch) {
-    profile.travel.style.accommodation = accomMatch[1].toLowerCase();
+    store.setProfileValue("travel.style.accommodation", accomMatch[1]!.toLowerCase());
     updated++;
   }
 
   // ── Language ──
   const langMatch = query.match(/i\s+speak\s+(.+?)(?:\.|,|$)/i);
   if (langMatch) {
-    profile.general.language = langMatch[1].trim();
-    const langs = langMatch[1].split(/[,&]|\s+and\s+/).map((l) => l.trim()).filter(Boolean);
+    store.setProfileValue("general.language", langMatch[1]!.trim());
+    const langs = langMatch[1]!.split(/[,&]|\s+and\s+/).map((l) => l.trim()).filter(Boolean);
     for (const lang of langs) {
-      if (!profile.music.listeningPatterns.languages.includes(lang)) {
-        profile.music.listeningPatterns.languages.push(lang);
-      }
+      store.addFact({ factType: "language", factValue: lang, confidence: 1.0, source: "conversation", evidence: "user stated directly" });
     }
     updated++;
   }
@@ -244,29 +270,28 @@ export async function updateProfileFromConversation(
   // ── Artist likes from conversation ──
   const artistMatch = query.match(/i\s+(?:like|love|listen\s+to|enjoy|am\s+a\s+fan\s+of)\s+(.+?)(?:\.|,\s+and|$)/i);
   if (artistMatch && /music|song|artist|band/i.test(q)) {
-    const names = artistMatch[1].split(/[,&]|\s+and\s+/).map((n) => n.trim()).filter(Boolean);
+    const names = artistMatch[1]!.split(/[,&]|\s+and\s+/).map((n) => n.trim()).filter(Boolean);
     for (const name of names) {
       if (name.length > 1 && name.length < 50) {
-        addArtist(profile, name, "conversation");
+        addArtist(store, name, "conversation");
         updated++;
       }
     }
   }
 
   if (updated > 0) {
-    profile.profileVersion++;
-    profile.lastUpdated = new Date().toISOString();
-    await saveProfile(profile);
+    store.incrementProfileVersion();
+    store.sqlite.setMeta("last_updated", new Date().toISOString());
   }
   return updated;
 }
 
 // ══════════════════════════════════════════════════════════════
-// FACT ROUTING — routes a user_fact to the correct profile field
+// FACT ROUTING — routes a user_fact to the correct store location
 // ══════════════════════════════════════════════════════════════
 
 function routeUserFact(
-  profile: UserProfile,
+  store: KnowledgeStore,
   screenshotId: string,
   fact: UserFact
 ): "added" | "reinforced" | "skipped" {
@@ -276,63 +301,55 @@ function routeUserFact(
     case "name":
     case "user_name":
     case "person_name":
-      return setIdentityFact(profile, "name", fact.value, fact.confidence, screenshotId, fact.evidence);
+      return setIdentityFact(store, "name", fact.value, fact.confidence, screenshotId, fact.evidence);
 
     case "location":
     case "city":
     case "home_city":
     case "user_location":
-      return setIdentityFact(profile, "location", fact.value, fact.confidence, screenshotId, fact.evidence);
+      return setIdentityFact(store, "location", fact.value, fact.confidence, screenshotId, fact.evidence);
 
     case "music_platform":
     case "streaming_platform":
     case "preferred_platform":
-      return setMusicPlatform(profile, fact.value, fact.confidence, screenshotId);
+      return setMusicPlatform(store, fact.value, fact.confidence, screenshotId);
 
     case "liked_artist":
     case "favorite_artist":
     case "artist":
-      return addArtist(profile, fact.value, screenshotId);
+      return addArtist(store, fact.value, screenshotId);
 
     case "genre_preference":
     case "genre":
     case "music_genre":
-      return addGenre(profile, fact.value);
+      return addGenre(store, fact.value, screenshotId);
 
     case "travel_interest":
     case "destination":
     case "travel_destination":
-      return addTravelInterest(profile, fact.value, screenshotId);
+      return addTravelInterest(store, fact.value, screenshotId);
 
     case "food_preference":
     case "cuisine_preference":
     case "dietary_preference":
-      return addFoodPreference(profile, fact.value);
+      return addFoodPreference(store, fact.value, screenshotId);
 
     case "language":
     case "language_preference":
     case "content_language":
-      if (!profile.music.listeningPatterns.languages.includes(fact.value)) {
-        profile.music.listeningPatterns.languages.push(fact.value);
-      }
-      if (!profile.general.language) {
-        profile.general.language = fact.value;
-      } else if (!profile.general.language.toLowerCase().includes(fact.value.toLowerCase())) {
-        profile.general.language += `, ${fact.value}`;
-      }
+      store.addFact({ factType: "language", factValue: fact.value, confidence: fact.confidence, source: screenshotId, evidence: fact.evidence });
+      store.setProfileValue("general.language", fact.value, fact.confidence, [screenshotId]);
       return "added";
 
     case "budget":
     case "budget_style":
     case "spending_style":
-      if (!profile.general.budgetStyle) profile.general.budgetStyle = fact.value;
+      store.setProfileValue("general.budgetStyle", fact.value, fact.confidence, [screenshotId]);
       return "added";
 
     case "mood_preference":
     case "listening_mood":
-      if (!profile.music.listeningPatterns.moodPreference) {
-        profile.music.listeningPatterns.moodPreference = fact.value;
-      }
+      store.setProfileValue("music.moodPreference", fact.value, fact.confidence, [screenshotId]);
       return "added";
 
     default:
@@ -345,40 +362,35 @@ function routeUserFact(
 // ══════════════════════════════════════════════════════════════
 
 function setIdentityFact(
-  profile: UserProfile,
+  store: KnowledgeStore,
   key: string,
   value: string,
   confidence: number,
   source: string,
   evidence: string
-): "added" | "reinforced" {
-  const existing = profile.identity[key];
+): "added" | "reinforced" | "skipped" {
+  const existing = store.getFactsByType(key);
+  const topExisting = existing.length > 0 ? existing[0] : null;
 
   // Same value → reinforce
-  if (existing && existing.value.toLowerCase() === value.toLowerCase()) {
-    existing.confidence = Math.min(1.0, existing.confidence + 0.05);
-    if (!existing.sources.includes(source)) existing.sources.push(source);
+  if (topExisting && topExisting.factValue.toLowerCase() === value.toLowerCase()) {
+    store.reinforceFact(key, value, source);
+    store.setProfileValue(`identity.${key}`, value, Math.min(1.0, topExisting.confidence + 0.05), [
+      ...store.sqlite.getFactSources(key, value),
+      source,
+    ]);
     return "reinforced";
   }
 
-  // Contradiction → keep BOTH if old has decent confidence, but new wins display
-  // (Architecture rule #5: contradictions → keep both)
-  if (existing && existing.confidence >= 0.5 && confidence < existing.confidence) {
-    // Old is stronger — keep old, store new as alternative
-    const altKey = `${key}_alt`;
-    if (!profile.identity[altKey]) {
-      profile.identity[altKey] = { value, confidence, sources: [source], evidence };
-    }
-    return "skipped" as "reinforced"; // don't count as added since primary didn't change
+  // Contradiction with stronger existing → skip (keep both in facts table)
+  if (topExisting && topExisting.confidence >= 0.5 && confidence < topExisting.confidence) {
+    store.addFact({ factType: key, factValue: value, confidence, source, evidence });
+    return "skipped";
   }
 
   // New fact or higher confidence → set as primary
-  if (existing && existing.confidence >= 0.5) {
-    // Save old as alternative before overwriting
-    const altKey = `${key}_alt`;
-    profile.identity[altKey] = { ...existing };
-  }
-  profile.identity[key] = { value, confidence, sources: [source], evidence };
+  store.addFact({ factType: key, factValue: value, confidence, source, evidence });
+  store.setProfileValue(`identity.${key}`, value, confidence, [source]);
   return "added";
 }
 
@@ -387,75 +399,76 @@ function setIdentityFact(
 // ══════════════════════════════════════════════════════════════
 
 function setMusicPlatform(
-  profile: UserProfile,
+  store: KnowledgeStore,
   platform: string,
   confidence: number,
   source: string
 ): "added" | "reinforced" {
-  const existing = profile.music.preferredPlatform;
+  const existing = store.getFactsByType("music_platform");
+  const top = existing.length > 0 ? existing[0] : null;
 
-  if (existing && existing.value.toLowerCase() === platform.toLowerCase()) {
-    existing.confidence = Math.min(1.0, existing.confidence + 0.05);
-    if (!existing.sources.includes(source)) existing.sources.push(source);
+  if (top && top.factValue.toLowerCase() === platform.toLowerCase()) {
+    store.reinforceFact("music_platform", platform, source);
+    store.setProfileValue("music.preferredPlatform", platform, Math.min(1.0, top.confidence + 0.05));
     return "reinforced";
   }
 
-  if (!existing || confidence > existing.confidence) {
-    profile.music.preferredPlatform = {
-      value: platform,
-      confidence,
-      sources: [source],
-      evidence: `Detected from ${source.startsWith("ss_") ? "screenshot" : source}`,
-    };
+  if (!top || confidence > top.confidence) {
+    store.addFact({ factType: "music_platform", factValue: platform, confidence, source, evidence: `Detected from ${source.startsWith("ss_") ? "screenshot" : source}` });
+    store.setProfileValue("music.preferredPlatform", platform, confidence, [source]);
     return "added";
   }
   return "reinforced";
 }
 
-function addArtist(profile: UserProfile, name: string, source: string): "added" | "reinforced" {
-  if (!name || name.length < 2) return "skipped" as "reinforced";
+function addArtist(store: KnowledgeStore, name: string, source: string): "added" | "reinforced" {
+  if (!name || name.length < 2) return "reinforced"; // skip silently
 
-  const existing = profile.music.favoriteArtists.find(
-    (a) => a.name.toLowerCase() === name.toLowerCase()
-  );
-  if (existing) {
-    existing.mentions++;
-    if (!existing.sources.includes(source)) existing.sources.push(source);
+  const existing = store.getFactsByType("liked_artist")
+    .filter((f) => f.factValue.toLowerCase() === name.toLowerCase());
+
+  if (existing.length > 0) {
+    store.reinforceFact("liked_artist", name, source);
     return "reinforced";
   }
-  profile.music.favoriteArtists.push({ name, mentions: 1, sources: [source] });
+  store.addFact({ factType: "liked_artist", factValue: name, confidence: 0.7, source, evidence: "extracted from content" });
   return "added";
 }
 
-function addGenre(profile: UserProfile, genre: string): "added" | "reinforced" {
-  if (!genre || genre.length < 2) return "skipped" as "reinforced";
+function addGenre(store: KnowledgeStore, genre: string, source: string): "added" | "reinforced" {
+  if (!genre || genre.length < 2) return "reinforced";
 
-  const existing = profile.music.genres.find(
-    (g) => g.genre.toLowerCase() === genre.toLowerCase()
-  );
-  if (existing) {
-    existing.strength = Math.min(1.0, existing.strength + 0.1);
-    existing.artistCount++;
+  const existing = store.getFactsByType("genre")
+    .filter((f) => f.factValue.toLowerCase() === genre.toLowerCase());
+
+  if (existing.length > 0) {
+    store.reinforceFact("genre", genre, source);
     return "reinforced";
   }
-  profile.music.genres.push({ genre, strength: 0.5, artistCount: 1 });
+  store.addFact({ factType: "genre", factValue: genre, confidence: 0.5, source, evidence: "extracted from content" });
   return "added";
 }
 
-function addSong(profile: UserProfile, title: string, artist: string, source: string): void {
+function addSong(store: KnowledgeStore, title: string, artist: string, source: string): void {
   if (!title) return;
-  if (!profile.music.likedSongs.some((s) =>
-    s.title.toLowerCase() === title.toLowerCase() && s.artist.toLowerCase() === artist.toLowerCase()
-  )) {
-    profile.music.likedSongs.push({ title, artist, source });
-  }
+  store.addFact({
+    factType: "liked_song",
+    factValue: `${title} - ${artist}`,
+    confidence: 0.7,
+    source,
+    evidence: "song visible in screenshot",
+  });
 }
 
-function addPlaylist(profile: UserProfile, name: string, platform: string, source: string): void {
+function addPlaylist(store: KnowledgeStore, name: string, platform: string, source: string): void {
   if (!name) return;
-  if (!profile.music.playlistsSeen.some((p) => p.name.toLowerCase() === name.toLowerCase())) {
-    profile.music.playlistsSeen.push({ name, platform, source });
-  }
+  store.addFact({
+    factType: "playlist",
+    factValue: name,
+    confidence: 0.6,
+    source,
+    evidence: `Playlist on ${platform}`,
+  });
 }
 
 function mapAppToPlatform(sourceApp: string): string | null {
@@ -471,16 +484,15 @@ function mapAppToPlatform(sourceApp: string): string | null {
   return map[sourceApp.toLowerCase()] || null;
 }
 
-function inferListeningPatterns(profile: UserProfile): void {
-  const genres = profile.music.genres;
-  if (genres.length === 0) return;
+function inferListeningPatterns(store: KnowledgeStore): void {
+  const genreFacts = store.getFactsByType("genre");
+  if (genreFacts.length === 0) return;
 
-  // Build weighted genre string — stronger genres matter more
-  const sorted = [...genres].sort((a, b) => b.strength - a.strength);
-  const topGenres = sorted.slice(0, 5).map((g) => g.genre.toLowerCase());
+  const sorted = [...genreFacts].sort((a, b) => b.confidence - a.confidence);
+  const topGenres = sorted.slice(0, 5).map((g) => g.factValue.toLowerCase());
   const genreStr = topGenres.join(" ");
 
-  // Mood — inferred from dominant genres
+  // Mood
   const moodRules: Array<{ pattern: RegExp; mood: string }> = [
     { pattern: /lo.?fi|chill|ambient|relaxing|acoustic|soft/, mood: "chill, relaxed" },
     { pattern: /indie|alternative|folk|singer.songwriter/, mood: "introspective, indie" },
@@ -494,18 +506,18 @@ function inferListeningPatterns(profile: UserProfile): void {
 
   for (const rule of moodRules) {
     if (rule.pattern.test(genreStr)) {
-      profile.music.listeningPatterns.moodPreference = rule.mood;
+      store.setProfileValue("music.moodPreference", rule.mood);
       break;
     }
   }
 
-  // Energy — from genre characteristics
+  // Energy
   if (/lo.?fi|chill|ambient|acoustic|soft|ballad|classical|jazz/i.test(genreStr)) {
-    profile.music.listeningPatterns.energyLevel = "low";
+    store.setProfileValue("music.energyLevel", "low");
   } else if (/edm|metal|punk|hardcore|drum|techno|house|trap/i.test(genreStr)) {
-    profile.music.listeningPatterns.energyLevel = "high";
+    store.setProfileValue("music.energyLevel", "high");
   } else {
-    profile.music.listeningPatterns.energyLevel = "medium";
+    store.setProfileValue("music.energyLevel", "medium");
   }
 }
 
@@ -514,85 +526,78 @@ function inferListeningPatterns(profile: UserProfile): void {
 // ══════════════════════════════════════════════════════════════
 
 function addTravelInterest(
-  profile: UserProfile,
+  store: KnowledgeStore,
   destination: string,
   source: string
 ): "added" | "reinforced" {
-  if (!destination || destination.length < 2) return "skipped" as "reinforced";
+  if (!destination || destination.length < 2) return "reinforced";
 
-  const existing = profile.travel.interests.find(
-    (i) => i.destination.toLowerCase() === destination.toLowerCase()
-  );
-  if (existing) {
-    existing.screenshotCount++;
-    existing.strength = Math.min(1.0, existing.strength + 0.1);
-    existing.lastSeen = new Date().toISOString();
+  const existing = store.getFactsByType("travel_interest")
+    .filter((f) => f.factValue.toLowerCase() === destination.toLowerCase());
+
+  if (existing.length > 0) {
+    store.reinforceFact("travel_interest", destination, source);
     return "reinforced";
   }
 
-  profile.travel.interests.push({
-    destination,
-    strength: 0.5,
-    screenshotCount: 1,
-    lastSeen: new Date().toISOString(),
-    details: {
-      hotelsSaved: [],
-      activitiesSaved: [],
-      foodSaved: [],
-      datesDetected: [],
-      budgetSignals: [],
-    },
+  store.addFact({
+    factType: "travel_interest",
+    factValue: destination,
+    confidence: 0.5,
+    source,
+    evidence: "destination found in screenshot",
   });
   return "added";
 }
 
 function enrichTravelDetails(
-  profile: UserProfile,
+  store: KnowledgeStore,
   destination: string,
   entities: Record<string, unknown>,
-  _screenshotId: string
+  screenshotId: string
 ): void {
-  const interest = profile.travel.interests.find(
-    (i) => i.destination.toLowerCase() === destination.toLowerCase()
-  );
-  if (!interest) return;
-
-  const d = interest.details;
-  const pushUnique = (arr: string[], val: unknown) => {
-    if (val && typeof val === "string" && !arr.includes(val)) arr.push(val);
+  const prefix = `travel.detail.${destination.toLowerCase()}`;
+  const pushToKV = (key: string, val: unknown) => {
+    if (!val || typeof val !== "string") return;
+    const existing = store.getProfileValue(`${prefix}.${key}`);
+    if (existing && existing.value.includes(val)) return;
+    const newVal = existing ? `${existing.value}, ${val}` : val;
+    store.setProfileValue(`${prefix}.${key}`, newVal, 0.7, [screenshotId]);
   };
 
-  pushUnique(d.hotelsSaved, entities.hotel);
-  pushUnique(d.activitiesSaved, entities.activity);
-  pushUnique(d.foodSaved, entities.restaurant);
-  pushUnique(d.datesDetected, entities.dates || entities.date);
-  pushUnique(d.budgetSignals, entities.price);
+  pushToKV("hotels", entities.hotel);
+  pushToKV("activities", entities.activity);
+  pushToKV("restaurants", entities.restaurant);
+  pushToKV("dates", entities.dates || entities.date);
+  pushToKV("budget", entities.price);
 }
 
 function inferTravelStyle(
-  profile: UserProfile,
+  store: KnowledgeStore,
   entities: Record<string, unknown>
 ): void {
-  const style = profile.travel.style;
-
   // Hotel type → accommodation style
   const hotelType = entities.hotel_type || entities.accommodation_type;
-  if (hotelType && typeof hotelType === "string" && !style.accommodation) {
-    style.accommodation = hotelType;
+  if (hotelType && typeof hotelType === "string") {
+    const existing = store.getProfileValue("travel.style.accommodation");
+    if (!existing) store.setProfileValue("travel.style.accommodation", hotelType as string);
   }
 
   // Price signals → budget style
-  if (entities.price && typeof entities.price === "string" && !profile.general.budgetStyle) {
-    const p = (entities.price as string).toLowerCase();
-    if (/\b(budget|cheap|hostel|under\s*[₹$€]\s*\d{3})\b/.test(p)) {
-      profile.general.budgetStyle = "budget";
-      style.budget = "budget";
-    } else if (/\b(luxury|premium|5\s*star|suite|resort)\b/.test(p)) {
-      profile.general.budgetStyle = "luxury";
-      style.budget = "luxury";
-    } else if (/\b(mid|moderate|3\s*star|4\s*star)\b/.test(p)) {
-      profile.general.budgetStyle = "mid-range";
-      style.budget = "mid-range";
+  if (entities.price && typeof entities.price === "string") {
+    const existing = store.getProfileValue("general.budgetStyle");
+    if (!existing) {
+      const p = (entities.price as string).toLowerCase();
+      if (/\b(budget|cheap|hostel|under\s*[₹$€]\s*\d{3})\b/.test(p)) {
+        store.setProfileValue("general.budgetStyle", "budget");
+        store.setProfileValue("travel.style.budget", "budget");
+      } else if (/\b(luxury|premium|5\s*star|suite|resort)\b/.test(p)) {
+        store.setProfileValue("general.budgetStyle", "luxury");
+        store.setProfileValue("travel.style.budget", "luxury");
+      } else if (/\b(mid|moderate|3\s*star|4\s*star)\b/.test(p)) {
+        store.setProfileValue("general.budgetStyle", "mid-range");
+        store.setProfileValue("travel.style.budget", "mid-range");
+      }
     }
   }
 
@@ -600,10 +605,13 @@ function inferTravelStyle(
   const airlineClass = entities.cabin_class || entities.travel_class;
   if (airlineClass && typeof airlineClass === "string") {
     const c = airlineClass.toLowerCase();
-    if (c.includes("business") || c.includes("first")) {
-      if (!style.budget) style.budget = "premium";
-    } else if (c.includes("economy")) {
-      if (!style.budget) style.budget = "value-conscious";
+    const existing = store.getProfileValue("travel.style.budget");
+    if (!existing) {
+      if (c.includes("business") || c.includes("first")) {
+        store.setProfileValue("travel.style.budget", "premium");
+      } else if (c.includes("economy")) {
+        store.setProfileValue("travel.style.budget", "value-conscious");
+      }
     }
   }
 }
@@ -612,34 +620,33 @@ function inferTravelStyle(
 // FOOD
 // ══════════════════════════════════════════════════════════════
 
-function addFoodPreference(profile: UserProfile, pref: string): "added" | "reinforced" {
-  if (!pref || pref.length < 2) return "skipped" as "reinforced";
+function addFoodPreference(store: KnowledgeStore, pref: string, source: string): "added" | "reinforced" {
+  if (!pref || pref.length < 2) return "reinforced";
 
-  if (profile.general.foodPreferences.some((p) => p.toLowerCase() === pref.toLowerCase())) {
+  const existing = store.getFactsByType("food_preference")
+    .filter((f) => f.factValue.toLowerCase() === pref.toLowerCase());
+
+  if (existing.length > 0) {
+    store.reinforceFact("food_preference", pref, source);
     return "reinforced";
   }
-  profile.general.foodPreferences.push(pref);
+  store.addFact({ factType: "food_preference", factValue: pref, confidence: 0.7, source, evidence: "extracted from content" });
   return "added";
 }
 
 function addRestaurant(
-  profile: UserProfile,
+  store: KnowledgeStore,
   restaurant: string,
   cuisine?: string,
   location?: string
 ): void {
-  // If we know the cuisine, add it as a food preference
-  if (cuisine) addFoodPreference(profile, cuisine);
-
-  // If we know the location, it's a weak travel signal
+  if (cuisine) addFoodPreference(store, cuisine, "screenshot");
   if (location) {
-    const existing = profile.travel.interests.find(
-      (i) => i.destination.toLowerCase() === location.toLowerCase()
-    );
-    if (existing) {
-      if (!existing.details.foodSaved.includes(restaurant)) {
-        existing.details.foodSaved.push(restaurant);
-      }
+    const prefix = `travel.detail.${location.toLowerCase()}`;
+    const existing = store.getProfileValue(`${prefix}.restaurants`);
+    if (!existing || !existing.value.includes(restaurant)) {
+      const newVal = existing ? `${existing.value}, ${restaurant}` : restaurant;
+      store.setProfileValue(`${prefix}.restaurants`, newVal);
     }
   }
 }
@@ -648,7 +655,7 @@ function addRestaurant(
 // GENERAL SIGNALS
 // ══════════════════════════════════════════════════════════════
 
-function addPersonalitySignal(profile: UserProfile, category: string): void {
+function addPersonalitySignal(store: KnowledgeStore, category: string): void {
   const signalMap: Record<string, string> = {
     music: "music enthusiast",
     travel: "travel-oriented",
@@ -659,8 +666,12 @@ function addPersonalitySignal(profile: UserProfile, category: string): void {
   };
 
   const signal = signalMap[category];
-  if (signal && !profile.general.personalitySignals.includes(signal)) {
-    profile.general.personalitySignals.push(signal);
+  if (signal) {
+    const existing = store.getProfileValue("general.personalitySignals");
+    if (!existing || !existing.value.includes(signal)) {
+      const newVal = existing ? `${existing.value}, ${signal}` : signal;
+      store.setProfileValue("general.personalitySignals", newVal);
+    }
   }
 }
 
@@ -678,52 +689,34 @@ function matchAndApply(
   return 0;
 }
 
-// ══════════════════════════════════════════════════════════════
-// DESTINATION VALIDATION
-// Prevents garbage like "Bengaluru to Jabalpur", "Flights in April",
-// or origin cities from being stored as travel interests.
-// ══════════════════════════════════════════════════════════════
-
-function getKnownHomeCities(profile: UserProfile): Set<string> {
+function getKnownHomeCities(store: KnowledgeStore): Set<string> {
   const cities = new Set<string>();
-  // Primary location
-  if (profile.identity.location?.value) {
-    cities.add(profile.identity.location.value.toLowerCase());
+  const locationFacts = store.getFactsByType("location");
+  for (const fact of locationFacts) {
+    if (fact.confidence >= 0.5) {
+      cities.add(fact.factValue.toLowerCase());
+    }
   }
-  // Alt location (could also be home)
-  const alt = profile.identity.location_alt;
-  if (alt?.value && alt.evidence?.toLowerCase().includes("origin")) {
-    cities.add(alt.value.toLowerCase());
+  const homeCityFacts = store.getFactsByType("home_city");
+  for (const fact of homeCityFacts) {
+    cities.add(fact.factValue.toLowerCase());
   }
   return cities;
 }
 
 function isValidDestination(destination: string, origin?: string): boolean {
   if (!destination || destination.length < 2) return false;
-
   const d = destination.toLowerCase();
-
-  // Reject routes ("X to Y")
   if (/\b(to|from)\b/.test(d)) return false;
-
-  // Reject sentences ("Flights in April", "Travel on March 5")
   if (/\b(flight|travel|booking|search|result|ticket)\b/i.test(d)) return false;
-
-  // Reject if it's just a month or date
   if (/^(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)/i.test(d)) return false;
-
-  // Reject if it matches the origin city (origin = home, not a travel interest)
   if (origin && d === origin.toLowerCase()) return false;
-
-  // Reject if too long (real city names are short)
   if (destination.length > 40) return false;
-
   return true;
 }
 
 function isValidCityName(name: string): boolean {
   if (!name || name.length < 2 || name.length > 40) return false;
-  // Must not contain route words
   if (/\b(to|from|flight|travel|booking)\b/i.test(name)) return false;
   return true;
 }

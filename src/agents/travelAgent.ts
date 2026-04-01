@@ -1,8 +1,10 @@
 /**
  * TRAVEL AGENT — Sub-agent of the Orchestrator
  *
+ * Queries the KnowledgeStore directly for user's travel data.
+ *
  * Two modes:
- * 1. Profile-based (useSearch=false): answers from screenshot/profile data
+ * 1. Profile-based (useSearch=false): answers from knowledge store data
  * 2. Search-based (useSearch=true): calls search tools, then formats results
  */
 
@@ -11,6 +13,7 @@ import { searchFlights } from "../tools/searchFlights.js";
 import { searchTrains } from "../tools/searchTrains.js";
 import { searchBuses } from "../tools/searchBuses.js";
 import type { SearchResults, TravelParams } from "../tools/types.js";
+import type { KnowledgeStore } from "../knowledge/store.js";
 
 const SYSTEM_PROMPT = `You are a travel agent embedded inside Pool, a screenshot-based personal intelligence app.
 
@@ -45,20 +48,104 @@ RULES:
 - Respect dietary restrictions
 - CRITICAL: If the user asks about a specific route (e.g., "Delhi to Jabalpur"), ALWAYS use that route — even if their profile shows a different route. The user's explicit query ALWAYS overrides the profile. Never substitute a profile route for what the user actually asked.`;
 
+/**
+ * Build travel context by querying the knowledge store directly.
+ */
+async function buildTravelContext(store: KnowledgeStore, query: string): Promise<string> {
+  const context = await store.getContextForAgent("travel", query);
+  const parts: string[] = [];
+
+  // Destinations from facts
+  const destinations = store.getFactsByType("travel_interest");
+  if (destinations.length > 0) {
+    parts.push("TRAVEL INTERESTS (ranked by confidence):");
+    for (const dest of destinations) {
+      const prefix = `travel.detail.${dest.factValue.toLowerCase()}`;
+      const details = store.getProfileSection(prefix);
+      const detailParts: string[] = [];
+      for (const d of details) {
+        const shortKey = d.key.replace(`${prefix}.`, "");
+        detailParts.push(`${shortKey}: ${d.value}`);
+      }
+      parts.push(`  ${dest.factValue}: ${(dest.confidence * 100).toFixed(0)}% confidence`);
+      if (detailParts.length > 0) {
+        parts.push("    " + detailParts.join("\n    "));
+      }
+    }
+  } else {
+    parts.push("TRAVEL INTERESTS: None detected yet");
+  }
+
+  // Travel style
+  const styleKV = store.getProfileSection("travel.style.");
+  if (styleKV.length > 0) {
+    parts.push("TRAVEL STYLE:\n" +
+      styleKV.map((s) => `  - ${s.key.replace("travel.style.", "")}: ${s.value}`).join("\n")
+    );
+  }
+
+  // User identity
+  const name = store.getTopFact("name");
+  const location = store.getTopFact("location");
+  if (name) parts.push(`USER NAME: ${name}`);
+  if (location) parts.push(`HOME CITY: ${location}`);
+
+  // Dietary preferences
+  const foodPrefs = store.getFactsByType("food_preference");
+  if (foodPrefs.length > 0) {
+    parts.push(`DIETARY PREFERENCES: ${foodPrefs.map((f) => f.factValue).join(", ")}`);
+  }
+
+  // Budget
+  const budget = store.getProfileValue("general.budgetStyle");
+  if (budget) parts.push(`BUDGET STYLE: ${budget.value}`);
+
+  // Semantic search results
+  if (context.semanticMatches.length > 0) {
+    parts.push("RELEVANT SCREENSHOTS (semantic search):\n" +
+      context.semanticMatches.map((m, i) => `  [${i + 1}] ${m.summary || "No summary"} (relevance: ${(m.score * 100).toFixed(0)}%)`).join("\n")
+    );
+  }
+
+  // Travel screenshots
+  if (context.screenshots.length > 0) {
+    parts.push("TRAVEL SCREENSHOTS:\n" +
+      context.screenshots.map((s, i) => {
+        const app = s.sourceApp ? `[${s.sourceApp}] ` : "";
+        const desc = s.detailedDescription || s.summary || "No description";
+        // Get entities for this screenshot
+        const entities = store.getEntitiesByScreenshot(s.id);
+        const entityStr = entities.length > 0 ? ` | entities: ${entities.map((e) => `${e.entityType}=${e.entityValue}`).join(", ")}` : "";
+        return `  [${i + 1}] ${app}${desc}${entityStr}`;
+      }).join("\n")
+    );
+  }
+
+  // Graph connections
+  if (context.graphNeighbors.length > 0) {
+    parts.push("DESTINATIONS IN KNOWLEDGE GRAPH:\n" +
+      context.graphNeighbors.map((n) => `  - ${n.attrs.name || n.id}`).join("\n")
+    );
+  }
+
+  return parts.join("\n\n");
+}
+
 export async function runTravelAgent(
   query: string,
-  travelContext: string,
+  store: KnowledgeStore,
   chatHistory?: ChatMessage[],
   useSearch?: boolean,
   travelParams?: TravelParams
 ): Promise<string> {
 
   if (useSearch && travelParams) {
-    // ── SEARCH MODE: Call tools, then format results ──
+    const travelContext = await buildTravelContext(store, query);
     return await searchAndRespond(query, travelContext, travelParams, chatHistory);
   }
 
-  // ── PROFILE MODE: Answer from profile/screenshot data ──
+  // ── PROFILE MODE: Answer from knowledge store data ──
+  const travelContext = await buildTravelContext(store, query);
   const userMessage = `USER'S TRAVEL DATA:
 
 ${travelContext}
@@ -85,7 +172,7 @@ async function searchAndRespond(
   const searchTrainsMode = /train|rail|irctc/i.test(q) || isGenericSearch(q);
   const searchBusesMode = /bus|road/i.test(q) || isGenericSearch(q);
 
-  // Search in parallel — only the modes the user asked about
+  // Search in parallel
   const searches: Array<Promise<SearchResults>> = [];
   const labels: string[] = [];
 
@@ -111,8 +198,8 @@ async function searchAndRespond(
   resultSections.push("");
 
   for (let i = 0; i < settled.length; i++) {
-    const label = labels[i].toUpperCase();
-    const result = settled[i];
+    const label = labels[i]!.toUpperCase();
+    const result = settled[i]!;
 
     if (result.status === "fulfilled" && result.value.results.length > 0) {
       const sr = result.value;
@@ -122,16 +209,16 @@ async function searchAndRespond(
       }
       resultSections.push(`  Sources: ${sr.sources.join(", ")}`);
       resultSections.push(`  ${sr.disclaimer}`);
+    } else if (result.status === "rejected") {
+      resultSections.push(`${label}: ${result.reason?.message || "Search failed"}`);
     } else {
-      const reason = result.status === "rejected" ? result.reason?.message || "Search failed" : "No results found";
-      resultSections.push(`${label}: ${reason}`);
+      resultSections.push(`${label}: No results found`);
     }
     resultSections.push("");
   }
 
   const searchData = resultSections.join("\n");
 
-  // Pass profile context and chat history BUT make the explicit query + search results dominate
   const userMessage = `BACKGROUND (for personalization only — do NOT use this to change the route):
 ${travelContext}
 
@@ -159,7 +246,6 @@ INSTRUCTIONS:
 }
 
 function isGenericSearch(query: string): boolean {
-  // Generic searches like "search tickets", "find options", "check availability", "suggest options" → search all modes
   return /\b(ticket|option|availab|search|find|check|cheapest|best|suggest|give|show|get)\b/i.test(query) &&
     !/\b(flight|train|bus|plane|rail|road)\b/i.test(query);
 }

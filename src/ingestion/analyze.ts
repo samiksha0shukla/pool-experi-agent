@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { analyzeImageJSON } from "../llm.js";
-import type { ScreenshotMeta } from "../store.js";
+import type { ScreenshotMeta } from "../knowledge/types.js";
 
 // ── Schema for vision analysis output ──
 
@@ -138,5 +138,5 @@ export function applyAnalysis(
     detailedDescription: analysis.detailedDescription,
     entities: analysis.entities,
     userFacts: analysis.user_facts,
-  };
+  } as ScreenshotMeta;
 }

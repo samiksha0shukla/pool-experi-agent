@@ -12,13 +12,8 @@ import {
   stopSpinner,
   blank,
 } from "./logger.js";
-import {
-  getScreenshotsDir,
-  saveScreenshot,
-  updateScreenshot,
-  getScreenshots,
-  type ScreenshotMeta,
-} from "./store.js";
+import type { KnowledgeStore } from "./knowledge/store.js";
+import type { ScreenshotMeta } from "./knowledge/types.js";
 import { analyzeScreenshot, applyAnalysis } from "./ingestion/analyze.js";
 import { updateProfileFromAnalysis } from "./ingestion/profileUpdater.js";
 import { isConfigured } from "./llm.js";
@@ -47,7 +42,7 @@ async function copyScreenshot(
 
 // ── Analyze a single screenshot ──
 
-async function analyzeAndUpdate(meta: ScreenshotMeta): Promise<void> {
+async function analyzeAndUpdate(store: KnowledgeStore, meta: ScreenshotMeta): Promise<void> {
   if (!isConfigured()) {
     log("warn", "Skipping analysis — API key not configured");
     return;
@@ -67,22 +62,27 @@ async function analyzeAndUpdate(meta: ScreenshotMeta): Promise<void> {
 
     // Update screenshot metadata with ALL analysis fields
     const updated = applyAnalysis(meta, analysis);
-    await updateScreenshot(meta.id, {
-      analyzed: updated.analyzed,
-      analyzedAt: updated.analyzedAt,
-      sourceApp: updated.sourceApp,
-      category: updated.category,
-      summary: updated.summary,
-      detailedDescription: updated.detailedDescription,
-      entities: updated.entities,
-      userFacts: updated.userFacts,
-    });
+    store.updateScreenshot(meta.id, updated);
 
     // Show detailed description
     log("info", chalk.dim(analysis.detailedDescription.slice(0, 120) + (analysis.detailedDescription.length > 120 ? "..." : "")));
 
+    // Index in vector store for semantic search
+    try {
+      await store.indexScreenshot(meta.id, {
+        summary: analysis.summary,
+        detailedDescription: analysis.detailedDescription,
+        sourceApp: analysis.sourceApp,
+        category: analysis.category,
+        uploadedAt: meta.uploadedAt,
+        entities: analysis.entities,
+      });
+    } catch (err) {
+      log("warn", `Vector indexing skipped: ${err instanceof Error ? err.message : String(err)}`);
+    }
+
     // Update user profile
-    const { factsAdded, factsReinforced } = await updateProfileFromAnalysis(meta.id, analysis);
+    const { factsAdded, factsReinforced } = await updateProfileFromAnalysis(store, meta.id, analysis);
     if (factsAdded > 0 || factsReinforced > 0) {
       log("profile", `Profile updated: ${chalk.green(`+${factsAdded} new`)}, ${chalk.blue(`${factsReinforced} reinforced`)}`);
     }
@@ -101,7 +101,7 @@ async function analyzeAndUpdate(meta: ScreenshotMeta): Promise<void> {
 
 // ── Upload from folder ──
 
-async function uploadFromFolder(): Promise<void> {
+async function uploadFromFolder(store: KnowledgeStore): Promise<void> {
   const { folderPath } = await inquirer.prompt<{ folderPath: string }>([
     {
       type: "input",
@@ -134,14 +134,14 @@ async function uploadFromFolder(): Promise<void> {
   stopSpinner(spinner, `Found ${imageFiles.length} screenshot(s)`);
   blank();
 
-  const destDir = await getScreenshotsDir();
+  const destDir = store.getScreenshotsDir();
   const total = imageFiles.length;
   let success = 0;
 
   logHeader("Uploading Screenshots");
 
   for (let i = 0; i < imageFiles.length; i++) {
-    const file = imageFiles[i];
+    const file = imageFiles[i]!;
     const baseName = path.basename(file);
 
     logStep(i + 1, total, `Importing ${chalk.white.bold(baseName)}`);
@@ -161,11 +161,11 @@ async function uploadFromFolder(): Promise<void> {
         analyzed: false,
       };
 
-      await saveScreenshot(meta);
+      store.saveScreenshot(meta);
       log("success", `${chalk.dim(fileName)} ${chalk.dim(`(${sizeKB} KB)`)}`);
 
       // Run vision analysis
-      await analyzeAndUpdate(meta);
+      await analyzeAndUpdate(store, meta);
 
       success++;
     } catch (err) {
@@ -178,13 +178,12 @@ async function uploadFromFolder(): Promise<void> {
   logDivider();
   log("success", `Uploaded and analyzed ${chalk.bold(String(success))}/${total} screenshots`);
   log("info", `Stored in: ${chalk.dim(destDir)}`);
-  log("info", `Individual metadata: ${chalk.dim(path.join(destDir, "meta/"))}`);
   blank();
 }
 
 // ── Upload single / multiple files ──
 
-async function uploadFiles(): Promise<void> {
+async function uploadFiles(store: KnowledgeStore): Promise<void> {
   const { filePaths } = await inquirer.prompt<{ filePaths: string }>([
     {
       type: "input",
@@ -204,7 +203,7 @@ async function uploadFiles(): Promise<void> {
     .map((p) => path.resolve(p.trim()))
     .filter(Boolean);
 
-  const destDir = await getScreenshotsDir();
+  const destDir = store.getScreenshotsDir();
   const total = paths.length;
   let success = 0;
 
@@ -212,7 +211,7 @@ async function uploadFiles(): Promise<void> {
   logHeader("Uploading Screenshots");
 
   for (let i = 0; i < paths.length; i++) {
-    const file = paths[i];
+    const file = paths[i]!;
     const baseName = path.basename(file);
 
     logStep(i + 1, total, `Processing ${chalk.white.bold(baseName)}`);
@@ -242,11 +241,11 @@ async function uploadFiles(): Promise<void> {
         analyzed: false,
       };
 
-      await saveScreenshot(meta);
+      store.saveScreenshot(meta);
       log("success", `${chalk.dim(fileName)} ${chalk.dim(`(${sizeKB} KB)`)}`);
 
       // Run vision analysis
-      await analyzeAndUpdate(meta);
+      await analyzeAndUpdate(store, meta);
 
       success++;
     } catch {
@@ -263,8 +262,8 @@ async function uploadFiles(): Promise<void> {
 
 // ── View uploaded screenshots ──
 
-export async function viewScreenshots(): Promise<void> {
-  const screenshots = await getScreenshots();
+export async function viewScreenshots(store: KnowledgeStore): Promise<void> {
+  const screenshots = store.getAllScreenshots();
 
   blank();
   logHeader("Your Screenshots");
@@ -306,7 +305,7 @@ export async function viewScreenshots(): Promise<void> {
 
 // ── Main upload menu ──
 
-export async function uploadMenu(): Promise<void> {
+export async function uploadMenu(store: KnowledgeStore): Promise<void> {
   const { uploadType } = await inquirer.prompt<{ uploadType: string }>([
     {
       type: "list",
@@ -331,10 +330,10 @@ export async function uploadMenu(): Promise<void> {
 
   switch (uploadType) {
     case "folder":
-      await uploadFromFolder();
+      await uploadFromFolder(store);
       break;
     case "files":
-      await uploadFiles();
+      await uploadFiles(store);
       break;
     case "back":
       break;

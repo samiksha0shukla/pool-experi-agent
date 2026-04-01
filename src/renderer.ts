@@ -1,6 +1,9 @@
 import fs from "fs/promises";
 import path from "path";
-import { getResponsesDir } from "./store.js";
+import { fileURLToPath } from "url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const RESPONSES_DIR = path.resolve(__dirname, "..", "data", "responses");
 
 function escapeHTML(str: string): string {
   return str
@@ -309,7 +312,7 @@ export async function renderToHTML(
   intent: string,
   query: string
 ): Promise<string> {
-  const dir = getResponsesDir();
+  const dir = RESPONSES_DIR;
   await fs.mkdir(dir, { recursive: true });
 
   const fileName = `response_${Date.now()}.html`;

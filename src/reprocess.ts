@@ -3,22 +3,28 @@
  * Run: npx tsx src/reprocess.ts
  */
 
+import path from "path";
+import { fileURLToPath } from "url";
 import chalk from "chalk";
-import { initStore, getScreenshots, updateScreenshot } from "./store.js";
+import { KnowledgeStore } from "./knowledge/store.js";
 import { analyzeScreenshot, applyAnalysis } from "./ingestion/analyze.js";
 import { updateProfileFromAnalysis } from "./ingestion/profileUpdater.js";
 import { isConfigured } from "./llm.js";
 import { log, logStep, logDivider, startSpinner, stopSpinner, blank } from "./logger.js";
+import type { ScreenshotMeta } from "./knowledge/types.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = path.resolve(__dirname, "..", "data");
 
 async function reprocess() {
-  await initStore();
+  const store = await KnowledgeStore.create(DATA_DIR);
 
   if (!isConfigured()) {
     console.error(chalk.red("\n  GOOGLE_GENERATIVE_AI_API_KEY not set in .env\n"));
     process.exit(1);
   }
 
-  const screenshots = await getScreenshots();
+  const screenshots = store.getAllScreenshots();
   const unanalyzed = screenshots.filter((s) => !s.analyzed);
 
   blank();
@@ -29,6 +35,7 @@ async function reprocess() {
   if (unanalyzed.length === 0) {
     log("success", "All screenshots are already analyzed!");
     blank();
+    store.close();
     return;
   }
 
@@ -36,12 +43,24 @@ async function reprocess() {
   let success = 0;
 
   for (let i = 0; i < unanalyzed.length; i++) {
-    const meta = unanalyzed[i];
-    logStep(i + 1, unanalyzed.length, `Analyzing ${chalk.white.bold(meta.fileName)}`);
+    const row = unanalyzed[i]!;
+
+    // Build a ScreenshotMeta from the row for applyAnalysis
+    const meta: ScreenshotMeta = {
+      id: row.id,
+      fileName: row.fileName,
+      originalPath: row.originalPath,
+      localPath: row.localPath,
+      uploadedAt: row.uploadedAt,
+      fileSizeKB: row.fileSizeKB,
+      analyzed: !!row.analyzed,
+    };
+
+    logStep(i + 1, unanalyzed.length, `Analyzing ${chalk.white.bold(row.fileName)}`);
 
     const spinner = startSpinner("Sending to Gemini Vision...");
     try {
-      const analysis = await analyzeScreenshot(meta.localPath);
+      const analysis = await analyzeScreenshot(row.localPath);
 
       const appLabel = analysis.sourceApp !== "unknown"
         ? chalk.yellow(analysis.sourceApp)
@@ -50,22 +69,27 @@ async function reprocess() {
 
       // Update screenshot metadata
       const updated = applyAnalysis(meta, analysis);
-      await updateScreenshot(meta.id, {
-        analyzed: updated.analyzed,
-        analyzedAt: updated.analyzedAt,
-        sourceApp: updated.sourceApp,
-        category: updated.category,
-        summary: updated.summary,
-        detailedDescription: updated.detailedDescription,
-        entities: updated.entities,
-        userFacts: updated.userFacts,
-      });
+      store.updateScreenshot(row.id, updated);
+
+      // Index in vector store
+      try {
+        await store.indexScreenshot(row.id, {
+          summary: analysis.summary,
+          detailedDescription: analysis.detailedDescription,
+          sourceApp: analysis.sourceApp,
+          category: analysis.category,
+          uploadedAt: row.uploadedAt,
+          entities: analysis.entities,
+        });
+      } catch (err) {
+        log("warn", `Vector indexing skipped: ${err instanceof Error ? err.message : String(err)}`);
+      }
 
       // Show summary
       log("info", chalk.dim(analysis.summary));
 
       // Update profile
-      const { factsAdded, factsReinforced } = await updateProfileFromAnalysis(meta.id, analysis);
+      const { factsAdded, factsReinforced } = await updateProfileFromAnalysis(store, row.id, analysis);
       if (factsAdded > 0 || factsReinforced > 0) {
         log("profile", `Profile: ${chalk.green(`+${factsAdded} new`)}, ${chalk.blue(`${factsReinforced} reinforced`)}`);
       }
@@ -87,6 +111,8 @@ async function reprocess() {
   logDivider();
   log("success", `Reprocessed ${chalk.bold(String(success))}/${unanalyzed.length} screenshots`);
   blank();
+
+  store.close();
 }
 
 reprocess().catch((e) => {

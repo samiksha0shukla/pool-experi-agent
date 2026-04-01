@@ -1,15 +1,16 @@
 /**
  * MUSIC AGENT — Sub-agent of the Orchestrator
  *
- * Receives pre-processed music context from the orchestrator.
+ * Queries the KnowledgeStore directly for user's music data.
  * Generates personalized music recommendations with real platform links.
  */
 
 import { generateText, generateTextWithSearch, type ChatMessage } from "../llm.js";
+import type { KnowledgeStore } from "../knowledge/store.js";
 
 const SYSTEM_PROMPT = `You are a music discovery agent embedded inside Pool, a screenshot-based personal intelligence app.
 
-You know the user ONLY through their screenshots — playlists they saved, songs they listened to, artists they follow, and the streaming platform they use. The orchestrator has already extracted and structured this data for you.
+You know the user ONLY through their screenshots — playlists they saved, songs they listened to, artists they follow, and the streaming platform they use.
 
 WHAT YOU DO:
 - Recommend songs, albums, artists, and playlists that match the user's actual taste DNA
@@ -49,12 +50,104 @@ ABSOLUTE RULES:
 - Always reference at least 2-3 specific things from their profile to prove personalization
 - If the user asks something you can't answer from their music profile, say so honestly`;
 
+/**
+ * Build music context by querying the knowledge store directly.
+ */
+async function buildMusicContext(store: KnowledgeStore, query: string): Promise<string> {
+  const context = await store.getContextForAgent("music", query);
+  const parts: string[] = [];
+
+  // Platform
+  const platform = store.getProfileValue("music.preferredPlatform");
+  if (platform) {
+    parts.push(`PREFERRED PLATFORM: ${platform.value} (${(platform.confidence * 100).toFixed(0)}% confidence)`);
+  } else {
+    parts.push("PREFERRED PLATFORM: Unknown — provide both Spotify and YouTube Music links");
+  }
+
+  // Genres from facts
+  const genres = store.getFactsByType("genre");
+  if (genres.length > 0) {
+    parts.push("GENRES (ranked by confidence):\n" +
+      genres.map((g) => `  - ${g.factValue}: ${(g.confidence * 100).toFixed(0)}% confidence`).join("\n")
+    );
+  } else {
+    parts.push("GENRES: None detected yet");
+  }
+
+  // Artists from facts
+  const artists = store.getFactsByType("liked_artist");
+  if (artists.length > 0) {
+    parts.push("FAVORITE ARTISTS (ranked by confidence):\n" +
+      artists.slice(0, 15).map((a) => `  - ${a.factValue} (${(a.confidence * 100).toFixed(0)}%)`).join("\n")
+    );
+  }
+
+  // Songs
+  const songs = store.getFactsByType("liked_song");
+  if (songs.length > 0) {
+    parts.push("SONGS SEEN IN SCREENSHOTS:\n" +
+      songs.slice(0, 20).map((s) => `  - ${s.factValue}`).join("\n")
+    );
+  }
+
+  // Playlists
+  const playlists = store.getFactsByType("playlist");
+  if (playlists.length > 0) {
+    parts.push("PLAYLISTS SEEN:\n" +
+      playlists.map((p) => `  - "${p.factValue}" (${p.evidence || ""})`).join("\n")
+    );
+  }
+
+  // Listening patterns from profile KV
+  const mood = store.getProfileValue("music.moodPreference");
+  const energy = store.getProfileValue("music.energyLevel");
+  const langFacts = store.getFactsByType("language");
+  const contextKV = store.getProfileSection("music.context.");
+  if (mood || energy || langFacts.length > 0 || contextKV.length > 0) {
+    const patternParts: string[] = [];
+    if (mood) patternParts.push(`Mood: ${mood.value}`);
+    if (energy) patternParts.push(`Energy: ${energy.value}`);
+    if (langFacts.length > 0) patternParts.push(`Languages: ${langFacts.map((l) => l.factValue).join(", ")}`);
+    if (contextKV.length > 0) {
+      patternParts.push("Context preferences: " + contextKV.map((c) => `${c.key.replace("music.context.", "")}→${c.value}`).join(", "));
+    }
+    parts.push("LISTENING PATTERNS:\n  " + patternParts.join("\n  "));
+  }
+
+  // User name for personalization
+  const name = store.getTopFact("name");
+  if (name) parts.push(`USER NAME: ${name}`);
+
+  // Semantic search results
+  if (context.semanticMatches.length > 0) {
+    parts.push("RELEVANT SCREENSHOTS (semantic search):\n" +
+      context.semanticMatches.map((m, i) => `  [${i + 1}] ${m.summary || "No summary"} (relevance: ${(m.score * 100).toFixed(0)}%)`).join("\n")
+    );
+  }
+
+  // Music screenshots from SQLite
+  if (context.screenshots.length > 0) {
+    parts.push("MUSIC SCREENSHOTS:\n" +
+      context.screenshots.map((s, i) => {
+        const app = s.sourceApp ? `[${s.sourceApp}] ` : "";
+        const desc = s.detailedDescription || s.summary || "No description";
+        return `  [${i + 1}] ${app}${desc}`;
+      }).join("\n")
+    );
+  }
+
+  return parts.join("\n\n");
+}
+
 export async function runMusicAgent(
   query: string,
-  musicContext: string,
+  store: KnowledgeStore,
   chatHistory?: ChatMessage[],
   useSearch?: boolean
 ): Promise<string> {
+  const musicContext = await buildMusicContext(store, query);
+
   const userMessage = `HERE IS EVERYTHING I KNOW ABOUT THIS USER'S MUSIC TASTE:
 
 ${musicContext}

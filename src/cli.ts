@@ -1,16 +1,21 @@
 #!/usr/bin/env node
 
+import path from "path";
+import { fileURLToPath } from "url";
 import inquirer from "inquirer";
 import chalk from "chalk";
 import { showBanner } from "./banner.js";
 import { uploadMenu, viewScreenshots } from "./upload.js";
 import { queryAgent } from "./query.js";
 import { viewProfile } from "./profile.js";
-import { initStore, getScreenshots } from "./store.js";
+import { KnowledgeStore } from "./knowledge/store.js";
 import { blank, log, logDivider } from "./logger.js";
 
-async function showMenu(): Promise<string> {
-  const screenshots = await getScreenshots();
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const DATA_DIR = path.resolve(__dirname, "..", "data");
+
+async function showMenu(store: KnowledgeStore): Promise<string> {
+  const screenshots = store.getAllScreenshots();
   const count = screenshots.length;
   const analyzed = screenshots.filter((s) => s.analyzed).length;
 
@@ -58,32 +63,33 @@ async function showMenu(): Promise<string> {
 }
 
 async function main(): Promise<void> {
-  await initStore();
+  const store = await KnowledgeStore.create(DATA_DIR);
   showBanner();
 
   while (true) {
-    const choice = await showMenu();
+    const choice = await showMenu(store);
 
     switch (choice) {
       case "upload":
-        await uploadMenu();
+        await uploadMenu(store);
         showBanner();
         break;
 
       case "query":
-        await queryAgent();
+        await queryAgent(store);
         showBanner();
         break;
 
       case "profile":
-        await viewProfile();
+        await viewProfile(store);
         break;
 
       case "screenshots":
-        await viewScreenshots();
+        await viewScreenshots(store);
         break;
 
       case "exit":
+        store.close();
         blank();
         log("info", chalk.hex("#A29BFE")("See you later! 👋"));
         blank();

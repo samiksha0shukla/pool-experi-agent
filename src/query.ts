@@ -15,7 +15,7 @@ import {
   logDivider,
   blank,
 } from "./logger.js";
-import { saveConversation } from "./store.js";
+import type { KnowledgeStore } from "./knowledge/store.js";
 import { renderToHTML } from "./renderer.js";
 import { isConfigured } from "./llm.js";
 import { orchestrate } from "./orchestrator.js";
@@ -46,7 +46,7 @@ function renderInTerminal(response: string): void {
 
 // ── Chat loop ──
 
-export async function queryAgent(): Promise<void> {
+export async function queryAgent(store: KnowledgeStore): Promise<void> {
   blank();
   logHeader("Ask Pool Agent");
 
@@ -76,7 +76,7 @@ export async function queryAgent(): Promise<void> {
     blank();
 
     // ── Delegate everything to the orchestrator ──
-    const result = await orchestrate(query);
+    const result = await orchestrate(query, store);
 
     blank();
     logDivider();
@@ -109,7 +109,7 @@ export async function queryAgent(): Promise<void> {
     }
 
     // ── Save conversation ──
-    await saveConversation({
+    store.saveConversation({
       id: `conv_${Date.now()}`,
       query,
       intent: result.intent,

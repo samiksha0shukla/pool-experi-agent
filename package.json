@@ -6,21 +6,25 @@
   "scripts": {
     "start": "tsx src/cli.ts",
     "dev": "tsx watch src/cli.ts",
-    "reprocess": "tsx src/reprocess.ts"
+    "reprocess": "tsx src/reprocess.ts",
+    "migrate": "tsx src/knowledge/migrate.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
     "@types/chokidar": "^1.7.5",
     "@types/figlet": "^1.7.0",
     "@types/node": "^25.5.0",
+    "graphology-types": "^0.24.8",
     "tsx": "^4.21.0",
     "typescript": "^6.0.2"
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.53",
     "ai": "^6.0.140",
+    "better-sqlite3": "^12.8.0",
     "boxen": "^8.0.1",
     "chalk": "^5.6.2",
     "chokidar": "^5.0.0",
@@ -29,11 +33,13 @@
     "figlet": "^1.11.0",
     "glob": "^13.0.6",
     "gradient-string": "^3.0.0",
+    "graphology": "^0.26.0",
     "inquirer": "^12.11.1",
     "marked": "^15.0.12",
     "marked-terminal": "^7.3.0",
     "open": "^10.2.0",
     "ora": "^8.2.0",
+    "vectra": "^0.12.3",
     "zod": "^4.3.6"
   }
 }
