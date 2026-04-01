@@ -172,7 +172,7 @@ function classifyIntentFallback(
 async function extractTravelParams(query: string, store: KnowledgeStore): Promise<TravelParams> {
   const homeCity = store.getTopFact("location") || "Unknown";
   const destinations = store.getFactsByType("travel_interest");
-  const topDestination = destinations.length > 0 ? destinations[0]!.factValue : null;
+  const topDestination = destinations.length > 0 ? destinations[0]!.fact_value : null;
 
   // Check for saved dates in travel details
   let savedDates = "";

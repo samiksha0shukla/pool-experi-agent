@@ -48,19 +48,19 @@ async function reprocess() {
     // Build a ScreenshotMeta from the row for applyAnalysis
     const meta: ScreenshotMeta = {
       id: row.id,
-      fileName: row.fileName,
-      originalPath: row.originalPath,
-      localPath: row.localPath,
-      uploadedAt: row.uploadedAt,
-      fileSizeKB: row.fileSizeKB,
+      fileName: row.file_name,
+      originalPath: row.original_path,
+      localPath: row.local_path,
+      uploadedAt: row.uploaded_at,
+      fileSizeKB: row.file_size_kb,
       analyzed: !!row.analyzed,
     };
 
-    logStep(i + 1, unanalyzed.length, `Analyzing ${chalk.white.bold(row.fileName)}`);
+    logStep(i + 1, unanalyzed.length, `Analyzing ${chalk.white.bold(row.file_name)}`);
 
     const spinner = startSpinner("OCR + Gemini Vision analysis...");
     try {
-      const result = await analyzeScreenshot(row.localPath);
+      const result = await analyzeScreenshot(row.local_path);
       const { analysis, ocrText } = result;
 
       const appLabel = analysis.sourceApp !== "unknown"
@@ -83,7 +83,7 @@ async function reprocess() {
           detailedDescription: analysis.detailedDescription,
           sourceApp: analysis.sourceApp,
           category: analysis.category,
-          uploadedAt: row.uploadedAt,
+          uploadedAt: row.uploaded_at,
           entities: analysis.entities,
           ocrText,
         });

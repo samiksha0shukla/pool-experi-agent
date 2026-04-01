@@ -50,16 +50,16 @@ function buildProfileContext(store: KnowledgeStore): string {
   const langFacts = store.getFactsByType("language");
   if (nameFacts.length > 0) {
     const n = nameFacts[0]!;
-    parts.push(`Name: ${n.factValue} (${(n.confidence * 100).toFixed(0)}% confidence, source: ${n.source})`);
+    parts.push(`Name: ${n.fact_value} (${(n.confidence * 100).toFixed(0)}% confidence, source: ${n.source})`);
   } else {
     parts.push("Name: Unknown");
   }
   if (locationFacts.length > 0) {
     const l = locationFacts[0]!;
-    parts.push(`Location: ${l.factValue} (${(l.confidence * 100).toFixed(0)}% confidence, source: ${l.source})`);
+    parts.push(`Location: ${l.fact_value} (${(l.confidence * 100).toFixed(0)}% confidence, source: ${l.source})`);
   }
   if (langFacts.length > 0) {
-    parts.push(`Languages: ${langFacts.map((l) => l.factValue).join(", ")}`);
+    parts.push(`Languages: ${langFacts.map((l) => l.fact_value).join(", ")}`);
   }
 
   // ── Music ──
@@ -68,19 +68,19 @@ function buildProfileContext(store: KnowledgeStore): string {
   if (platform) parts.push(`Platform: ${platform.value} (${(platform.confidence * 100).toFixed(0)}% confidence)`);
   const artists = store.getFactsByType("liked_artist");
   if (artists.length > 0) {
-    parts.push(`Artists (${artists.length}): ${artists.map((a) => `${a.factValue} (${(a.confidence * 100).toFixed(0)}%)`).join(", ")}`);
+    parts.push(`Artists (${artists.length}): ${artists.map((a) => `${a.fact_value} (${(a.confidence * 100).toFixed(0)}%)`).join(", ")}`);
   }
   const genres = store.getFactsByType("genre");
   if (genres.length > 0) {
-    parts.push(`Genres: ${genres.map((g) => `${g.factValue} (${(g.confidence * 100).toFixed(0)}%)`).join(", ")}`);
+    parts.push(`Genres: ${genres.map((g) => `${g.fact_value} (${(g.confidence * 100).toFixed(0)}%)`).join(", ")}`);
   }
   const songs = store.getFactsByType("liked_song");
   if (songs.length > 0) {
-    parts.push(`Songs: ${songs.map((s) => s.factValue).join(", ")}`);
+    parts.push(`Songs: ${songs.map((s) => s.fact_value).join(", ")}`);
   }
   const playlists = store.getFactsByType("playlist");
   if (playlists.length > 0) {
-    parts.push(`Playlists: ${playlists.map((p) => p.factValue).join(", ")}`);
+    parts.push(`Playlists: ${playlists.map((p) => p.fact_value).join(", ")}`);
   }
   const mood = store.getProfileValue("music.moodPreference");
   const energy = store.getProfileValue("music.energyLevel");
@@ -92,9 +92,9 @@ function buildProfileContext(store: KnowledgeStore): string {
   const destinations = store.getFactsByType("travel_interest");
   if (destinations.length > 0) {
     for (const dest of destinations) {
-      const prefix = `travel.detail.${dest.factValue.toLowerCase()}`;
+      const prefix = `travel.detail.${dest.fact_value.toLowerCase()}`;
       const details = store.getProfileSection(prefix);
-      parts.push(`  ${dest.factValue}: ${(dest.confidence * 100).toFixed(0)}% confidence`);
+      parts.push(`  ${dest.fact_value}: ${(dest.confidence * 100).toFixed(0)}% confidence`);
       for (const d of details) {
         parts.push(`    ${d.key.replace(`${prefix}.`, "")}: ${d.value}`);
       }
@@ -111,7 +111,7 @@ function buildProfileContext(store: KnowledgeStore): string {
   parts.push("\n=== GENERAL ===");
   const foodPrefs = store.getFactsByType("food_preference");
   if (foodPrefs.length > 0) {
-    parts.push(`Food preferences: ${foodPrefs.map((f) => f.factValue).join(", ")}`);
+    parts.push(`Food preferences: ${foodPrefs.map((f) => f.fact_value).join(", ")}`);
   }
   const budget = store.getProfileValue("general.budgetStyle");
   if (budget) parts.push(`Budget style: ${budget.value}`);

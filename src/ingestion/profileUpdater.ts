@@ -373,7 +373,7 @@ function setIdentityFact(
   const topExisting = existing.length > 0 ? existing[0] : null;
 
   // Same value → reinforce
-  if (topExisting && topExisting.factValue.toLowerCase() === value.toLowerCase()) {
+  if (topExisting && topExisting.fact_value.toLowerCase() === value.toLowerCase()) {
     store.reinforceFact(key, value, source);
     store.setProfileValue(`identity.${key}`, value, Math.min(1.0, topExisting.confidence + 0.05), [
       ...store.sqlite.getFactSources(key, value),
@@ -407,7 +407,7 @@ function setMusicPlatform(
   const existing = store.getFactsByType("music_platform");
   const top = existing.length > 0 ? existing[0] : null;
 
-  if (top && top.factValue.toLowerCase() === platform.toLowerCase()) {
+  if (top && top.fact_value.toLowerCase() === platform.toLowerCase()) {
     store.reinforceFact("music_platform", platform, source);
     store.setProfileValue("music.preferredPlatform", platform, Math.min(1.0, top.confidence + 0.05));
     return "reinforced";
@@ -425,7 +425,7 @@ function addArtist(store: KnowledgeStore, name: string, source: string): "added"
   if (!name || name.length < 2) return "reinforced"; // skip silently
 
   const existing = store.getFactsByType("liked_artist")
-    .filter((f) => f.factValue.toLowerCase() === name.toLowerCase());
+    .filter((f) => f.fact_value.toLowerCase() === name.toLowerCase());
 
   if (existing.length > 0) {
     store.reinforceFact("liked_artist", name, source);
@@ -439,7 +439,7 @@ function addGenre(store: KnowledgeStore, genre: string, source: string): "added"
   if (!genre || genre.length < 2) return "reinforced";
 
   const existing = store.getFactsByType("genre")
-    .filter((f) => f.factValue.toLowerCase() === genre.toLowerCase());
+    .filter((f) => f.fact_value.toLowerCase() === genre.toLowerCase());
 
   if (existing.length > 0) {
     store.reinforceFact("genre", genre, source);
@@ -489,7 +489,7 @@ function inferListeningPatterns(store: KnowledgeStore): void {
   if (genreFacts.length === 0) return;
 
   const sorted = [...genreFacts].sort((a, b) => b.confidence - a.confidence);
-  const topGenres = sorted.slice(0, 5).map((g) => g.factValue.toLowerCase());
+  const topGenres = sorted.slice(0, 5).map((g) => g.fact_value.toLowerCase());
   const genreStr = topGenres.join(" ");
 
   // Mood
@@ -533,7 +533,7 @@ function addTravelInterest(
   if (!destination || destination.length < 2) return "reinforced";
 
   const existing = store.getFactsByType("travel_interest")
-    .filter((f) => f.factValue.toLowerCase() === destination.toLowerCase());
+    .filter((f) => f.fact_value.toLowerCase() === destination.toLowerCase());
 
   if (existing.length > 0) {
     store.reinforceFact("travel_interest", destination, source);
@@ -624,7 +624,7 @@ function addFoodPreference(store: KnowledgeStore, pref: string, source: string):
   if (!pref || pref.length < 2) return "reinforced";
 
   const existing = store.getFactsByType("food_preference")
-    .filter((f) => f.factValue.toLowerCase() === pref.toLowerCase());
+    .filter((f) => f.fact_value.toLowerCase() === pref.toLowerCase());
 
   if (existing.length > 0) {
     store.reinforceFact("food_preference", pref, source);
@@ -694,12 +694,12 @@ function getKnownHomeCities(store: KnowledgeStore): Set<string> {
   const locationFacts = store.getFactsByType("location");
   for (const fact of locationFacts) {
     if (fact.confidence >= 0.5) {
-      cities.add(fact.factValue.toLowerCase());
+      cities.add(fact.fact_value.toLowerCase());
     }
   }
   const homeCityFacts = store.getFactsByType("home_city");
   for (const fact of homeCityFacts) {
-    cities.add(fact.factValue.toLowerCase());
+    cities.add(fact.fact_value.toLowerCase());
   }
   return cities;
 }

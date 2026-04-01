@@ -69,7 +69,7 @@ async function buildMusicContext(store: KnowledgeStore, query: string): Promise<
   const genres = store.getFactsByType("genre");
   if (genres.length > 0) {
     parts.push("GENRES (ranked by confidence):\n" +
-      genres.map((g) => `  - ${g.factValue}: ${(g.confidence * 100).toFixed(0)}% confidence`).join("\n")
+      genres.map((g) => `  - ${g.fact_value}: ${(g.confidence * 100).toFixed(0)}% confidence`).join("\n")
     );
   } else {
     parts.push("GENRES: None detected yet");
@@ -79,7 +79,7 @@ async function buildMusicContext(store: KnowledgeStore, query: string): Promise<
   const artists = store.getFactsByType("liked_artist");
   if (artists.length > 0) {
     parts.push("FAVORITE ARTISTS (ranked by confidence):\n" +
-      artists.slice(0, 15).map((a) => `  - ${a.factValue} (${(a.confidence * 100).toFixed(0)}%)`).join("\n")
+      artists.slice(0, 15).map((a) => `  - ${a.fact_value} (${(a.confidence * 100).toFixed(0)}%)`).join("\n")
     );
   }
 
@@ -87,7 +87,7 @@ async function buildMusicContext(store: KnowledgeStore, query: string): Promise<
   const songs = store.getFactsByType("liked_song");
   if (songs.length > 0) {
     parts.push("SONGS SEEN IN SCREENSHOTS:\n" +
-      songs.slice(0, 20).map((s) => `  - ${s.factValue}`).join("\n")
+      songs.slice(0, 20).map((s) => `  - ${s.fact_value}`).join("\n")
     );
   }
 
@@ -95,7 +95,7 @@ async function buildMusicContext(store: KnowledgeStore, query: string): Promise<
   const playlists = store.getFactsByType("playlist");
   if (playlists.length > 0) {
     parts.push("PLAYLISTS SEEN:\n" +
-      playlists.map((p) => `  - "${p.factValue}" (${p.evidence || ""})`).join("\n")
+      playlists.map((p) => `  - "${p.fact_value}" (${p.evidence || ""})`).join("\n")
     );
   }
 
@@ -108,7 +108,7 @@ async function buildMusicContext(store: KnowledgeStore, query: string): Promise<
     const patternParts: string[] = [];
     if (mood) patternParts.push(`Mood: ${mood.value}`);
     if (energy) patternParts.push(`Energy: ${energy.value}`);
-    if (langFacts.length > 0) patternParts.push(`Languages: ${langFacts.map((l) => l.factValue).join(", ")}`);
+    if (langFacts.length > 0) patternParts.push(`Languages: ${langFacts.map((l) => l.fact_value).join(", ")}`);
     if (contextKV.length > 0) {
       patternParts.push("Context preferences: " + contextKV.map((c) => `${c.key.replace("music.context.", "")}→${c.value}`).join(", "));
     }
@@ -130,8 +130,8 @@ async function buildMusicContext(store: KnowledgeStore, query: string): Promise<
   if (context.screenshots.length > 0) {
     parts.push("MUSIC SCREENSHOTS:\n" +
       context.screenshots.map((s, i) => {
-        const app = s.sourceApp ? `[${s.sourceApp}] ` : "";
-        const desc = s.detailedDescription || s.summary || "No description";
+        const app = s.source_app ? `[${s.source_app}] ` : "";
+        const desc = s.detailed_description || s.summary || "No description";
         return `  [${i + 1}] ${app}${desc}`;
       }).join("\n")
     );

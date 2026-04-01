@@ -22,7 +22,7 @@ CREATE TABLE IF NOT EXISTS screenshots (
   original_path        TEXT NOT NULL,
   local_path           TEXT NOT NULL,
   uploaded_at          TEXT NOT NULL,
-  file_size_kb         REAL NOT NULL,
+  file_size_kb         REAL NOT NULL DEFAULT 0,
   analyzed             INTEGER NOT NULL DEFAULT 0,
   analyzed_at          TEXT,
   source_app           TEXT,
@@ -113,7 +113,7 @@ export class SQLiteStore {
     `);
     stmt.run(
       meta.id, meta.fileName, meta.originalPath, meta.localPath,
-      meta.uploadedAt, meta.fileSizeKB,
+      meta.uploadedAt, meta.fileSizeKB ?? 0,
       meta.analyzed ? 1 : 0, meta.analyzedAt ?? null,
       meta.sourceApp ?? null, meta.category ?? null,
       meta.summary ?? null, meta.detailedDescription ?? null,
@@ -132,23 +132,24 @@ export class SQLiteStore {
   }
 
   updateScreenshot(id: string, updates: Partial<ScreenshotMeta>): void {
-    const existing = this.getScreenshot(id);
-    if (!existing) return;
+    const row = this.getScreenshot(id);
+    if (!row) return;
 
+    // Map snake_case ScreenshotRow back to camelCase ScreenshotMeta
     const merged = {
-      id: existing.id,
-      fileName: existing.fileName,
-      originalPath: existing.originalPath,
-      localPath: existing.localPath,
-      uploadedAt: existing.uploadedAt,
-      fileSizeKB: existing.fileSizeKB,
-      analyzed: updates.analyzed ?? (existing.analyzed === 1),
-      analyzedAt: updates.analyzedAt ?? existing.analyzedAt ?? undefined,
-      sourceApp: updates.sourceApp ?? existing.sourceApp ?? undefined,
-      category: updates.category ?? existing.category ?? undefined,
-      summary: updates.summary ?? existing.summary ?? undefined,
-      detailedDescription: updates.detailedDescription ?? existing.detailedDescription ?? undefined,
-      ocrText: updates.ocrText ?? existing.ocrText ?? undefined,
+      id: row.id,
+      fileName: row.file_name,
+      originalPath: row.original_path,
+      localPath: row.local_path,
+      uploadedAt: row.uploaded_at,
+      fileSizeKB: row.file_size_kb,
+      analyzed: updates.analyzed ?? (row.analyzed === 1),
+      analyzedAt: updates.analyzedAt ?? row.analyzed_at ?? undefined,
+      sourceApp: updates.sourceApp ?? row.source_app ?? undefined,
+      category: updates.category ?? row.category ?? undefined,
+      summary: updates.summary ?? row.summary ?? undefined,
+      detailedDescription: updates.detailedDescription ?? row.detailed_description ?? undefined,
+      ocrText: updates.ocrText ?? row.ocr_text ?? undefined,
       entities: updates.entities,
       userFacts: updates.userFacts,
     } as ScreenshotMeta;

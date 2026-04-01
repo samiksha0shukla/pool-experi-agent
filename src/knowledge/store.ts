@@ -328,7 +328,7 @@ export class KnowledgeStore {
     for (const result of semanticResults) {
       const entities = this.sqlite.getEntitiesByScreenshot(result.screenshotId);
       for (const entity of entities) {
-        const nodeId = `${entity.entityType}:${entity.entityValue.toLowerCase()}`;
+        const nodeId = `${entity.entity_type}:${entity.entity_value.toLowerCase()}`;
         const neighbors = this.graph.getNeighbors(nodeId);
         graphConnections.push(...neighbors);
       }
@@ -339,7 +339,7 @@ export class KnowledgeStore {
     for (const result of semanticResults) {
       const entities = this.sqlite.getEntitiesByScreenshot(result.screenshotId);
       for (const entity of entities) {
-        const facts = this.sqlite.getFactsByType(entity.entityType);
+        const facts = this.sqlite.getFactsByType(entity.entity_type);
         relatedFacts.push(...facts);
       }
     }

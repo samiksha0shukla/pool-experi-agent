@@ -11,51 +11,51 @@ export interface FactInput {
   evidence?: string;
 }
 
-/** A fact row from SQLite */
+/** A fact row from SQLite (column names match DB snake_case) */
 export interface Fact {
   id: number;
-  factType: string;
-  factValue: string;
+  fact_type: string;
+  fact_value: string;
   confidence: number;
   source: string;
   evidence: string | null;
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
 
-/** A profile key-value entry from SQLite */
+/** A profile key-value entry from SQLite (column names match DB snake_case) */
 export interface ProfileKV {
   key: string;
   value: string;
   confidence: number;
-  sourcesJson: string | null;
-  updatedAt: string;
+  sources_json: string | null;
+  updated_at: string;
 }
 
-/** A screenshot metadata row from SQLite */
+/** A screenshot metadata row from SQLite (column names match DB snake_case) */
 export interface ScreenshotRow {
   id: string;
-  fileName: string;
-  originalPath: string;
-  localPath: string;
-  uploadedAt: string;
-  fileSizeKB: number;
+  file_name: string;
+  original_path: string;
+  local_path: string;
+  uploaded_at: string;
+  file_size_kb: number;
   analyzed: number;       // 0 or 1 (SQLite boolean)
-  analyzedAt: string | null;
-  sourceApp: string | null;
+  analyzed_at: string | null;
+  source_app: string | null;
   category: string | null;
   summary: string | null;
-  detailedDescription: string | null;
-  ocrText: string | null;
+  detailed_description: string | null;
+  ocr_text: string | null;
 }
 
-/** An entity row from SQLite */
+/** An entity row from SQLite (column names match DB snake_case) */
 export interface EntityRow {
   id: number;
-  screenshotId: string;
-  entityType: string;
-  entityValue: string;
-  extraJson: string | null;
+  screenshot_id: string;
+  entity_type: string;
+  entity_value: string;
+  extra_json: string | null;
 }
 
 /** A conversation row from SQLite */

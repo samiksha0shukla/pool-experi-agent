@@ -42,14 +42,14 @@ export async function viewProfile(store: KnowledgeStore): Promise<void> {
     for (const f of nameFacts) {
       const conf = (f.confidence * 100).toFixed(0);
       console.log(
-        `  ${chalk.dim("   name:")} ${chalk.white.bold(f.factValue)}` +
+        `  ${chalk.dim("   name:")} ${chalk.white.bold(f.fact_value)}` +
           `  ${chalk.dim(`(${conf}% · source: ${f.source})`)}`
       );
     }
     for (const f of locationFacts) {
       const conf = (f.confidence * 100).toFixed(0);
       console.log(
-        `  ${chalk.dim("   location:")} ${chalk.white.bold(f.factValue)}` +
+        `  ${chalk.dim("   location:")} ${chalk.white.bold(f.fact_value)}` +
           `  ${chalk.dim(`(${conf}% · source: ${f.source})`)}`
       );
     }
@@ -77,7 +77,7 @@ export async function viewProfile(store: KnowledgeStore): Promise<void> {
       const bar = "█".repeat(barLen);
       const empty = "░".repeat(10 - barLen);
       console.log(
-        `  ${chalk.dim("     ")}${chalk.hex("#1DB954")(bar)}${chalk.dim(empty)} ${chalk.white(g.factValue)}`
+        `  ${chalk.dim("     ")}${chalk.hex("#1DB954")(bar)}${chalk.dim(empty)} ${chalk.white(g.fact_value)}`
       );
     }
   } else {
@@ -88,7 +88,7 @@ export async function viewProfile(store: KnowledgeStore): Promise<void> {
   if (artists.length > 0) {
     const top = artists.slice(0, 8);
     console.log(
-      `  ${chalk.dim("   Top Artists:")} ${top.map((a) => `${chalk.white(a.factValue)} ${chalk.dim(`(${(a.confidence * 100).toFixed(0)}%)`)}`).join(chalk.dim(", "))}`
+      `  ${chalk.dim("   Top Artists:")} ${top.map((a) => `${chalk.white(a.fact_value)} ${chalk.dim(`(${(a.confidence * 100).toFixed(0)}%)`)}`).join(chalk.dim(", "))}`
     );
   }
 
@@ -100,7 +100,7 @@ export async function viewProfile(store: KnowledgeStore): Promise<void> {
   const playlists = store.getFactsByType("playlist");
   if (playlists.length > 0) {
     console.log(
-      `  ${chalk.dim("   Playlists:")} ${playlists.map((p) => chalk.white(p.factValue)).join(chalk.dim(", "))}`
+      `  ${chalk.dim("   Playlists:")} ${playlists.map((p) => chalk.white(p.fact_value)).join(chalk.dim(", "))}`
     );
   }
 
@@ -111,7 +111,7 @@ export async function viewProfile(store: KnowledgeStore): Promise<void> {
     console.log(`  ${chalk.dim("   Patterns:")}`);
     if (mood) console.log(`  ${chalk.dim("     Mood:")} ${chalk.white(mood.value)}`);
     if (energy) console.log(`  ${chalk.dim("     Energy:")} ${chalk.white(energy.value)}`);
-    if (langFacts.length > 0) console.log(`  ${chalk.dim("     Languages:")} ${chalk.white(langFacts.map((l) => l.factValue).join(", "))}`);
+    if (langFacts.length > 0) console.log(`  ${chalk.dim("     Languages:")} ${chalk.white(langFacts.map((l) => l.fact_value).join(", "))}`);
   }
 
   // ── Travel ──
@@ -126,10 +126,10 @@ export async function viewProfile(store: KnowledgeStore): Promise<void> {
       const bar = "█".repeat(barLen);
       const empty = "░".repeat(10 - barLen);
       console.log(
-        `  ${chalk.dim("     ")}${chalk.hex("#0984E3")(bar)}${chalk.dim(empty)} ${chalk.white.bold(d.factValue)}`
+        `  ${chalk.dim("     ")}${chalk.hex("#0984E3")(bar)}${chalk.dim(empty)} ${chalk.white.bold(d.fact_value)}`
       );
       // Show details
-      const prefix = `travel.detail.${d.factValue.toLowerCase()}`;
+      const prefix = `travel.detail.${d.fact_value.toLowerCase()}`;
       const details = store.getProfileSection(prefix);
       if (details.length > 0) {
         const parts = details.map((det) => `${det.key.replace(`${prefix}.`, "")}: ${det.value}`);
@@ -158,7 +158,7 @@ export async function viewProfile(store: KnowledgeStore): Promise<void> {
   const personality = store.getProfileValue("general.personalitySignals");
 
   if (language) console.log(`  ${chalk.dim("   Language:")} ${chalk.white(language.value)}`);
-  if (foodPrefs.length > 0) console.log(`  ${chalk.dim("   Food:")} ${chalk.white(foodPrefs.map((f) => f.factValue).join(", "))}`);
+  if (foodPrefs.length > 0) console.log(`  ${chalk.dim("   Food:")} ${chalk.white(foodPrefs.map((f) => f.fact_value).join(", "))}`);
   if (budget) console.log(`  ${chalk.dim("   Budget:")} ${chalk.white(budget.value)}`);
   if (personality) console.log(`  ${chalk.dim("   Signals:")} ${chalk.white(personality.value)}`);
 

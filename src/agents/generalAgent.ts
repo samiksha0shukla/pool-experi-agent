@@ -67,14 +67,14 @@ async function buildGeneralContext(store: KnowledgeStore, query: string): Promis
     for (const result of semanticResults) {
       if (result.score > 0.3) { // Only include reasonably relevant results
         const screenshot = store.getScreenshot(result.screenshotId);
-        const desc = screenshot?.detailedDescription || result.summary || "No description";
+        const desc = screenshot?.detailed_description || result.summary || "No description";
         const app = result.sourceApp || "unknown app";
         parts.push(`  - [${app}] ${desc} (relevance: ${(result.score * 100).toFixed(0)}%)`);
 
         // Include entities from this screenshot
         const entities = store.getEntitiesByScreenshot(result.screenshotId);
         if (entities.length > 0) {
-          parts.push(`    Entities: ${entities.map((e) => `${e.entityType}=${e.entityValue}`).join(", ")}`);
+          parts.push(`    Entities: ${entities.map((e) => `${e.entity_type}=${e.entity_value}`).join(", ")}`);
         }
       }
     }

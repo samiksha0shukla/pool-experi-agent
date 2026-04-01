@@ -297,8 +297,8 @@ export async function viewScreenshots(store: KnowledgeStore): Promise<void> {
   screenshots.forEach((s, i) => {
     table.push([
       chalk.dim(String(i + 1)),
-      chalk.white(path.basename(s.originalPath).slice(0, 23)),
-      s.sourceApp ? chalk.yellow(s.sourceApp) : chalk.dim("—"),
+      chalk.white(path.basename(s.original_path).slice(0, 23)),
+      s.source_app ? chalk.yellow(s.source_app) : chalk.dim("—"),
       s.category ? chalk.cyan(s.category) : chalk.dim("pending"),
       s.summary ? chalk.dim(s.summary.slice(0, 28)) : chalk.dim(s.analyzed ? "—" : "pending"),
     ]);

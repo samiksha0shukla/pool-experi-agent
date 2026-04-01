@@ -60,14 +60,14 @@ async function buildTravelContext(store: KnowledgeStore, query: string): Promise
   if (destinations.length > 0) {
     parts.push("TRAVEL INTERESTS (ranked by confidence):");
     for (const dest of destinations) {
-      const prefix = `travel.detail.${dest.factValue.toLowerCase()}`;
+      const prefix = `travel.detail.${dest.fact_value.toLowerCase()}`;
       const details = store.getProfileSection(prefix);
       const detailParts: string[] = [];
       for (const d of details) {
         const shortKey = d.key.replace(`${prefix}.`, "");
         detailParts.push(`${shortKey}: ${d.value}`);
       }
-      parts.push(`  ${dest.factValue}: ${(dest.confidence * 100).toFixed(0)}% confidence`);
+      parts.push(`  ${dest.fact_value}: ${(dest.confidence * 100).toFixed(0)}% confidence`);
       if (detailParts.length > 0) {
         parts.push("    " + detailParts.join("\n    "));
       }
@@ -93,7 +93,7 @@ async function buildTravelContext(store: KnowledgeStore, query: string): Promise
   // Dietary preferences
   const foodPrefs = store.getFactsByType("food_preference");
   if (foodPrefs.length > 0) {
-    parts.push(`DIETARY PREFERENCES: ${foodPrefs.map((f) => f.factValue).join(", ")}`);
+    parts.push(`DIETARY PREFERENCES: ${foodPrefs.map((f) => f.fact_value).join(", ")}`);
   }
 
   // Budget
@@ -111,11 +111,11 @@ async function buildTravelContext(store: KnowledgeStore, query: string): Promise
   if (context.screenshots.length > 0) {
     parts.push("TRAVEL SCREENSHOTS:\n" +
       context.screenshots.map((s, i) => {
-        const app = s.sourceApp ? `[${s.sourceApp}] ` : "";
-        const desc = s.detailedDescription || s.summary || "No description";
+        const app = s.source_app ? `[${s.source_app}] ` : "";
+        const desc = s.detailed_description || s.summary || "No description";
         // Get entities for this screenshot
         const entities = store.getEntitiesByScreenshot(s.id);
-        const entityStr = entities.length > 0 ? ` | entities: ${entities.map((e) => `${e.entityType}=${e.entityValue}`).join(", ")}` : "";
+        const entityStr = entities.length > 0 ? ` | entities: ${entities.map((e) => `${e.entity_type}=${e.entity_value}`).join(", ")}` : "";
         return `  [${i + 1}] ${app}${desc}${entityStr}`;
       }).join("\n")
     );
