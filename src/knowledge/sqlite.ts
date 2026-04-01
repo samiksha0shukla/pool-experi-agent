@@ -11,6 +11,7 @@ import type {
   ProfileKV,
   ConversationRow,
   ScreenshotMeta,
+  MusicLinkRow,
 } from "./types.js";
 
 // ── Schema ───────────────────────────────────────────────────
@@ -72,6 +73,22 @@ CREATE TABLE IF NOT EXISTS conversations (
   timestamp TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_conversations_ts ON conversations(timestamp);
+
+CREATE TABLE IF NOT EXISTS music_links (
+  id                 INTEGER PRIMARY KEY AUTOINCREMENT,
+  screenshot_id      TEXT NOT NULL REFERENCES screenshots(id),
+  song_title         TEXT NOT NULL,
+  artist             TEXT NOT NULL,
+  album              TEXT,
+  source_platform    TEXT NOT NULL,
+  source_url         TEXT,
+  preferred_platform TEXT,
+  preferred_url      TEXT,
+  confidence         REAL NOT NULL DEFAULT 0.0,
+  created_at         TEXT NOT NULL DEFAULT (datetime('now')),
+  UNIQUE(screenshot_id, song_title, artist)
+);
+CREATE INDEX IF NOT EXISTS idx_music_links_ss ON music_links(screenshot_id);
 
 CREATE TABLE IF NOT EXISTS profile_meta (
   key   TEXT PRIMARY KEY,
@@ -345,6 +362,39 @@ export class SQLiteStore {
 
   getAllConversations(): ConversationRow[] {
     return this.db.prepare("SELECT * FROM conversations ORDER BY timestamp ASC").all() as ConversationRow[];
+  }
+
+  // ── Music Links ──────────────────────────────────────────
+
+  saveMusicLink(link: Omit<MusicLinkRow, "id" | "created_at">): void {
+    this.db.prepare(`
+      INSERT INTO music_links
+        (screenshot_id, song_title, artist, album, source_platform, source_url,
+         preferred_platform, preferred_url, confidence)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(screenshot_id, song_title, artist) DO UPDATE SET
+        source_url = COALESCE(excluded.source_url, music_links.source_url),
+        preferred_platform = COALESCE(excluded.preferred_platform, music_links.preferred_platform),
+        preferred_url = COALESCE(excluded.preferred_url, music_links.preferred_url),
+        confidence = MAX(music_links.confidence, excluded.confidence)
+    `).run(
+      link.screenshot_id, link.song_title, link.artist, link.album ?? null,
+      link.source_platform, link.source_url ?? null,
+      link.preferred_platform ?? null, link.preferred_url ?? null,
+      link.confidence
+    );
+  }
+
+  getMusicLinksByScreenshot(screenshotId: string): MusicLinkRow[] {
+    return this.db.prepare(
+      "SELECT * FROM music_links WHERE screenshot_id = ? ORDER BY confidence DESC"
+    ).all(screenshotId) as MusicLinkRow[];
+  }
+
+  getAllMusicLinks(): MusicLinkRow[] {
+    return this.db.prepare(
+      "SELECT * FROM music_links ORDER BY created_at DESC"
+    ).all() as MusicLinkRow[];
   }
 
   // ── Raw DB access (for migration/testing) ────────────────

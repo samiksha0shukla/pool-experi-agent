@@ -57,12 +57,30 @@ async function buildMusicContext(store: KnowledgeStore, query: string): Promise<
   const context = await store.getContextForAgent("music", query);
   const parts: string[] = [];
 
-  // Platform
-  const platform = store.getProfileValue("music.preferredPlatform");
-  if (platform) {
-    parts.push(`PREFERRED PLATFORM: ${platform.value} (${(platform.confidence * 100).toFixed(0)}% confidence)`);
+  // Platform — count actual screenshots per music app (ground truth)
+  const musicScreenshots = store.getScreenshotsByCategory("music");
+  const appCounts = new Map<string, number>();
+  for (const ss of musicScreenshots) {
+    if (ss.source_app) {
+      const app = ss.source_app;
+      appCounts.set(app, (appCounts.get(app) ?? 0) + 1);
+    }
+  }
+  if (appCounts.size > 0) {
+    const sorted = [...appCounts.entries()].sort((a, b) => b[1] - a[1]);
+    const mostUsed = sorted[0]![0];
+    parts.push(
+      `PLATFORM USAGE (from ${musicScreenshots.length} music screenshots):\n` +
+      sorted.map(([app, count]) => `  - ${app}: ${count} screenshots`).join("\n") +
+      `\nMOST USED PLATFORM: ${mostUsed}`
+    );
   } else {
-    parts.push("PREFERRED PLATFORM: Unknown — provide both Spotify and YouTube Music links");
+    const platform = store.getProfileValue("music.preferredPlatform");
+    if (platform) {
+      parts.push(`PREFERRED PLATFORM: ${platform.value} (${(platform.confidence * 100).toFixed(0)}% confidence)`);
+    } else {
+      parts.push("PREFERRED PLATFORM: Unknown — provide both Spotify and YouTube Music links");
+    }
   }
 
   // Genres from facts

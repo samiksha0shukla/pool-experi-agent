@@ -93,6 +93,21 @@ export interface AgentContext {
   graphNeighbors: GraphNode[];
 }
 
+/** A music link extracted from a screenshot */
+export interface MusicLinkRow {
+  id: number;
+  screenshot_id: string;
+  song_title: string;
+  artist: string;
+  album: string | null;
+  source_platform: string;         // platform the screenshot came from
+  source_url: string | null;       // link on the original platform
+  preferred_platform: string | null; // user's current listening platform
+  preferred_url: string | null;    // link on the preferred platform
+  confidence: number;
+  created_at: string;
+}
+
 /** Result from cross-backend content search */
 export interface RelatedContent {
   semanticResults: SemanticResult[];

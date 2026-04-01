@@ -7,3 +7,4 @@ data/screenshots.json
 data/conversations.json
 *.tsbuildinfo
 .env
+pool-ss/

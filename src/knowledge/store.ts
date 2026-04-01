@@ -19,6 +19,7 @@ import type {
   GraphNode,
   AgentContext,
   RelatedContent,
+  MusicLinkRow,
 } from "./types.js";
 
 export class KnowledgeStore {
@@ -169,6 +170,22 @@ export class KnowledgeStore {
 
   getRecentConversations(limit = 5): ConversationRow[] {
     return this.sqlite.getRecentConversations(limit);
+  }
+
+  // ══════════════════════════════════════════════════════════
+  // MUSIC LINKS (SQLite)
+  // ══════════════════════════════════════════════════════════
+
+  saveMusicLink(link: Omit<MusicLinkRow, "id" | "created_at">): void {
+    this.sqlite.saveMusicLink(link);
+  }
+
+  getMusicLinksByScreenshot(screenshotId: string): MusicLinkRow[] {
+    return this.sqlite.getMusicLinksByScreenshot(screenshotId);
+  }
+
+  getAllMusicLinks(): MusicLinkRow[] {
+    return this.sqlite.getAllMusicLinks();
   }
 
   // ══════════════════════════════════════════════════════════
@@ -392,4 +409,5 @@ export type {
   GraphNode,
   AgentContext,
   RelatedContent,
+  MusicLinkRow,
 } from "./types.js";

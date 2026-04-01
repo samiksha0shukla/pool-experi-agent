@@ -5,7 +5,7 @@
 import { embed } from "ai";
 import { google } from "@ai-sdk/google";
 
-const EMBEDDING_MODEL = google.textEmbeddingModel("text-embedding-004");
+const EMBEDDING_MODEL = google.textEmbeddingModel("gemini-embedding-2-preview");
 
 /**
  * Generate a vector embedding for a text string using Gemini text-embedding-004.

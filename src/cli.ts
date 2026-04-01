@@ -8,6 +8,7 @@ import { showBanner } from "./banner.js";
 import { uploadMenu, viewScreenshots } from "./upload.js";
 import { queryAgent } from "./query.js";
 import { viewProfile } from "./profile.js";
+import { runMusicLinkGenerator } from "./musicLinkMenu.js";
 import { KnowledgeStore } from "./knowledge/store.js";
 import { blank, log, logDivider } from "./logger.js";
 
@@ -46,6 +47,10 @@ async function showMenu(store: KnowledgeStore): Promise<string> {
           value: "profile",
         },
         {
+          name: `${chalk.green("🎵")}  Music Link Generator   ${chalk.dim("Get streaming links from a screenshot")}`,
+          value: "musiclink",
+        },
+        {
           name: `${chalk.cyan("🖼️")}   View Screenshots       ${chalk.dim("Browse uploaded screenshots")}`,
           value: "screenshots",
         },
@@ -82,6 +87,11 @@ async function main(): Promise<void> {
 
       case "profile":
         await viewProfile(store);
+        break;
+
+      case "musiclink":
+        await runMusicLinkGenerator(store);
+        showBanner();
         break;
 
       case "screenshots":

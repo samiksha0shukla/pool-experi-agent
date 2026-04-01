@@ -17,6 +17,7 @@ import type { ScreenshotMeta } from "./knowledge/types.js";
 import { analyzeScreenshot, applyAnalysis } from "./ingestion/analyze.js";
 import { updateProfileFromAnalysis } from "./ingestion/profileUpdater.js";
 import { isConfigured } from "./llm.js";
+import { findMusicLink } from "./agents/musicLinkFinder.js";
 
 const IMAGE_EXTENSIONS = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp", ".tiff"];
 
@@ -98,6 +99,27 @@ async function analyzeAndUpdate(store: KnowledgeStore, meta: ScreenshotMeta): Pr
     if (analysis.user_facts.length > 0) {
       for (const fact of analysis.user_facts) {
         log("brain", `${chalk.dim(fact.fact)}: ${chalk.white(fact.value)} ${chalk.dim(`(${(fact.confidence * 100).toFixed(0)}% — ${fact.evidence})`)}`);
+      }
+    }
+
+    // Auto-extract music link if it's a music screenshot and setting is enabled
+    if (analysis.category === "music") {
+      const autoExtract = store.getProfileValue("music.autoExtractLinks");
+      const enabled = !autoExtract || autoExtract.value !== "off"; // default ON
+      if (enabled) {
+        try {
+          const updatedRow = store.getScreenshot(meta.id);
+          if (updatedRow) {
+            const linkResult = await findMusicLink(updatedRow, store, false);
+            if (linkResult.sourceUrl) {
+              log("success", `${chalk.green("🎵")} Music link: ${chalk.underline(linkResult.sourceUrl)}`);
+            } else if (linkResult.songInfo.song_title !== "unknown") {
+              log("info", chalk.dim(`🎵 Song detected: ${linkResult.songInfo.song_title} — ${linkResult.songInfo.artist} (no link found)`));
+            }
+          }
+        } catch (err) {
+          log("warn", `Music link extraction skipped: ${err instanceof Error ? err.message : String(err)}`);
+        }
       }
     }
   } catch (err) {
