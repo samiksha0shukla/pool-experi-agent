@@ -48,9 +48,10 @@ async function analyzeAndUpdate(store: KnowledgeStore, meta: ScreenshotMeta): Pr
     return;
   }
 
-  const spinner = startSpinner("Analyzing screenshot with Gemini Vision...");
+  const spinner = startSpinner("OCR + Gemini Vision analysis...");
   try {
-    const analysis = await analyzeScreenshot(meta.localPath);
+    const result = await analyzeScreenshot(meta.localPath);
+    const { analysis, ocrText } = result;
 
     const appLabel = analysis.sourceApp !== "unknown"
       ? chalk.yellow(analysis.sourceApp)
@@ -60,14 +61,19 @@ async function analyzeAndUpdate(store: KnowledgeStore, meta: ScreenshotMeta): Pr
       `${chalk.cyan(analysis.category)} from ${appLabel} — ${chalk.dim(analysis.summary.slice(0, 50))}`
     );
 
-    // Update screenshot metadata with ALL analysis fields
-    const updated = applyAnalysis(meta, analysis);
+    // Show OCR stats
+    if (ocrText) {
+      log("info", chalk.dim(`OCR: ${ocrText.length} chars extracted`));
+    }
+
+    // Update screenshot metadata with ALL analysis fields + OCR
+    const updated = applyAnalysis(meta, result);
     store.updateScreenshot(meta.id, updated);
 
     // Show detailed description
     log("info", chalk.dim(analysis.detailedDescription.slice(0, 120) + (analysis.detailedDescription.length > 120 ? "..." : "")));
 
-    // Index in vector store for semantic search
+    // Index in vector store for semantic search (now includes OCR text)
     try {
       await store.indexScreenshot(meta.id, {
         summary: analysis.summary,
@@ -76,6 +82,7 @@ async function analyzeAndUpdate(store: KnowledgeStore, meta: ScreenshotMeta): Pr
         category: analysis.category,
         uploadedAt: meta.uploadedAt,
         entities: analysis.entities,
+        ocrText,
       });
     } catch (err) {
       log("warn", `Vector indexing skipped: ${err instanceof Error ? err.message : String(err)}`);

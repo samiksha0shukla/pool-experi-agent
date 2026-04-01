@@ -46,6 +46,7 @@ export interface ScreenshotRow {
   category: string | null;
   summary: string | null;
   detailedDescription: string | null;
+  ocrText: string | null;
 }
 
 /** An entity row from SQLite */
@@ -114,6 +115,7 @@ export interface ScreenshotMeta {
   category?: string;
   summary?: string;
   detailedDescription?: string;
+  ocrText?: string;
   entities?: {
     platform?: string;
     songs?: Array<{ title: string; artist: string }>;

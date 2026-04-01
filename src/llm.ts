@@ -121,6 +121,47 @@ export async function analyzeImage(
   return text;
 }
 
+// ── OCR extraction (image → raw text) ──
+
+const OCR_PROMPT = `Extract ALL visible text from this image. Return every word, number, URL, label, button text, menu item, price, date, time, and symbol exactly as shown.
+
+Rules:
+- Transcribe everything — do NOT interpret, summarize, or skip anything
+- Preserve the general reading order (top to bottom, left to right)
+- Use line breaks to separate distinct sections or rows
+- Include prices, currencies, codes, phone numbers, emails, URLs verbatim
+- If text is partially obscured, include what's readable with [...] for unclear parts
+- For tables or lists, preserve the structure using spacing or dashes
+- Do NOT add any commentary, headers, or explanations — just the raw text`;
+
+export async function extractOCR(imagePath: string): Promise<string> {
+  const imageBuffer = await fs.readFile(imagePath);
+  const ext = path.extname(imagePath).toLowerCase();
+  const mimeMap: Record<string, string> = {
+    ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".webp": "image/webp",
+    ".gif": "image/gif",
+    ".bmp": "image/bmp",
+  };
+  const mimeType = mimeMap[ext] || "image/jpeg";
+
+  const { text } = await aiGenerateText({
+    model: getModel(),
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "image", image: imageBuffer, mimeType },
+          { type: "text", text: OCR_PROMPT },
+        ],
+      },
+    ],
+  });
+  return text;
+}
+
 // ── Vision analysis (image → structured JSON) ──
 
 export async function analyzeImageJSON<T>(

@@ -58,17 +58,22 @@ async function reprocess() {
 
     logStep(i + 1, unanalyzed.length, `Analyzing ${chalk.white.bold(row.fileName)}`);
 
-    const spinner = startSpinner("Sending to Gemini Vision...");
+    const spinner = startSpinner("OCR + Gemini Vision analysis...");
     try {
-      const analysis = await analyzeScreenshot(row.localPath);
+      const result = await analyzeScreenshot(row.localPath);
+      const { analysis, ocrText } = result;
 
       const appLabel = analysis.sourceApp !== "unknown"
         ? chalk.yellow(analysis.sourceApp)
         : chalk.dim("unknown");
       stopSpinner(spinner, `${chalk.cyan(analysis.category)} from ${appLabel}`);
 
+      if (ocrText) {
+        log("info", chalk.dim(`OCR: ${ocrText.length} chars extracted`));
+      }
+
       // Update screenshot metadata
-      const updated = applyAnalysis(meta, analysis);
+      const updated = applyAnalysis(meta, result);
       store.updateScreenshot(row.id, updated);
 
       // Index in vector store
@@ -80,6 +85,7 @@ async function reprocess() {
           category: analysis.category,
           uploadedAt: row.uploadedAt,
           entities: analysis.entities,
+          ocrText,
         });
       } catch (err) {
         log("warn", `Vector indexing skipped: ${err instanceof Error ? err.message : String(err)}`);

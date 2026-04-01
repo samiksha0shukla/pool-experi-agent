@@ -44,6 +44,7 @@ export class VectorStore {
       category?: string | null;
       uploadedAt?: string;
       entities?: Record<string, unknown>;
+      ocrText?: string | null;
     }
   ): Promise<void> {
     if (!this.ready) await this.init();

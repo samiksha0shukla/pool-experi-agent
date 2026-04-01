@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { analyzeImageJSON } from "../llm.js";
+import { analyzeImageJSON, extractOCR } from "../llm.js";
 import type { ScreenshotMeta } from "../knowledge/types.js";
 
 // ── Schema for vision analysis output ──
@@ -110,24 +110,40 @@ RULES:
 - Confidence: 0.9+ = clearly readable, 0.7-0.9 = partially visible, 0.5-0.7 = inferred from context.
 - Below 0.5 confidence = don't include in user_facts.`;
 
-// ── Run analysis on a screenshot ──
+// ── Run OCR + analysis on a screenshot ──
+
+export interface AnalysisResult {
+  analysis: ScreenshotAnalysis;
+  ocrText: string;
+}
 
 export async function analyzeScreenshot(
   screenshotPath: string
-): Promise<ScreenshotAnalysis> {
-  return analyzeImageJSON<ScreenshotAnalysis>(
+): Promise<AnalysisResult> {
+  // Step 1: Extract raw text via OCR
+  const ocrText = await extractOCR(screenshotPath);
+
+  // Step 2: Run structured analysis with OCR text as additional context
+  const enhancedPrompt = ocrText.trim()
+    ? `${ANALYSIS_PROMPT}\n\n── OCR TEXT EXTRACTED FROM THIS IMAGE ──\nUse this raw text to improve your analysis accuracy. It contains every visible word in the screenshot:\n\n${ocrText}`
+    : ANALYSIS_PROMPT;
+
+  const analysis = await analyzeImageJSON<ScreenshotAnalysis>(
     screenshotPath,
-    ANALYSIS_PROMPT,
+    enhancedPrompt,
     ScreenshotAnalysisSchema
   );
+
+  return { analysis, ocrText };
 }
 
 // ── Apply analysis results to screenshot metadata ──
 
 export function applyAnalysis(
   meta: ScreenshotMeta,
-  analysis: ScreenshotAnalysis
+  result: AnalysisResult
 ): ScreenshotMeta {
+  const { analysis, ocrText } = result;
   return {
     ...meta,
     analyzed: true,
@@ -136,6 +152,7 @@ export function applyAnalysis(
     category: analysis.category,
     summary: analysis.summary,
     detailedDescription: analysis.detailedDescription,
+    ocrText: ocrText || undefined,
     entities: analysis.entities,
     userFacts: analysis.user_facts,
   } as ScreenshotMeta;

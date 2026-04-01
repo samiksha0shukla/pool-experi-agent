@@ -28,7 +28,8 @@ CREATE TABLE IF NOT EXISTS screenshots (
   source_app           TEXT,
   category             TEXT,
   summary              TEXT,
-  detailed_description TEXT
+  detailed_description TEXT,
+  ocr_text             TEXT
 );
 
 CREATE TABLE IF NOT EXISTS entities (
@@ -107,15 +108,16 @@ export class SQLiteStore {
     const stmt = this.db.prepare(`
       INSERT OR REPLACE INTO screenshots
         (id, file_name, original_path, local_path, uploaded_at, file_size_kb,
-         analyzed, analyzed_at, source_app, category, summary, detailed_description)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+         analyzed, analyzed_at, source_app, category, summary, detailed_description, ocr_text)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `);
     stmt.run(
       meta.id, meta.fileName, meta.originalPath, meta.localPath,
       meta.uploadedAt, meta.fileSizeKB,
       meta.analyzed ? 1 : 0, meta.analyzedAt ?? null,
       meta.sourceApp ?? null, meta.category ?? null,
-      meta.summary ?? null, meta.detailedDescription ?? null
+      meta.summary ?? null, meta.detailedDescription ?? null,
+      meta.ocrText ?? null
     );
 
     // Save entities
@@ -146,6 +148,7 @@ export class SQLiteStore {
       category: updates.category ?? existing.category ?? undefined,
       summary: updates.summary ?? existing.summary ?? undefined,
       detailedDescription: updates.detailedDescription ?? existing.detailedDescription ?? undefined,
+      ocrText: updates.ocrText ?? existing.ocrText ?? undefined,
       entities: updates.entities,
       userFacts: updates.userFacts,
     } as ScreenshotMeta;

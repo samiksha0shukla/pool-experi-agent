@@ -184,6 +184,7 @@ export class KnowledgeStore {
       category?: string | null;
       uploadedAt?: string;
       entities?: Record<string, unknown>;
+      ocrText?: string | null;
     }
   ): Promise<void> {
     await this.vectors.indexScreenshot(screenshotId, opts);

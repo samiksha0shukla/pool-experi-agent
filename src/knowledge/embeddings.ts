@@ -28,6 +28,7 @@ export function buildEmbeddingText(opts: {
   sourceApp?: string | null;
   category?: string | null;
   entities?: Record<string, unknown>;
+  ocrText?: string | null;
 }): string {
   const parts: string[] = [];
 
@@ -48,6 +49,14 @@ export function buildEmbeddingText(opts: {
         parts.push(`${key}: ${items.join(", ")}`);
       }
     }
+  }
+
+  // Include OCR text (truncated to avoid hitting embedding token limits)
+  if (opts.ocrText) {
+    const truncated = opts.ocrText.length > 2000
+      ? opts.ocrText.slice(0, 2000) + "..."
+      : opts.ocrText;
+    parts.push(`Visible text: ${truncated}`);
   }
 
   return parts.join(". ");
