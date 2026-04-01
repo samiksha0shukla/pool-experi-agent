@@ -9,13 +9,7 @@ dist/
 .env
 
 # Runtime data
-data/screenshots/
-data/responses/
-data/profile.json
-data/screenshots.json
-data/conversations.json
-data/pool.db
-data/vectors/
+data/
 
 # OS files
 .DS_Store
