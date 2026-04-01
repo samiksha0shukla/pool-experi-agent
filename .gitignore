@@ -20,6 +20,12 @@ data/vectors/
 # OS files
 .DS_Store
 
+# Docs (internal reference only)
+docs/
+
+# Memory
+memory/
+
 # Dev artifacts
 pool-ss/
 *.tgz
